@@ -40,38 +40,6 @@ module.exports = class TrainerCommand extends BaseCommand {
      * @param {GuildMember} member - Discord GuildMember object
      * @param {Trainer} trainer - URPG Trainer object
      */
-    async roster(member, trainer) {
-        await trainer.populatePokemon()
-        let plist1 = trainer.pokemon.map((p, i) => `${i+1}. ${p.basePokemon.uniqueName}`)
-        let split = Math.ceil(trainer.pokemon.length / 2)
-        let plist2 = plist1.splice(split)
-
-        let embed = new RichEmbed()
-            .setTitle(`Pokemon roster for ${trainer.username}`)
-            .setThumbnail(member.user.avatarURL)
-            .addField("\u200B", plist1.join("\n"), true)
-
-        if (plist2.length > 0)
-            embed.addField("\u200B", plist2.join("\n"), true)
-
-        return embed
-    }
-
-    /**
-     * @param {Message} profile - Message containing the embedded profile
-     * @param {GuildMember} member - Discord GuildMember object
-     * @param {Trainer} trainer - URPG Trainer object
-     */
-    async inventory(member, trainer) {
-        //TODO
-        return new RichEmbed().warning("Browsing inventory is not yet implemented.")
-    }
-
-    /**
-     * @param {Message} profile - Message containing the embedded profile
-     * @param {GuildMember} member - Discord GuildMember object
-     * @param {Trainer} trainer - URPG Trainer object
-     */
     async editProfile(member, trainer) {
         //TODO
         return new RichEmbed().warning("Profile editing is not yet implemented.")
