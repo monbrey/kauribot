@@ -15,7 +15,7 @@ module.exports = class RefLogCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "reflog") {
+    async run(message, args = [], flags = []) {
         //Check that the user has the ref role
         if(!message.member.roles.find(r => ["referee","senior-referee"].includes(r.name)))
             return message.channel.send("!reflog can only be used by referees")

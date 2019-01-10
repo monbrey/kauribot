@@ -55,7 +55,7 @@ Use \`!buy pokemon [<Pokemon>, <Pokemon>...]\` to make a purchase`)
         }
     }
 
-    async run(message, args = [], flags = [], carg = "mart") {
+    async run(message, args = [], flags = []) {
         message.trainer = await Trainer.findByDiscordId(message.author.id)
 
         switch (args[0]) {

@@ -14,7 +14,7 @@ module.exports = class PinscoreCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "pinscore") {
+    async run(message, args = [], flags = []) {
         let embed = new RichEmbed()
             .setTitle("Pinned Message Scoreboard")
             .setDescription("Generating scoreboard, please wait. This may take some time.")

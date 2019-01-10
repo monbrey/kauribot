@@ -12,7 +12,7 @@ module.exports = class AbilityCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "ability") {
+    async run(message, args = [], flags = []) {
         if (args.length === 0) {
             //Usage
             return

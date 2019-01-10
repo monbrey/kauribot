@@ -14,7 +14,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "judgelog") {
+    async run(message, args = [], flags = []) {
         //Check that the user has the ref role
         if(!message.member.roles.find(r => ["judge","chief-judge"].includes(r.name)))
             return message.channel.send("!judgelog can only be used by judges")

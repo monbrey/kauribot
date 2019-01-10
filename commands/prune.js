@@ -12,7 +12,7 @@ module.exports = class PruneCommand extends BaseCommand {
             requiresPermission: ["MANAGE_MESSAGES"]})
     }
 
-    async run(message, args = [], flags = [], carg = "prune") {
+    async run(message, args = [], flags = []) {
         if(flags.includes("a") && message.author.id === message.client.applicationInfo.owner.id) {
             let clone = await message.channel.clone()
             await clone.setParent(message.channel.parent)

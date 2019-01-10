@@ -18,7 +18,7 @@ module.exports = class BuyCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "buy") {
+    async run(message, args = [], flags = []) {
         message.trainer = await Trainer.findByDiscordId(message.author.id)
 
         switch (args[0].toLowerCase()) {

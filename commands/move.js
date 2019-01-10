@@ -13,7 +13,7 @@ module.exports = class MoveCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "move") {
+    async run(message, args = [], flags = []) {
         if(flags.includes("m")) {
             let move = await Move.metronome()
             return await message.channel.send(await move.info())

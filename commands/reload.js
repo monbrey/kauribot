@@ -12,7 +12,7 @@ module.exports = class ReloadCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "reload") {
+    async run(message, args = [], flags = []) {
         args.forEach(async (arg) => {
             let command = message.client.commands.get(arg)
             if(command) {

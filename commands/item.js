@@ -12,7 +12,7 @@ module.exports = class ItemCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "item") {
+    async run(message, args = [], flags = []) {
         if (args.length === 0) {
             //Usage
             return

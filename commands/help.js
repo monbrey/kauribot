@@ -15,7 +15,7 @@ module.exports = class HelpCommand extends BaseCommand {
     }
 
     //TODO: This needs to filter on per-command configuration much more effectively
-    async run(message, args = [], flags = [], carg = "help") {
+    async run(message, args = [], flags = []) {
         let embed = {
             title: "URPG Dicebot",
             description: `URPG's dice and general gamebot developed by Monbrey.

@@ -52,7 +52,7 @@ module.exports = class MessageEvent extends BaseEvent {
         )
 
         if (permissions && enabled)
-            command.run(message, args, flags, carg)
+            command.run(message, args, flags)
         else if (enabled === false)
             message.channel.send("This command has been disabled.")
         else if (typeof enabled === "undefined")

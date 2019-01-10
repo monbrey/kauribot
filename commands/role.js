@@ -234,7 +234,7 @@ module.exports = class RoleCommand extends BaseCommand {
         }
     }
 
-    async run(message, args = [], flags = [], carg = "role") {
+    async run(message, args = [], flags = []) {
         let roleName = flags.indexOf("c") == 0 ? args.join(" ") : args.slice(0, args.length - 1).join(" ")
         let role = message.guild.roles.find(r => r.name === roleName)
         let dbRole = await Role.getRoleByName(roleName)

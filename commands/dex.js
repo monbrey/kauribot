@@ -65,7 +65,7 @@ module.exports = class DexCommand extends BaseCommand {
         return await dex.clearReactions()
     }
 
-    async run(message, args = [], flags = [], carg = "dex") {
+    async run(message, args = [], flags = []) {
         if (args.length === 0) {
             //Usage
             return

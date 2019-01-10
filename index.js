@@ -84,7 +84,7 @@ class UltraRpgBot extends Client {
         try {
             await this.login()
             this.logger.info("Ultra RPG Bot connected to Discord")
-        } catch(e) {
+        } catch (e) {
             this.logger.error(`Login failed: ${e.message}`)
         }
 
@@ -113,8 +113,11 @@ class UltraRpgBot extends Client {
         //Run per-guild configuration
         this.guilds.forEach(async guild => {
             //Set my nickname
-            try { await guild.me.setNickname(null) }
-            catch (e) { this.logger.warn(`${guild.name}: ${e.message}`) }
+            try {
+                await guild.me.setNickname(null)
+            } catch (e) {
+                this.logger.warn(`${guild.name}: ${e.message}`)
+            }
 
             guild.logChannel = guild.channels.get(await LogConfig.getLogChannel(guild.id))
             guild.starboard = await StarboardConfig.getConfigForGuild(guild.id)

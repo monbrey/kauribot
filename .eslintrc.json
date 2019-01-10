@@ -18,6 +18,9 @@
             "error",
             "windows"
         ],
+        "brace-style": [
+            "1tbs", { "allowSingleLine": true }
+        ],
         "quotes": [
             "error",
             "double"

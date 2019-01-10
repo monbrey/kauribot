@@ -240,7 +240,7 @@ module.exports = class StartCommand extends BaseCommand {
         }
     }
 
-    async run(message, args = [], flags = [], carg = "start") {
+    async run(message, args = [], flags = []) {
         //Check if this user already has the command active
         if(message.client.activeCommands.some(ac => ac.user === message.author.id && ac.command === "start")) {
             let warn = await message.channel.send(new RichEmbed().warning("Command error", `You already have an active ${message.client.prefix}start command.`))

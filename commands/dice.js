@@ -17,7 +17,7 @@ All numbers must be positive integers`,
         })
     }
 
-    async run(message, args = [], flags = [], carg = "dice") {
+    async run(message, args = [], flags = []) {
         if(args.length < 1) return message.channel.send(`\`\`\`Usage: ${this.usage}\`\`\``)
 
         let rolls = args.filter(arg => /^[1-9]+\d*(,*[1-9]+\d*)*$/.test(arg)).map(arg => { if(!arg.includes(",")) return arg

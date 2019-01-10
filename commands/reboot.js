@@ -12,7 +12,7 @@ module.exports = class RebootCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], carg = "reboot") {
+    async run(message, args = [], flags = []) {
         try {
             await message.client.destroy()
             await message.client.login(process.env.DISCORD_TOKEN || config.discord_token)

@@ -210,7 +210,7 @@ module.exports = class ConfigCommand extends BaseCommand {
         }
     }
 
-    async run(message, args = [], flags = [], carg = "config") {
+    async run(message, args = [], flags = []) {
         //No args should just run the wizard for full config
         if (args.length == 0) return await this[runWizard](message)
         switch (args[0]) {

@@ -36,7 +36,7 @@ module.exports = class EvalCommand extends BaseCommand {
         }
     }
 
-    async run(message, args = [], flags = [], carg = "trivia") {
+    async run(message, args = [], flags = []) {
         let toggle = args[0]
 
         if (toggle === "start") {
