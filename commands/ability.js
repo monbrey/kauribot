@@ -5,6 +5,7 @@ module.exports = class AbilityCommand extends BaseCommand {
     constructor() {
         super({
             name: "ability",
+            category: "Info",
             description: "Provides Ability information",
             usage: "!ability <Ability>",
             enabled: true,

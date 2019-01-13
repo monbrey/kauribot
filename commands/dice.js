@@ -4,6 +4,7 @@ module.exports = class DiceCommand extends BaseCommand {
     constructor() {
         super({
             name: "dice",
+            category: "Game",
             aliases: ["d","roll-dice"],
             description: "Rolls one or more x-sided dice",
             usage: `

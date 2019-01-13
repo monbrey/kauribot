@@ -6,6 +6,7 @@ module.exports = class TrainerCommand extends BaseCommand {
     constructor() {
         super({
             name: "trainer",
+            category: "Game",
             description: "View the profile of a URPG Trainer",
             usage: `
 !trainer                View your profile

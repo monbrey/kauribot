@@ -19,6 +19,7 @@ module.exports = class BaseCommand {
      */
     constructor(options = {}) {
         this.name = options.name || "base"
+        this.category = options.category || null
         this.aliases = options.aliases || []
         this.description = options.description || ""
         this.usage = options.usage || ""

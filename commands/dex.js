@@ -6,6 +6,7 @@ module.exports = class DexCommand extends BaseCommand {
     constructor() {
         super({
             name: "dex",
+            category: "Info",
             description: "Get Pokedex data for a Pokemon",
             usage: `
 !dex [x]                        Get Pokedex data for <pokemon>`,

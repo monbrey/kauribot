@@ -7,7 +7,8 @@ module.exports = class ConfigCommand extends BaseCommand {
     constructor() {
         super({
             name: "config",
-            description: "Configures the bot for use in the server",
+            category: "Admin",
+            description: "Change bot configuration",
             usage: "No example yet",
             enabled: true,
             defaultConfig: true,
@@ -212,7 +213,7 @@ module.exports = class ConfigCommand extends BaseCommand {
 
     async run(message, args = [], flags = []) {
         //No args should just run the wizard for full config
-        if (args.length == 0) return await this[runWizard](message)
+        if (args.length == 0) return await this.runWizard(message)
         switch (args[0]) {
         case "status":
             return await this.getConfig(message, args[1])

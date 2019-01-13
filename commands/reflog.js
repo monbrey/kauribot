@@ -6,6 +6,7 @@ module.exports = class RefLogCommand extends BaseCommand {
     constructor() {
         super({
             name: "reflog",
+            category: "Game",
             aliases: ["rl"],
             description: "Awards cash to battlers and ref",
             usage: "!reflog @winner @loser <size> [-gym] <description/logURL>",

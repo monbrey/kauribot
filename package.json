@@ -22,6 +22,7 @@
     "@angular/router": "^6.1.0",
     "body-parser": "^1.18.3",
     "cachegoose": "^7.1.0",
+    "common-tags": "^1.8.0",
     "core-js": "^2.5.4",
     "discord.js": "^11.4.2",
     "discord.js-commando": "^0.10.0",

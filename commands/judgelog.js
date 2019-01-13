@@ -6,6 +6,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
     constructor() {
         super({
             name: "judgelog",
+            category: "Game",
             aliases: ["jl"],
             description: "Awards cash to coordinators and judge",
             usage: "!judgelog @first @second @third @fourth <rank> [-tieMod] <logURL>",

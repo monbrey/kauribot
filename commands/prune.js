@@ -4,6 +4,7 @@ module.exports = class PruneCommand extends BaseCommand {
     constructor() {
         super({
             name: "prune",
+            category: "Admin",
             description: "Bulk deletes messages from the channel",
             usage: "!prune #          [1-100]",
             enabled: true,

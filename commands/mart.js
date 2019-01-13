@@ -7,6 +7,7 @@ module.exports = class MartCommand extends BaseCommand {
     constructor() {
         super({
             name: "mart",
+            category: "Game",
             description: "Browse with the URPG Pokemart",
             usage: `
 !mart                   Browse the URPG Pokemart catalogue`,

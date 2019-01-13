@@ -8,6 +8,7 @@ module.exports = class StartCommand extends BaseCommand {
     constructor() {
         super({
             name: "start",
+            category: "Game",
             description: "Start playing URPG!",
             details: "Your entry point into the world of URPG! Follow the prompts to select your starter Pokemon!",
             usage: "!start",

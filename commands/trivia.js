@@ -5,6 +5,7 @@ module.exports = class EvalCommand extends BaseCommand {
     constructor() {
         super({
             name: "trivia",
+            category: "Miscellaneous",
             aliases: ["e"],
             description: "Runs a trivia game in this channel",
             enabled: false,

@@ -6,6 +6,7 @@ module.exports = class MoveCommand extends BaseCommand {
     constructor() {
         super({
             name: "move",
+            category: "Info",
             description: "Provides Move information",
             usage: "!move <Move>",
             enabled: true,

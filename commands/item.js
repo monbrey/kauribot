@@ -5,6 +5,7 @@ module.exports = class ItemCommand extends BaseCommand {
     constructor() {
         super({
             name: "item",
+            category: "Info",
             description: "Provides Item information",
             usage: "!item <Item>",
             enabled: true,
