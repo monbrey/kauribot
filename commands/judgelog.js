@@ -11,15 +11,12 @@ module.exports = class JudgeLogCommand extends BaseCommand {
             description: "Awards cash to coordinators and judge",
             usage: "!judgelog @first @second @third @fourth <rank> [-tieMod] <logURL>",
             enabled: true,
-            defaultConfig: false
+            defaultConfig: false,
+            requiresRole: ["judge","chief-judge"]
         })
     }
 
     async run(message, args = [], flags = []) {
-        //Check that the user has the ref role
-        if(!message.member.roles.find(r => ["judge","chief-judge"].includes(r.name)))
-            return message.channel.send("!judgelog can only be used by judges")
-
         //Check that four mentions are included
         if (message.mentions.members.size != 4)
             return message.channel.send("This command requires that four coordinators be mentioned.")

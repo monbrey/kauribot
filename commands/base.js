@@ -14,7 +14,8 @@ module.exports = class BaseCommand {
      * @param {Boolean}         [options.defaultConfig=false] - Default enabled state for a guild
      * @param {Boolean}         [options.lockConfig=false] - If the default state can be changed
      * @param {Boolean}         [options.guildOnly=false] - If the command can only be run in server (no DM)
-     * @param {Boolean}         [options.requiresPermission=false] - Discord permissions required to run the command
+     * @param {Boolean|Array}   [options.requiresPermission=false] - Discord permissions required to run the command
+     * @param {Boolean|Array}   [options.requiresRole=false] - Any server role which can run the command
      * @param {Boolean}         [options.requiresOwner=false] - Restrict this command to the bot owner
      */
     constructor(options = {}) {
@@ -28,6 +29,7 @@ module.exports = class BaseCommand {
         this.guildOnly = options.guildOnly || false
         this.override = options.override || false,
         this.requiresPermission = options.requiresPermission || false
+        this.requiresRole = options.requiresRole || false
         this.requiresOwner = options.requiresOwner || false
     }
 

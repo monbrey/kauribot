@@ -10,6 +10,7 @@ const { promisify } = require("util")
 const readdir = promisify(require("fs").readdir)
 const config = Object.assign(require("./config")[process.env.NODE_ENV], require("./config")["common"])
 const queue = require("p-queue")
+const Logger = require("./util/logger")
 
 const CommandConfig = require("./models/commandConfig")
 const LogConfig = require("./models/logConfig")
@@ -18,7 +19,7 @@ const StarboardConfig = require("./models/starboardConfig")
 class UltraRpgBot extends Client {
     constructor(options = {}) {
         super(options)
-        this.logger = require("./util/logger")()
+        this.logger = new Logger()
         this.config = config
         this.prefix = config.prefix
         this.commands = new Collection()
@@ -92,9 +93,12 @@ class UltraRpgBot extends Client {
         try {
             let cmds = await readdir(path.join(__dirname, "commands"))
 
-            cmds.forEach(async f => {
-                await this.loadCommand(f)
-            })
+            await cmds.reduce(async (previousPromise, next) => {
+                await previousPromise
+                return this.loadCommand(next)
+            }, Promise.resolve())
+
+            this.logger.info("Command loading complete")
         } catch (e) {
             this.logger.error(`${e.message}`)
         }
@@ -103,9 +107,12 @@ class UltraRpgBot extends Client {
         try {
             let events = await readdir(path.join(__dirname, "events"))
 
-            events.forEach(async f => {
-                await this.loadEvent(f)
-            })
+            await events.reduce(async (previousPromise, next) => {
+                await previousPromise
+                return this.loadEvent(next)
+            }, Promise.resolve())
+
+            this.logger.info("Event loading complete")
         } catch (e) {
             this.logger.error(`${e.message}`)
         }

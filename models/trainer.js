@@ -94,12 +94,12 @@ trainerSchema.methods.getBalanceString = async function() {
 }
 
 trainerSchema.methods.modifyCash = async function (amount) {
-    this.cash += amount
+    this.cash += parseInt(amount)
     return this.save()
 }
 
 trainerSchema.methods.modifyContestCredit = async function (amount) {
-    this.contestCredit += amount
+    this.contestCredit += parseInt(amount)
     return this.save()
 }
 

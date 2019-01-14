@@ -16,6 +16,7 @@ Message.prototype.reactConfirm = async function(listenTo, timeout = 30000) {
         time: timeout
     })
 
+    if(!response.first()) return false
     return response.first().emoji.name === "✅" ? true : false
 }
 

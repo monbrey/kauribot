@@ -1,4 +1,5 @@
 const BaseEvent = require("./base")
+const { oneLineCommaListsAnd } = require("common-tags")
 
 module.exports = class MessageEvent extends BaseEvent {
     constructor() {
@@ -28,12 +29,23 @@ module.exports = class MessageEvent extends BaseEvent {
 
         let [flags, args] = await super.argsplit(_args)
 
-        //Check that the command is enabled in this server/channel, let owner run regardless
-        let enabled = message.author === message.client.applicationInfo.owner || (
-            command.config.channels.has(message.channel.id) ? //If channel config
-                command.config.channels.get(message.channel.id) : //Get channel config
-                command.config.guilds.get(message.guild.id) //Else try guild config
-        )
+        //If its the bot owner, run the command now without further checks
+        if(message.author.id === message.client.applicationInfo.owner.id)
+            return command.run(message, args, flags)
+
+        //Check if its an owner-only command, dont run if it is
+        if (command.requiresOwner && message.author.id !== message.client.applicationInfo.owner.id) return
+
+        //Check that the command is enabled in this channel/server
+        if(command.config.channels.get(message.channel.id) === undefined) {
+            if(command.config.guilds.get(message.guild.id) === undefined)
+                return message.channel.send("This command has not been configured for use in this server")
+            if(!command.config.guilds.get(message.guild.id))
+                return message.channel.send("This command has been disabled on this server")
+        } else if(!command.config.channels.get(message.channel.id)) {
+            return message.channel.send("This command has been disabled in this channel")
+        }
+        //If we reach this point, it should be enabled
 
         //Intercept help flags as they aren't command-specific
         if(flags.includes("h")) return command.getHelp(message.channel)
@@ -41,23 +53,21 @@ module.exports = class MessageEvent extends BaseEvent {
         //Check if a guild-only command is being run in DM
         if (command.guildOnly && message.channel.type == "dm") return
 
-        //Check if its an owner-only command
-        if (command.requiresOwner && message.author != message.client.applicationInfo.owner) return
+        //Check if the command requires Discord permissions
+        let permissions = command.requiresPermission ?
+            message.channel.memberPermissions(message.member).has(command.requiresPermission, true) :
+            true
 
-        //Check that the command should be run, allow owner to run any
-        let permissions = message.author === message.client.applicationInfo.owner || (
-            command.requiresPermission ?
-                message.channel.memberPermissions(message.member).has(command.requiresPermission, true) :
-                true
-        )
+        //Or particular Discord roles
+        let roles = command.requiresRole ?
+            message.member.roles.some(role => command.requiresRole.includes(role.name)) :
+            true
 
-        if (permissions && enabled)
-            command.run(message, args, flags)
-        else if (enabled === false)
-            message.channel.send("This command has been disabled.")
-        else if (typeof enabled === "undefined")
-            message.channel.send("This command has not been configured in this server.")
-        else if (!permissions)
-            message.channel.send("You don't have the required server/channel permissions to use this command.")
+        if (permissions && roles)
+            return command.run(message, args, flags)
+        if (!permissions)
+            return message.channel.send("You don't have the required server/channel permissions to use this command.")
+        if (!roles)
+            return message.channel.send(oneLineCommaListsAnd`This command can only be used by ${command.requiresRole}`)
     }
 }
