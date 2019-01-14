@@ -10,7 +10,6 @@ const { promisify } = require("util")
 const readdir = promisify(require("fs").readdir)
 const config = Object.assign(require("./config")[process.env.NODE_ENV], require("./config")["common"])
 const queue = require("p-queue")
-const Logger = require("./util/logger")
 
 const CommandConfig = require("./models/commandConfig")
 const LogConfig = require("./models/logConfig")
@@ -19,7 +18,7 @@ const StarboardConfig = require("./models/starboardConfig")
 class UltraRpgBot extends Client {
     constructor(options = {}) {
         super(options)
-        this.logger = new Logger()
+        this.logger = require("./util/logger")
         this.config = config
         this.prefix = config.prefix
         this.commands = new Collection()

@@ -1,8 +1,7 @@
 const mongoose = require("mongoose")
 const cachegoose = require("cachegoose")
-const Logger = require("./logger")
+const logger = require("./logger")
 
-const logger = new Logger()
 
 cachegoose(mongoose, {})
 

@@ -2,13 +2,13 @@ const { RichEmbed } = require("discord.js")
 const BaseCommand = require("./base")
 const Trainer = require("../models/trainer")
 
-module.exports = class PayCommand extends BaseCommand {
+module.exports = class ChargeCommand extends BaseCommand {
     constructor() {
         super({
-            name: "pay",
+            name: "deduct",
             category: "Game",
-            description: "Adds money to a mentioned user's account",
-            usage: "!pay [-cc] <@User> <amount>",
+            description: "Removes money from a mentioned user's account",
+            usage: "!deduct [-cc] <@User> <amount>",
             enabled: true,
             defaultConfig: false,
             requiresRole: ["moderator", "official", "chief-judge",
@@ -21,7 +21,7 @@ module.exports = class PayCommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         let member = message.mentions.members.first()
         if (!member)
-            return message.channel.send("You must mention a URPG player to pay")
+            return message.channel.send("You must mention a URPG player")
         if (!args[1])
             return message.channel.send("You must provide an amount of money > 0")
 
@@ -38,19 +38,19 @@ module.exports = class PayCommand extends BaseCommand {
         let currency = type === "cc" ? `${amount.toLocaleString()} CC` : `$${amount.toLocaleString()}`
 
         let embed = new RichEmbed()
-        .setTitle("Payment pending")
-        .setDescription(`Please confirm the payment of ${currency} to ${member.displayName}`)
+        .setTitle("Deduction pending")
+        .setDescription(`Please confirm the deduction of ${currency} from ${member.displayName}`)
 
         let prompt = await message.channel.send(embed)
 
         if (await prompt.reactConfirm(message.author.id)) {
-            flags.includes("cc") ? await trainer.modifyContestCredit(amount) : await trainer.modifyCash(amount)
+            flags.includes("cc") ? await trainer.modifyContestCredit(-amount) : await trainer.modifyCash(-amount)
 
-            embed.setTitle("Payment confirmed")
+            embed.setTitle("Deduction confirmed")
             .addField("New cash balances", await trainer.getBalanceString())
 
             prompt.edit(embed)
-            message.client.logger.pay(message, member, currency, prompt)
+            message.client.logger.deduct(message, member, currency, prompt)
         }
     }
 }

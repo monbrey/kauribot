@@ -33,8 +33,7 @@ if (process.env.NODE_ENV === "production") {
         })
     )
 }
-
-module.exports = class Logger {
+class Logger {
     constructor() {
         Object.assign(this, createLogger({
             level: "info",
@@ -53,14 +52,14 @@ module.exports = class Logger {
         let embed = new RichEmbed()
             .setFooter("New trainer started")
             .setTimestamp()
-            .setDescription(`New trainer ${trainer.username} (${message.author.tag}) started with ${starter.displayName}`)
+            .setDescription(`New trainer ${trainer.username} (${message.member}) started with ${starter.uniqueName}`)
 
         return message.guild.logChannel.send(embed)
     }
 
-    async refLog(message, log) {
+    async reflog(message, log) {
         this.info(`${message.author.tag} logged a battle: ${log.url}`, {
-            key: "refLog"
+            key: "reflog"
         })
 
         if (!message.guild.logChannel) return
@@ -69,6 +68,54 @@ module.exports = class Logger {
             .setFooter("Battle logged")
             .setColor(parseInt("1f8b4c", 16))
             .setDescription(`${message.member} logged a battle in [${log.channel}](${log.url})`)
+            .setTimestamp()
+
+        return message.guild.logChannel.send(embed)
+    }
+
+    async judgelog(message, log) {
+        this.info(`${message.author.tag} logged a contest: ${log.url}`, {
+            key: "judgelog"
+        })
+
+        if (!message.guild.logChannel) return
+
+        let embed = new RichEmbed()
+            .setFooter("Contest logged")
+            .setColor(parseInt("1f8b4c", 16))
+            .setDescription(`${message.member} logged a contest in [${log.channel}](${log.url})`)
+            .setTimestamp()
+
+        return message.guild.logChannel.send(embed)
+    }
+
+    async pay(message, target, amount, log) {
+        this.info(`${message.author.tag} paid ${amount} to ${target}: ${log.url}`, {
+            key: "pay"
+        })
+
+        if (!message.guild.logChannel) return
+
+        let embed = new RichEmbed()
+            .setFooter("Payment logged")
+            .setColor(parseInt("1f8b4c", 16))
+            .setDescription(`${message.author.tag} paid ${amount} to ${target}: ${log.url}`)
+            .setTimestamp()
+
+        return message.guild.logChannel.send(embed)
+    }
+
+    async deduct(message, target, amount, log) {
+        this.info(`${message.author.tag} deducted ${amount} from ${target}: ${log.url}`, {
+            key: "deduct"
+        })
+
+        if (!message.guild.logChannel) return
+
+        let embed = new RichEmbed()
+            .setFooter("Deduction logged")
+            .setColor(parseInt("1f8b4c", 16))
+            .setDescription(`${message.author.tag} deducted ${amount} from ${target}: ${log.url}`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)
@@ -168,3 +215,5 @@ module.exports = class Logger {
         if (member.guild.logChannel) return member.guild.logChannel.send(embed)
     }
 }
+
+module.exports = new Logger()
