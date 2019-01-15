@@ -20,7 +20,7 @@ module.exports = class EvalCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = [], flags = [], command = "eval") {
+    async run(message, args = [], flags = []) {
         try {
             const code = args.join(" ")
             let evaled = await eval(code)
@@ -29,7 +29,8 @@ module.exports = class EvalCommand extends BaseCommand {
                 if (typeof evaled !== "string")
                     evaled = require("util").inspect(evaled)
 
-                message.channel.send(clean(evaled), { code: "xl" })
+                if(evaled.length >= 2000) message.channel.send("Response too long", { code: "xl" })
+                else message.channel.send(clean(evaled), { code: "xl" })
             }
         } catch (e) {
             message.client.logger.error(e.stack, { key: "eval" })

@@ -6,11 +6,15 @@ var itemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    typeBoost: {
-        type: String
-    },
+    evolves: [{
+        type: Number,
+        ref: "Pokemon"
+    }],
     desc: {
         type: String
+    },
+    price: {
+        type: Number
     }
 })
 

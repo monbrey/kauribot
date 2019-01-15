@@ -1,4 +1,3 @@
-const { RichEmbed } = require("discord.js")
 const BaseCommand = require("./base")
 
 module.exports = class BotstatCommand extends BaseCommand {
@@ -14,10 +13,12 @@ module.exports = class BotstatCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        switch(args[0]) {
+        switch (args[0]) {
             case "memory":
-                const used = process.memoryUsage().heapUsed / 1024 / 1024;
+            {
+                const used = process.memoryUsage().heapUsed / 1024 / 1024
                 return message.channel.send(`Currently using ${Math.round(used * 100) / 100} MB`)
+            }
         }
     }
 }

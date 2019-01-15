@@ -15,11 +15,11 @@ var pokemonSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    displayName: {
+    uniqueName: {
         type: String,
         required: true
     },
-    uniqueName: {
+    displayName: {
         type: String,
         required: true
     },
@@ -67,37 +67,61 @@ var pokemonSchema = new mongoose.Schema({
             ref: "Move"
         }]
     },
+    evolution: [{
+        pokemon: {
+            type: Number,
+            ref: "Pokemon"
+        },
+        requires: {
+            type: Number,
+            ref: "Item"
+        }
+    }],
     mega: [{
-        type: Number,
-        ref: "Mega"
+        pokemon: {
+            type: Number,
+            ref: "Mega"
+        },
+        requires: {
+            type: Number,
+            ref: "Item"
+        }
     }],
     primal: [{
-        type: Number,
-        ref: "Mega"
+        pokemon: {
+            type: Number,
+            ref: "Mega"
+        },
+        requires: {
+            type: Number,
+            ref: "Item"
+        }
     }],
-    hp: {
-        type: Number,
-        required: true
-    },
-    attack: {
-        type: Number,
-        required: true
-    },
-    defence: {
-        type: Number,
-        required: true
-    },
-    specialAttack: {
-        type: Number,
-        required: true
-    },
-    specialDefence: {
-        type: Number,
-        required: true
-    },
-    speed: {
-        type: Number,
-        required: true
+    stats: {
+        hp: {
+            type: Number,
+            required: true
+        },
+        attack: {
+            type: Number,
+            required: true
+        },
+        defence: {
+            type: Number,
+            required: true
+        },
+        specialAttack: {
+            type: Number,
+            required: true
+        },
+        specialDefence: {
+            type: Number,
+            required: true
+        },
+        speed: {
+            type: Number,
+            required: true
+        }
     },
     height: {
         type: Number
@@ -149,7 +173,7 @@ pokemonSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
 })
 pokemonSchema.plugin(require("./plugins/paginator"))
 
-pokemonSchema.statics.getMartPokemon = async function (_page = 0) {
+pokemonSchema.statics.getMartPokemon = async function(_page = 0) {
     return await this.paginate({
         "martPrice.pokemart": {
             $not: {
@@ -167,7 +191,7 @@ pokemonSchema.statics.getMartPokemon = async function (_page = 0) {
     )
 }
 
-pokemonSchema.statics.findExact = function (speciesNames, query = {}) {
+pokemonSchema.statics.findExact = function(speciesNames, query = {}) {
     speciesNames = speciesNames.map(name => new RegExp(`^${name}$`, "i"))
     return this.find(Object.assign(query, {
         "speciesName": {
@@ -176,19 +200,19 @@ pokemonSchema.statics.findExact = function (speciesNames, query = {}) {
     }))
 }
 
-pokemonSchema.statics.findOneExact = function (speciesName, query = {}) {
+pokemonSchema.statics.findOneExact = function(speciesName, query = {}) {
     return this.findOne(Object.assign(query, {
         "speciesName": new RegExp(`^${speciesName}$`, "i")
     }))
 }
 
-pokemonSchema.statics.findPartial = function (speciesName, query = {}) {
+pokemonSchema.statics.findPartial = function(speciesName, query = {}) {
     return this.find(Object.assign(query, {
         "speciesName": new RegExp(speciesName, "i")
     }))
 }
 
-pokemonSchema.methods.dex = async function () {
+pokemonSchema.methods.dex = async function() {
     let blankField = {
         "name": "\u200B",
         "value": "\u200B",
@@ -298,7 +322,7 @@ ${new String(this.hp).padEnd(3," ")} | ${new String(this.attack).padEnd(3," ")} 
     return new RichEmbed(embed)
 }
 
-pokemonSchema.methods.learnset = async function () {
+pokemonSchema.methods.learnset = async function() {
     await this.populate("moves.level moves.tm moves.hm moves.bm moves.mt moves.sm").execPopulate()
 
     let moveCount = Object.values(this.moves).slice(1).reduce((acc, obj) => acc + obj.length, 0)
@@ -311,7 +335,7 @@ pokemonSchema.methods.learnset = async function () {
         if (moveList.length > 0) learnset[method] = [...moveList.map(m => m.moveName)]
     })
 
-    learnset.forEach(x=>console.log(x))
+    learnset.forEach(x => console.log(x))
     // 1024 character splitter
     for (let method in learnset) {
         learnset[method] = learnset[method].sort()
@@ -330,25 +354,25 @@ pokemonSchema.methods.learnset = async function () {
     }
 
     //Construct the embed fields
-    if(learnset["level"]) embed.addField("By Level", learnset["level"].join(", "))
-    if(learnset["tm"]) embed.addField("By TM", learnset["tm"].join(", "))
-    if(learnset["tm1"]) embed.addField("By TM", learnset["tm1"].join(", "))
-    if(learnset["tm2"]) embed.addField("By TM (cont)", learnset["tm2"].join(", "))
-    if(learnset["tm3"]) embed.addField("By TM (cont)", learnset["tm3"].join(", "))
-    if(learnset["hm"]) embed.addField("By HM", learnset["hm"].join(", "))
-    if(learnset["bm"]) embed.addField("By BM", learnset["bm"].join(", "))
-    if(learnset["mt"]) embed.addField("By MT", learnset["mt"].join(", "))
-    if(learnset["sm"]) embed.addField("By SM", learnset["sm"].join(", "))
+    if (learnset["level"]) embed.addField("By Level", learnset["level"].join(", "))
+    if (learnset["tm"]) embed.addField("By TM", learnset["tm"].join(", "))
+    if (learnset["tm1"]) embed.addField("By TM", learnset["tm1"].join(", "))
+    if (learnset["tm2"]) embed.addField("By TM (cont)", learnset["tm2"].join(", "))
+    if (learnset["tm3"]) embed.addField("By TM (cont)", learnset["tm3"].join(", "))
+    if (learnset["hm"]) embed.addField("By HM", learnset["hm"].join(", "))
+    if (learnset["bm"]) embed.addField("By BM", learnset["bm"].join(", "))
+    if (learnset["mt"]) embed.addField("By MT", learnset["mt"].join(", "))
+    if (learnset["sm"]) embed.addField("By SM", learnset["sm"].join(", "))
 
     return embed
 }
 
-pokemonSchema.methods.megaDex = async function (whichMega) {
+pokemonSchema.methods.megaDex = async function(whichMega) {
     await this.populate("mega").execPopulate()
     return await this.mega[whichMega].dex(this)
 }
 
-pokemonSchema.methods.primalDex = async function (whichPrimal) {
+pokemonSchema.methods.primalDex = async function(whichPrimal) {
     await this.populate("primal").execPopulate()
     return await this.primal[whichPrimal].dex(this)
 }

@@ -35,7 +35,7 @@
     "mongoose-timestamp": "^0.6.0",
     "p-queue": "^3.0.0",
     "request": "^2.88.0",
-    "request-promise": "^4.2.2",
+    "request-promise-native": "^1.0.5",
     "rxjs": "~6.2.0",
     "validator": "^10.8.0",
     "winston": "^3.1.0",

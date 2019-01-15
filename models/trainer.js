@@ -58,6 +58,17 @@ var trainerSchema = new mongoose.Schema({
     pokemon: [{
         type: Number,
         ref: "TrainerPokemon"
+    }],
+    inventory: [{
+        item: {
+            type: Number,
+            required: true,
+            refPath: "itemType"
+        },
+        itemType: {
+            type: String,
+            enum: ["Item","Move"]
+        }
     }]
 })
 

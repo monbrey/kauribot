@@ -8,18 +8,18 @@
         "ecmaVersion": 2018,
         "sourceType": "module"
     },
+    "plugins": [
+        "json"
+    ],
     "rules": {
         "indent": [
             "error",
             4,
-            { "indentSwitchCase": true }
+            { "SwitchCase": 1 }
         ],
         "linebreak-style": [
             "error",
             "windows"
-        ],
-        "brace-style": [
-            "1tbs", { "allowSingleLine": true }
         ],
         "quotes": [
             "error",
