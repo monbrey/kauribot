@@ -1,9 +1,7 @@
 const mongoose = require("mongoose")
-const {
-    RichEmbed,
-    Collection
-} = require("discord.js")
+const { RichEmbed, Collection } = require("discord.js")
 const Color = require("./color")
+const { oneLine, stripIndent } = require("common-tags")
 require("./mega")
 
 var pokemonSchema = new mongoose.Schema({
@@ -65,7 +63,7 @@ var pokemonSchema = new mongoose.Schema({
         sm: [{
             type: Number,
             ref: "Move"
-        }]
+        }],
     },
     evolution: [{
         pokemon: {
@@ -75,7 +73,8 @@ var pokemonSchema = new mongoose.Schema({
         requires: {
             type: Number,
             ref: "Item"
-        }
+        },
+        _id: false
     }],
     mega: [{
         pokemon: {
@@ -85,7 +84,8 @@ var pokemonSchema = new mongoose.Schema({
         requires: {
             type: Number,
             ref: "Item"
-        }
+        },
+        _id: false
     }],
     primal: [{
         pokemon: {
@@ -95,7 +95,8 @@ var pokemonSchema = new mongoose.Schema({
         requires: {
             type: Number,
             ref: "Item"
-        }
+        },
+        _id: false
     }],
     stats: {
         hp: {
@@ -121,7 +122,7 @@ var pokemonSchema = new mongoose.Schema({
         speed: {
             type: Number,
             required: true
-        }
+        },
     },
     height: {
         type: Number
@@ -135,7 +136,7 @@ var pokemonSchema = new mongoose.Schema({
         },
         female: {
             type: Boolean
-        }
+        },
     },
     martPrice: {
         pokemart: {
@@ -143,7 +144,7 @@ var pokemonSchema = new mongoose.Schema({
         },
         berryStore: {
             type: Number
-        }
+        },
     },
     rank: {
         story: {
@@ -154,7 +155,7 @@ var pokemonSchema = new mongoose.Schema({
         },
         park: {
             type: String
-        }
+        },
     },
     parkLocation: {
         type: String
@@ -191,143 +192,94 @@ pokemonSchema.statics.getMartPokemon = async function(_page = 0) {
     )
 }
 
-pokemonSchema.statics.findExact = function(speciesNames, query = {}) {
-    speciesNames = speciesNames.map(name => new RegExp(`^${name}$`, "i"))
+pokemonSchema.statics.findExact = function(uniqueNames, query = {}) {
+    uniqueNames = uniqueNames.map(name => new RegExp(`^${name}$`, "i"))
     return this.find(Object.assign(query, {
-        "speciesName": {
-            $in: speciesNames
+        "uniqueName": {
+            $in: uniqueNames
         }
     }))
 }
 
-pokemonSchema.statics.findOneExact = function(speciesName, query = {}) {
+pokemonSchema.statics.findOneExact = function(uniqueName, query = {}) {
     return this.findOne(Object.assign(query, {
-        "speciesName": new RegExp(`^${speciesName}$`, "i")
+        "uniqueName": new RegExp(`^${uniqueName}$`, "i")
     }))
 }
 
-pokemonSchema.statics.findPartial = function(speciesName, query = {}) {
+pokemonSchema.statics.findPartial = function(uniqueName, query = {}) {
     return this.find(Object.assign(query, {
-        "speciesName": new RegExp(speciesName, "i")
+        "uniqueName": new RegExp(uniqueName, "i")
     }))
 }
 
 pokemonSchema.methods.dex = async function() {
-    let blankField = {
-        "name": "\u200B",
-        "value": "\u200B",
-        "inline": true
-    }
-    let embed = {
-        "title": `URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3,"0")})`,
-        "color": parseInt(await Color.getColorForType(this.type1.toLowerCase()), 16),
-        "image": {
-            "url": `https://pokemonurpg.com/img/models/${this.dexNumber}${this.spriteCode?`-${this.spriteCode}`:""}.gif`
-        },
-        "fields": [{
-            "name": `${this.type2 ? "Types" : "Type" }`,
-            "value": `${this.type1}${this.type2 ? `\n${this.type2}` : ""}`,
-            "inline": true
-        }],
-        "footer": {
-            "text": "Reactions | [M] View Moves "
-        }
-    }
+    let embed = new RichEmbed()
+        .setTitle(`URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3,"0")})`)
+        .setColor(await Color.getColorForType(this.type1.toLowerCase()))
+        .setImage(`https://pokemonurpg.com/img/models/${this.dexNumber}${this.spriteCode?`-${this.spriteCode}`:""}.gif`)
+        .addField(`${this.type2 ? "Types" : "Type" }`, `${this.type1}${this.type2 ? `\n${this.type2}` : ""}`, true)
+        .setFooter("Reactions | [M] View Moves ")
 
     await this.populate("ability").execPopulate()
-    embed.fields.push({
-        "name": "Ability",
-        "value": `${this.ability.map(a => a.abilityName).join("\n")}`,
-        "inline": true
-    })
+    embed.addField("Ability", `${this.ability.map(a => a.abilityName).join("\n")}`, true)
 
     if (this.hiddenAbility.length > 0) {
         await this.populate("hiddenAbility").execPopulate()
-        embed.fields.push({
-            "name": "Hidden Ability",
-            "value": `${this.hiddenAbility.map(a => a.abilityName).join("\n")}`,
-            "inline": true
-        })
-    } else embed.fields.push(blankField)
+        embed.addField("Hidden Ability", `${this.hiddenAbility.map(a => a.abilityName).join("\n")}`, true)
+    } else embed.addBlankField()
 
-    embed.fields.push({
-        "name": `Gender${this.gender.male && this.gender.female ? "s" : ""}`,
-        "value": this.gender.male ? (this.gender.female ? "Male\nFemale" : "Male") : (this.gender.female ? "Female" : "Genderless"),
-        "inline": true
-    })
-    embed.fields.push({
-        "name": "Height",
-        "value": `${this.height}m`,
-        "inline": true
-    })
-    embed.fields.push({
-        "name": "Weight",
-        "value": `${this.weight}kg`,
-        "inline": true
-    })
+    embed.addField(`Gender${this.gender.male && this.gender.female ? "s" : ""}`,
+        this.gender.male ? (this.gender.female ? "Male\nFemale" : "Male") : (this.gender.female ? "Female" : "Genderless"),
+        true)
+        .addField("Height", `${this.height}m`, true)
+        .addField("Weight", `${this.weight}kg`, true)
 
     let ranks = 0
     if (this.rank.story) {
-        embed.fields.push({
-            "name": "Story Rank",
-            "value": this.rank.story,
-            "inline": true
-        })
+        embed.addField("Story Rank", this.rank.story, true)
         ranks++
     }
     if (this.rank.art) {
-        embed.fields.push({
-            "name": "Art Rank",
-            "value": this.rank.art,
-            "inline": true
-        })
+        embed.addField("Art Rank", this.rank.art, true)
         ranks++
     }
     if (this.rank.park && this.parkLocation) {
-        embed.fields.push({
-            "name": "Park Rank",
-            "value": `${this.rank.park}\n(${this.parkLocation})`,
-            "inline": true
-        })
+        embed.addField("Park Rank", `${this.rank.park}\n(${this.parkLocation})`, true)
         ranks++
     }
 
-    if (ranks !== 0) {
-        for (ranks; ranks < 3; ranks++)
-            embed.fields.push(blankField)
-    }
+    for (ranks; ranks > 0 && ranks < 3; ranks++)
+        embed.addBlankField()
 
-    if (this.martPrice.pokemart) embed.fields.push({
-        "name": "Pokemart",
-        "value": `$${this.martPrice.pokemart.toLocaleString()}`,
-        "inline": true
-    })
-    if (this.martPrice.berryStore) embed.fields.push({
-        "name": "Berry Store",
-        "value": `${this.martPrice.berryStore.toLocaleString()} CC`,
-        "inline": true
-    })
+    if (this.martPrice.pokemart)
+        embed.addField("Pokemart", `$${this.martPrice.pokemart.toLocaleString()}`, true)
+    if (this.martPrice.berryStore)
+        embed.addField("Berry Store", `${this.martPrice.berryStore.toLocaleString()} CC`, true)
 
-    embed.fields.push({
-        "name": "Stats",
-        "value": `\`\`\`
-HP  | ATT | DEF | SP.A | SP.D | SPE
-${new String(this.hp).padEnd(3," ")} | ${new String(this.attack).padEnd(3," ")} | ${new String(this.defence).padEnd(3," ")} | ${new String(this.specialAttack).padEnd(4," ")} | ${new String(this.specialDefence).padEnd(4," ")} | ${this.speed}\`\`\``
-    })
+    embed.addField("Stats", `\`\`\`${stripIndent`
+        HP  | ATT | DEF | SP.A | SP.D | SPE
+        ${oneLine`
+            ${new String(this.stats.hp).padEnd(3," ")} | ${new String(this.stats.attack).padEnd(3," ")} |
+            ${new String(this.stats.defence).padEnd(3," ")} | ${new String(this.stats.specialAttack).padEnd(4," ")} |
+            ${new String(this.stats.specialDefence).padEnd(4," ")} | ${this.stats.speed}
+        `}
+    `}\`\`\``)
 
     if (this.mega.length == 1) embed.footer.text += "| [X] View Mega form"
     if (this.mega.length == 2) embed.footer.text += "| [X] View X Mega form | [Y] View Y Mega Form"
     if (this.primal.length == 1) embed.footer.text += "| [🇵] View Primal form"
 
-    return new RichEmbed(embed)
+    return embed
 }
 
 pokemonSchema.methods.learnset = async function() {
     await this.populate("moves.level moves.tm moves.hm moves.bm moves.mt moves.sm").execPopulate()
 
-    let moveCount = Object.values(this.moves).slice(1).reduce((acc, obj) => acc + obj.length, 0)
+    console.log(Object.keys(this.moves))
+    let moveCount = Object.values(this.moves).slice(1).reduce((acc, obj) => acc + (obj ? obj.length : 0), 0)
     let embed = new RichEmbed()
-        .setTitle(`${this.speciesName} can learn ${moveCount} move(s)`)
+        .setTitle(`${this.displayName} can learn ${moveCount} move(s)`)
 
     let learnset = []
     let moves = new Collection(Object.entries(this.moves).slice(1).filter(m => m.length > 0))
@@ -368,13 +320,13 @@ pokemonSchema.methods.learnset = async function() {
 }
 
 pokemonSchema.methods.megaDex = async function(whichMega) {
-    await this.populate("mega").execPopulate()
-    return await this.mega[whichMega].dex(this)
+    await this.populate("mega.pokemon").execPopulate()
+    return await this.mega[whichMega].pokemon.dex(this)
 }
 
 pokemonSchema.methods.primalDex = async function(whichPrimal) {
     await this.populate("primal").execPopulate()
-    return await this.primal[whichPrimal].dex(this)
+    return await this.primal[whichPrimal].pokemon.dex(this)
 }
 
 module.exports = mongoose.model("Pokemon", pokemonSchema)

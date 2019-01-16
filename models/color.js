@@ -19,7 +19,7 @@ colorSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
 colorSchema.statics.getColorForType = async function(type) {
     let pair = await this.findOne({ key: type })
     if(pair) return pair.color
-    else return "000000"
+    else return "0x000000"
 }
 
 module.exports = mongoose.model("Color", colorSchema)

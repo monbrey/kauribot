@@ -12,7 +12,7 @@ module.exports = class GuildMemberUpdateEvent extends BaseEvent {
         if(oldMember.id === oldMember.guild.me.id && newMember.nickname != null) {
             try { await newMember.guild.me.setNickname(null) }
             catch (e) { this.logger.warn(`${newMember.guild.name} ${e.message}`) }
-            newMember.guild.systemChannel.send("Please don't weebify my name.")
+            if(newMember.guild.systemChannel) newMember.guild.systemChannel.send("Please don't weebify my name.")
         }
     }
 }
