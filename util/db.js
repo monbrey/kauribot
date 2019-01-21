@@ -14,7 +14,7 @@ mongoose.set("useCreateIndex", true)
 let db = mongoose.connection
 
 db.on("connected", async () => {
-    logger.info("Mongoose database connection established")
+    logger.info("Mongoose database connection established")    
 })
 
 db.on("error", async (err) => {

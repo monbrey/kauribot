@@ -65,17 +65,27 @@ let moveSchema = new mongoose.Schema({
         number: {
             type: Number
         },
-        price: {
-            type: Number
-        }
+        martPrice: {
+            pokemart: {
+                type: Number
+            },
+            berryStore: {
+                type: Number
+            },
+        },
     },
     hm: {
         number: {
             type: Number
         },
-        price: {
-            type: Number
-        }
+        martPrice: {
+            pokemart: {
+                type: Number
+            },
+            berryStore: {
+                type: Number
+            },
+        },
     }
 }, {
     collection: "moves"
@@ -129,7 +139,7 @@ ${this.desc} ${this.contact ? "Makes contact. ": ""}${this.sheerForce ? "Boosted
 
     if (this.additional) embed.addField("Additional note", this.additional)
     if (this.list && this.list.length != 0) embed.addField("Helpful data", this.list.join("\n"))
-    if (this.tm) embed.addField("TM", `Taught by TM${this.tm.number.toString().padStart(2,0)} ($${this.tm.price.toLocaleString()})`)
+    if (this.tm) embed.addField("TM", `Taught by TM${this.tm.number.toString().padStart(2,0)} ($${this.tm.martPrice.pokemart.toLocaleString()})`)
     if (this.zmove) embed.addField("Z-Move", this.zmove)
 
     return embed

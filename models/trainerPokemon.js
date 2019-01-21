@@ -15,6 +15,10 @@ var trainerPokemonSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
+    exp: {
+        type: Number,
+        default: 0
+    },
     hiddenAbility: [{
         ability: {
             type: Number,
@@ -137,10 +141,10 @@ trainerPokemonSchema.methods.getMovePrice = function (moveID) {
         m => m.move.id === moveID
 
     let m = this.moves.tm.find(filter)
-    if (m) return m.move.tm.price
+    if (m) return m.move.tm.martPrice.pokemart
 
     m = this.moves.hm.find(filter)
-    if (m) return m.move.hm.price
+    if (m) return m.move.hm.martPrice.pokemart
 
     m = this.moves.bm.find(filter) ||
         this.moves.mt.find(filter) ||

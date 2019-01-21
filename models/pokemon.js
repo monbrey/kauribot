@@ -70,9 +70,15 @@ var pokemonSchema = new mongoose.Schema({
             type: Number,
             ref: "Pokemon"
         },
+        exp: {
+            type: Number
+        },
         requires: {
             type: Number,
             ref: "Item"
+        },
+        trade: {
+            type: Boolean
         },
         _id: false
     }],
@@ -173,6 +179,14 @@ pokemonSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
     startAt: 1
 })
 pokemonSchema.plugin(require("./plugins/paginator"))
+
+pokemonSchema.virtual("priceString").get(() => {
+    if(this.martPrice.pokemart && this.martPrice.berryStore)
+        return `$${this.martPrice.pokemart.toLocaleString()} | ${this.martPrice.berryStore.toLocaleString()} CC`
+    return this.martPrice.pokemart ? 
+        `$${this.martPrice.pokemart.toLocaleString()}` : 
+        `${this.martPrice.berryStore.toLocaleString()} CC`
+})
 
 pokemonSchema.statics.getMartPokemon = async function(_page = 0) {
     return await this.paginate({

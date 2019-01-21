@@ -6,21 +6,33 @@ var itemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    evolves: [{
-        type: Number,
-        ref: "Pokemon"
-    }],
     desc: {
         type: String
     },
-    price: {
-        type: Number
-    }
+    category: [{
+        type: String
+    }],
+    martPrice: {
+        pokemart: {
+            type: Number
+        },
+        berryStore: {
+            type: Number
+        },
+    },
 })
 
 itemSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
     model: "Item",
     startAt: 1
+})
+
+itemSchema.virtual("priceString").get(() => {
+    if(this.martPrice.pokemart && this.martPrice.berryStore)
+        return `$${this.martPrice.pokemart.toLocaleString()} | ${this.martPrice.berryStore.toLocaleString()} CC`
+    return this.martPrice.pokemart ? 
+        `$${this.martPrice.pokemart.toLocaleString()}` : 
+        `${this.martPrice.berryStore.toLocaleString()} CC`
 })
 
 itemSchema.statics.findExact = function (itemName) {

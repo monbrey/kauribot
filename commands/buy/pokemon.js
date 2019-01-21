@@ -1,14 +1,14 @@
 const { RichEmbed } = require("discord.js")
 const Pokemon = require("../../models/pokemon")
 
-let getCart = (pokemon) => {
+const getCart = (pokemon) => {
     return `${ pokemon.length > 0 ? pokemon.map(p => {
         let price = p.martPrice.pokemart ? `$${p.martPrice.pokemart.toLocaleString()}` : `${p.martPrice.berryStore.toLocaleString()} CC`
         return `${p.uniqueName} - ${price}`
     }).join("\n") : "Empty" }`
 }
 
-let updateCart = async (message, pokemon, cart = null) => {
+const updateCart = async (message, pokemon, cart = null) => {
     let embed = new RichEmbed()
         .setTitle(`Your Pokemart Pokecart | Wallet: ${await message.trainer.getBalanceString()}`)
         .setDescription(`Reply with the names of all Pokemon you wish to purchase, as they are shown in the Pokemart.
@@ -24,14 +24,14 @@ React with ❌ to cancel and make no changes.`)
     return cart ? await cart.edit(embed) : await message.channel.send(embed)
 }
 
-let getSubtotals = (pokemon) => {
+const getSubtotals = (pokemon) => {
     return pokemon.length > 0 ? pokemon.reduce((p, n) => {
         n.martPrice.pokemart ? p[0] += n.martPrice.pokemart : p[1] += n.martPrice.berryStore
         return p
     }, [0, 0]) : [0, 0]
 }
 
-let processPurchase = async (message, pokemon, cart) => {
+const processPurchase = async (message, pokemon, cart) => {
     let embed = new RichEmbed(cart.embeds[0])
 
     embed.addField("Processing purchase...", "\u200B")
@@ -51,7 +51,7 @@ let processPurchase = async (message, pokemon, cart) => {
     return await cart.edit(embed)
 }
 
-let showInvalid = (message, pokemon) => {
+const showInvalid = (message, pokemon) => {
     if (pokemon.length > 0) {
         let embed = new RichEmbed()
             .error("Invalid item added",
@@ -61,7 +61,7 @@ let showInvalid = (message, pokemon) => {
     }
 }
 
-let buyPokemon = async (message, args, cart = null) => {
+const buyPokemon = async (message, args, cart = null) => {
     let pResult = await Pokemon.findExact(args).sort("dexNumber")
     pResult = args.map(name => {
         let regex = new RegExp(`^${name}$`, "i")
