@@ -57,7 +57,7 @@ var trainerSchema = new mongoose.Schema({
     },
     pokemon: [{
         type: Number,
-        ref: "TrainerPokemon"
+        ref: "TrainerPokemon",
     }],
     inventory: [{
         item: {
@@ -78,6 +78,14 @@ trainerSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
     startAt: 1
 })
 
+trainerSchema.virtual("balance").get(function() {
+    return { cash: this.cash, contestCredit: this.contestCredit }
+})
+
+trainerSchema.virtual("balanceString").get(function() {
+    return `$${this.cash.toLocaleString()} | ${this.contestCredit.toLocaleString()} CC`
+})
+
 trainerSchema.statics.usernameExists = async function (username) {
     return this.findOne({
         "username": new RegExp(`^${username}$`, "i")
@@ -96,12 +104,11 @@ trainerSchema.statics.discordIdExists = async function (id) {
     }) ? true : false
 }
 
-trainerSchema.methods.getBalances = async function() {
-    return { cash: this.cash, contestCredit: this.contestCredit }
-}
+trainerSchema.methods.cantAfford = function (cash = null, contestCredit = null) {
+    const cashError = cash && cash > this.cash ? true : false
+    const ccError = contestCredit && contestCredit > this.contestCredit ? true : false
 
-trainerSchema.methods.getBalanceString = async function() {
-    return `$${this.cash} | ${this.contestCredit} CC`
+    return (cashError && ccError ? "cash and contest credit" : (cashError ? "cash" : (ccError ? "contestCredit" : false)))
 }
 
 trainerSchema.methods.modifyCash = async function (amount) {

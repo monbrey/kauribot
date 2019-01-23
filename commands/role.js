@@ -246,9 +246,8 @@ module.exports = class RoleCommand extends BaseCommand {
             //Only allow configuration by users with MANAGE_ROLES or higher
             let permission = message.member.hasPermission("MANAGE_ROLES", false, true, true)
             if (permission) {
-                let add = await this.addAssigners(message, dbRole)
-                console.log(add)
-                let remove = await this.removeAssigners(message, dbRole)
+                await this.addAssigners(message, dbRole)
+                await this.removeAssigners(message, dbRole)
                 return
             }
         } else {

@@ -1,8 +1,7 @@
 const BaseEvent = require("./base")
-const { RichEmbed } = require("discord.js")
 
 module.exports = class GuildMemberRemoveEvent extends BaseEvent {
-    constructor(options) {
+    constructor() {
         super({
             name: "guildMemberRemove",
             enabled: true

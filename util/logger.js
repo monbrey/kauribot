@@ -1,6 +1,7 @@
 const { RichEmbed } = require("discord.js")
 const { transports, format, createLogger } = require("winston")
 const { Loggly } = require("winston-loggly-bulk")
+const { stripIndent } = require("common-tags")
 
 const _logFormat = format.combine(
     format.label({
@@ -57,7 +58,7 @@ class Logger {
         return message.guild.logChannel.send(embed)
     }
 
-    async reflog(message, log) {
+    async reflog(message, log, description) {
         this.info(`${message.author.tag} logged a battle: ${log.url}`, {
             key: "reflog"
         })
@@ -67,13 +68,15 @@ class Logger {
         let embed = new RichEmbed()
             .setFooter("Battle logged")
             .setColor(parseInt("1f8b4c", 16))
-            .setDescription(`${message.member} logged a battle in [${log.channel}](${log.url})`)
+            .setDescription(stripIndent`
+            ${message.member} logged a battle in [${log.channel}](${log.url})
+            ${description}`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)
     }
 
-    async judgelog(message, log) {
+    async judgelog(message, log, description) {
         this.info(`${message.author.tag} logged a contest: ${log.url}`, {
             key: "judgelog"
         })
@@ -83,7 +86,9 @@ class Logger {
         let embed = new RichEmbed()
             .setFooter("Contest logged")
             .setColor(parseInt("1f8b4c", 16))
-            .setDescription(`${message.member} logged a contest in [${log.channel}](${log.url})`)
+            .setDescription(stripIndent`
+            ${message.member} logged a contest in [${log.channel}](${log.url})
+            ${description}`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)

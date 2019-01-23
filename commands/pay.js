@@ -38,8 +38,8 @@ module.exports = class PayCommand extends BaseCommand {
         let currency = type === "cc" ? `${amount.toLocaleString()} CC` : `$${amount.toLocaleString()}`
 
         let embed = new RichEmbed()
-        .setTitle("Payment pending")
-        .setDescription(`Please confirm the payment of ${currency} to ${member.displayName}`)
+            .setTitle("Payment pending")
+            .setDescription(`Please confirm the payment of ${currency} to ${member.displayName}`)
 
         let prompt = await message.channel.send(embed)
 
@@ -47,7 +47,7 @@ module.exports = class PayCommand extends BaseCommand {
             flags.includes("cc") ? await trainer.modifyContestCredit(amount) : await trainer.modifyCash(amount)
 
             embed.setTitle("Payment confirmed")
-            .addField("New cash balances", await trainer.getBalanceString())
+                .addField("New cash balances", await trainer.balanceString)
 
             prompt.edit(embed)
             message.client.logger.pay(message, member, currency, prompt)

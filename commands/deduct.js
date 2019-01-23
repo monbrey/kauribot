@@ -38,8 +38,8 @@ module.exports = class ChargeCommand extends BaseCommand {
         let currency = type === "cc" ? `${amount.toLocaleString()} CC` : `$${amount.toLocaleString()}`
 
         let embed = new RichEmbed()
-        .setTitle("Deduction pending")
-        .setDescription(`Please confirm the deduction of ${currency} from ${member.displayName}`)
+            .setTitle("Deduction pending")
+            .setDescription(`Please confirm the deduction of ${currency} from ${member.displayName}`)
 
         let prompt = await message.channel.send(embed)
 
@@ -47,7 +47,7 @@ module.exports = class ChargeCommand extends BaseCommand {
             flags.includes("cc") ? await trainer.modifyContestCredit(-amount) : await trainer.modifyCash(-amount)
 
             embed.setTitle("Deduction confirmed")
-            .addField("New cash balances", await trainer.getBalanceString())
+                .addField("New cash balances", await trainer.balanceString)
 
             prompt.edit(embed)
             message.client.logger.deduct(message, member, currency, prompt)

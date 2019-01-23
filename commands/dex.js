@@ -1,5 +1,6 @@
 const BaseCommand = require("./base")
 const { RichEmbed } = require("discord.js")
+const strsim = require("string-similarity")
 const Pokemon  = require("../models/pokemon")
 
 module.exports = class DexCommand extends BaseCommand {
@@ -45,18 +46,18 @@ module.exports = class DexCommand extends BaseCommand {
         if (response.size > 0) {
             //Otherwise proceed through the workflow
             switch (response.first().emoji.name) {
-            case "🇲":
-                await dex.edit(await dex.pokemon.learnset())
-                break
-            case "🇽":
-                await dex.edit(await dex.pokemon.megaDex(0))
-                break
-            case "🇾":
-                await dex.edit(await dex.pokemon.megaDex(1))
-                break
-            case "🇵":
-                await dex.edit(await dex.pokemon.primalDex(0))
-                break
+                case "🇲":
+                    await dex.edit(await dex.pokemon.learnset())
+                    break
+                case "🇽":
+                    await dex.edit(await dex.pokemon.megaDex(0))
+                    break
+                case "🇾":
+                    await dex.edit(await dex.pokemon.megaDex(1))
+                    break
+                case "🇵":
+                    await dex.edit(await dex.pokemon.primalDex(0))
+                    break
             }
         }
 
@@ -82,6 +83,9 @@ module.exports = class DexCommand extends BaseCommand {
         let dex
         if (pokemon) dex = await message.channel.send(await pokemon.dex(message.client))
         else {
+            const allPokemonNames = await Pokemon.find().distinct("uniqueName")
+            const matches = strsim.findBestMatch(query, allPokemonNames)
+            console.log(matches)
             //Otherwise do a partial match search
             pokemon = await Pokemon.findPartial(query)
             //If nothing, search failed

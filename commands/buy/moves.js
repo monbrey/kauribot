@@ -97,7 +97,7 @@ let processPurchase = async (message, mValid, cart) => {
 
     embed = new RichEmbed(cart.embeds[0])
 
-    embed.addField("Purchase complete!", `New balances: ${await message.trainer.getBalanceString()}`)
+    embed.addField("Purchase complete!", `New balances: ${await message.trainer.balanceString}`)
 
     return cart.edit(embed)
 }

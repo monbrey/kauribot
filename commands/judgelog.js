@@ -37,20 +37,20 @@ module.exports = class JudgeLogCommand extends BaseCommand {
 
         let payments
         switch (args[4].toLowerCase()) {
-        default:
-            return message.channel.send(`\`${args[4]}\` is not a valid contest rank. Rank must be normal, super, hyper or master`)
-        case "n":
-        case "normal":
-        case "s":
-        case "super":
-            payments = [2000, 1500, 1000, 500, 1500]
-            break
-        case "h":
-        case "hyper":
-        case "m":
-        case "master":
-            payments = [2500, 2000, 1500, 1000, 1500]
-            break
+            default:
+                return message.channel.send(`\`${args[4]}\` is not a valid contest rank. Rank must be normal, super, hyper or master`)
+            case "n":
+            case "normal":
+            case "s":
+            case "super":
+                payments = [2000, 1500, 1000, 500, 1500]
+                break
+            case "h":
+            case "hyper":
+            case "m":
+            case "master":
+                payments = [2500, 2000, 1500, 1000, 1500]
+                break
         }
 
         flags.filter(f => f.includes("tie")).forEach(f => {

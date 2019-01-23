@@ -49,15 +49,15 @@ abilitySchema.methods.info = function () {
 
     if (this.announcement) {
         switch (this.announcement) {
-        case "Active":
-            embed.title += " | Announced on activation"
-            break
-        case "Enter":
-            embed.title += " | Announced on entry"
-            break
-        case "Hidden":
-            embed.title += " | Hidden"
-            break
+            case "Active":
+                embed.title += " | Announced on activation"
+                break
+            case "Enter":
+                embed.title += " | Announced on entry"
+                break
+            case "Hidden":
+                embed.title += " | Hidden"
+                break
         }
     }
 

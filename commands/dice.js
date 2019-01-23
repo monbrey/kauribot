@@ -21,8 +21,8 @@ All numbers must be positive integers`,
     async run(message, args = [], flags = []) {
         if(args.length < 1) return message.channel.send(`\`\`\`Usage: ${this.usage}\`\`\``)
 
-        let rolls = args.filter(arg => /^[1-9]+\d*(,*[1-9]+\d*)*$/.test(arg)).map(arg => { if(!arg.includes(",")) return arg
-            if(/^[1-9]+\d*$/.test(arg.split(",")[0]) && /^[1-9]+\d*$/.test(arg.split(",")[1]))
+        let rolls = args.filter(arg => /^[1-9]\d*(?:,*[1-9]\d*)?$/.test(arg)).map(arg => { if(!arg.includes(",")) return arg
+            if(/^[1-9]\d*$/.test(arg.split(",")[0]) && /^[1-9]\d*$/.test(arg.split(",")[1]))
                 return new Array(parseInt(arg.split(",")[0])).fill(arg.split(",")[1])
         }).reduce((acc, val) => acc.concat(val), []).map(arg => Math.floor((Math.random() * arg) + 1))
         

@@ -15,5 +15,5 @@ exports.help = {
     category: "",
     shortDesc: "",
     description: "",
-    usage: ``
+    usage: ""
 }

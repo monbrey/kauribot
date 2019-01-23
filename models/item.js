@@ -35,11 +35,13 @@ itemSchema.virtual("priceString").get(() => {
         `${this.martPrice.berryStore.toLocaleString()} CC`
 })
 
-itemSchema.statics.findExact = function (itemName) {
-    return this.findOne({
-        "itemName": new RegExp(`^${itemName}$`, "i")
-    })
-
+itemSchema.statics.findExact = function(itemNames, query = {}) {
+    itemNames = itemNames.map(name => new RegExp(`^${name}$`, "i"))
+    return this.find(Object.assign(query, {
+        "itemName": {
+            $in: itemNames
+        }
+    }))
 }
 
 itemSchema.statics.findPartial = function (itemName) {

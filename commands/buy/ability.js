@@ -1,5 +1,4 @@
-const { Collection, RichEmbed } = require("discord.js")
-const Ability  = require("../../models/ability")
+const { RichEmbed } = require("discord.js")
 
 let processPurchase = async (message, ability, cart) => {
     let embed = new RichEmbed(cart.embeds[0])
@@ -13,7 +12,7 @@ let processPurchase = async (message, ability, cart) => {
 
     embed.fields[embed.fields.length-1] = {
         name: "Purchase complete!",
-        value: `New balances: ${await message.trainer.getBalanceString()}`
+        value: `New balances: ${await message.trainer.balanceString}`
     }
 
     return cart.edit(embed)
@@ -34,12 +33,12 @@ let buyAbility = async (message) => {
 
     if(locked.length === 0) {
         return message.channel.send(new RichEmbed().warning("No locked abilities",`Your ${name} does not have any more Hidden Abilities that require unlocking`))
-        .then(m => m.delete(5000))
+            .then(m => m.delete(5000))
     }
 
     let embed = new RichEmbed()
-    .setTitle(`${name}'s Abilities`)
-    .setDescription(`Click the number corresponding to the Hidden Ability you would like to unlock for ${name}, or ❌ to cancel. Hidden Abilities cost $4,000 each.`)
+        .setTitle(`${name}'s Abilities`)
+        .setDescription(`Click the number corresponding to the Hidden Ability you would like to unlock for ${name}, or ❌ to cancel. Hidden Abilities cost $4,000 each.`)
     embed.addField("Known Abilities", unlocked.join("\n"), true)
     embed.addField("Locked Abilities", lockedList.join("\n"), true)
 

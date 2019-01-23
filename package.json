@@ -13,20 +13,21 @@
     "dependencies": {
         "cachegoose": "^7.1.0",
         "common-tags": "^1.8.0",
-        "core-js": "^2.5.4",
+        "core-js": "^2.6.3",
         "discord.js": "^11.4.2",
         "dotenv": "^6.2.0",
-        "mongoose": "^5.3.4",
-        "mongoose-paginate-v2": "^1.0.12",
+        "mongoose": "^5.4.6",
+        "mongoose-paginate-v2": "^1.0.18",
         "mongoose-plugin-autoinc": "^1.1.9",
         "mongoose-timestamp": "^0.6.0",
         "p-queue": "^3.0.0",
         "request": "^2.88.0",
         "request-promise-native": "^1.0.5",
         "rxjs": "~6.2.0",
-        "validator": "^10.8.0",
+        "string-similarity": "^3.0.0",
+        "validator": "^10.11.0",
         "winston": "^3.1.0",
         "winston-loggly-bulk": "^2.0.3",
-        "zone.js": "~0.8.26"
+        "zone.js": "^0.8.29"
     }
 }

@@ -1,4 +1,5 @@
 const { RichEmbed } = require("discord.js")
+const { stripIndent } = require("common-tags")
 const Pokemon = require("../../models/pokemon")
 
 const getCart = (pokemon) => {
@@ -10,14 +11,14 @@ const getCart = (pokemon) => {
 
 const updateCart = async (message, pokemon, cart = null) => {
     let embed = new RichEmbed()
-        .setTitle(`Your Pokemart Pokecart | Wallet: ${await message.trainer.getBalanceString()}`)
-        .setDescription(`Reply with the names of all Pokemon you wish to purchase, as they are shown in the Pokemart.
-To remove selections from your cart, prefix the Pokemon with minus (-)
-eg. \`-Bulbasaur, -Squirtle\`.
-Multiple values can be entered separated by commas.
-
-React with ✅ when you are ready to make your purchase.
-React with ❌ to cancel and make no changes.`)
+        .setTitle(`Your Pokemart Pokecart | Wallet: ${await message.trainer.balanceString}`)
+        .setDescription(stripIndent`Reply with the names of all Pokemon you wish to purchase, as they are shown in the Pokemart.
+        To remove selections from your cart, prefix the Pokemon with minus (-)
+        eg. \`-Bulbasaur, -Squirtle\`.
+        Multiple values can be entered separated by commas.
+        
+        React with ✅ when you are ready to make your purchase.
+        React with ❌ to cancel and make no changes.`)
         .addField("Cart", getCart(pokemon))
         .addField("Subtotal", `$${getSubtotals(pokemon)[0].toLocaleString()} | ${getSubtotals(pokemon)[1].toLocaleString()} CC`)
 
@@ -46,9 +47,9 @@ const processPurchase = async (message, pokemon, cart) => {
     await message.trainer.modifyContestCredit(-getSubtotals(pokemon)[1])
 
     embed.fields[2].name = "Purchase complete!"
-    embed.fields[2].value = `New balances: ${await message.trainer.getBalanceString()}`
+    embed.fields[2].value = `New balances: ${await message.trainer.balanceString}`
 
-    return await cart.edit(embed)
+    return cart.edit(embed)
 }
 
 const showInvalid = (message, pokemon) => {
@@ -61,7 +62,7 @@ const showInvalid = (message, pokemon) => {
     }
 }
 
-const buyPokemon = async (message, args, cart = null) => {
+const buyPokemon = async (message, args = [], cart = null) => {
     let pResult = await Pokemon.findExact(args).sort("dexNumber")
     pResult = args.map(name => {
         let regex = new RegExp(`^${name}$`, "i")
@@ -76,7 +77,7 @@ const buyPokemon = async (message, args, cart = null) => {
     cart = await updateCart(message, pValid, cart)
     showInvalid(message, pInvalid)
 
-    let responses = cart.channel.createMessageCollector(m => m.author.id === message.author.id, {})
+    const responses = cart.channel.createMessageCollector(m => m.author.id === message.author.id, {})
     responses.on("collect", async m => {
         //Need to set a timeout interval in here
         let args = [...m.content.split(",")].map(arg => arg.trim())
@@ -88,7 +89,7 @@ const buyPokemon = async (message, args, cart = null) => {
         let pResultNew = await Pokemon.findExact(add).sort("dexNumber")
         pResultNew = add.map(name => {
             let regex = new RegExp(`^${name}$`, "i")
-            return pResult.find(p => regex.test(p.uniqueName))
+            return pResultNew.find(p => regex.test(p.uniqueName))
         })
         pValid.push(...pResultNew.filter(p => p.martPrice && p.martPrice.pokemart))
         pInvalid = pResultNew.filter(p => !p.martPrice || !p.martPrice.pokemart)
@@ -105,26 +106,23 @@ const buyPokemon = async (message, args, cart = null) => {
         showInvalid(message, pInvalid)
     })
 
-    return (await cart.reactConfirm(message.author.id, 0) ? async () => {
+    return (await cart.reactConfirm(message.author.id, 0) ? () => {
         responses.stop()
 
         //TODO: Mart Coupon / Alternative payments
 
-        //Handle cash exception
-        if (getSubtotals(pValid)[0] > message.trainer.cash) {
+        //Check affordability
+        let subtotals = getSubtotals(pValid)
+        let currencyError = message.trainer.canAfford(subtotals[0], subtotals[1])
+        if(currencyError) {
             cart.clearReactions()
-            let embed = new RichEmbed().error("Insufficient funds", "You have insufficient cash to complete this purchase. Please remove some items and try again.")
+            let embed = new RichEmbed().error("Insufficient funds", 
+                `You have insufficient ${currencyError} to complete this purchase. Please remove some items and try again.`)
             message.channel.send(embed).then(m=>m.delete(5000))
-            return this.buyPokemon(message, pValid.map(p => p.uniqueName), cart)
-        }
-        if (getSubtotals(pValid)[1] > message.trainer.contestCredit) {
-            cart.clearReactions()
-            let embed = new RichEmbed().error("Insufficient funds", "You have insufficient contest credit to complete this purchase. Please remove some items and try again.")
-            message.channel.send(embed).then(m=>m.delete(5000))
-            return this.buyPokemon(message, pValid.map(p => p.uniqueName), cart)
+            return this.buyItems(message, pValid.map(i=>i.itemName), cart)
         }
 
-        await processPurchase(message, pValid, cart)
+        processPurchase(message, pValid, cart)
         //TODO: Log the purchase to the logs channel
     }: () => {
         responses.stop()

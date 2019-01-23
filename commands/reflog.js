@@ -91,14 +91,15 @@ module.exports = class RefLogCommand extends BaseCommand {
             embed.fields = []
             embed.setTitle("Battle payments confirmed")
                 .setColor(parseInt("1f8b4c", 16))
-                .setDescription(stripIndent`New cash balances:
+                .setDescription(stripIndent`
+                New cash balances:
                 
-                **${winner.displayName}** : $${winner.getBalanceString()}
-                **${loser.displayName}** : $${loserCash.getBalanceString()}         
-                **${ref.displayName}** : $${refCash.getBalanceString()}`)
+                **${winner.displayName}** : $${winnerTrainer.balanceString}
+                **${loser.displayName}** : $${loserTrainer.balanceString}         
+                **${ref.displayName}** : $${refTrainer.balanceString}`)
         } else await prompt.delete()
 
         await message.channel.send(embed)
-        return message.client.logger.reflog(message, prompt)
+        return message.client.logger.reflog(message, prompt, description)
     }
 }
