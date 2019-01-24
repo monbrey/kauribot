@@ -14,8 +14,6 @@ module.exports = class EmojiDeleteEvent extends BaseEvent {
     async run(emoji) {
         if (emojiServers.includes(emoji.guild.id) && emoji.client.myEmojis.has(emoji.id)) {
             emoji.client.myEmojis.sweep(e => e.id === emoji.id)
-
-            console.log("Delete", emoji, emoji.client.myEmojis.size)
         }
     }
 }

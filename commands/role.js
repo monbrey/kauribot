@@ -195,7 +195,6 @@ module.exports = class RoleCommand extends BaseCommand {
             let responses = sentMessage.channel.createMessageCollector(m => !m.author.bot, {})
 
             responses.on("collect", async m => {
-                console.log("Response collected", m)
                 let addRoles = m.content.split(" ")
                 addRoles.forEach(r => {
                     let role = message.guild.roles.find(gr => gr.name === r)

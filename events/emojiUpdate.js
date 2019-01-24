@@ -12,8 +12,6 @@ module.exports = class EmojiUpdateEvent extends BaseEvent {
     async run(emoji) {
         if(emojiServers.includes(emoji.guild.id)) {
             emoji.client.myEmojis.set(emoji.id, emoji)
-
-            console.log("Update", emoji, emoji.client.myEmojis.size)
         }
     }
 }

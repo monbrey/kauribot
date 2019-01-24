@@ -7,6 +7,10 @@ module.exports = class ErrorEvent extends BaseEvent {
             enabled: true
         })
     }
+
+    async init(client) {
+        this.logger = client.logger
+    }
     
     async run (error) {
         //So APPARENTLY the mere EXISTENCE of this error handler
@@ -14,10 +18,9 @@ module.exports = class ErrorEvent extends BaseEvent {
         try {
             this.logger.error(`${error.message}`, { key: "unknown" })
         } catch (e) {
-            /*
             //If the logger fails, default to console for both errors
-            console.error(error)
-            console.error(e)*/
+            console.error(error.stack)
+            console.error(e.stack)
         }
     }
 }

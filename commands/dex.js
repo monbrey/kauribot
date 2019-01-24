@@ -83,9 +83,6 @@ module.exports = class DexCommand extends BaseCommand {
         let dex
         if (pokemon) dex = await message.channel.send(await pokemon.dex(message.client))
         else {
-            const allPokemonNames = await Pokemon.find().distinct("uniqueName")
-            const matches = strsim.findBestMatch(query, allPokemonNames)
-            console.log(matches)
             //Otherwise do a partial match search
             pokemon = await Pokemon.findPartial(query)
             //If nothing, search failed

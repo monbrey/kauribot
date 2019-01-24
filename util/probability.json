@@ -1,0 +1,187 @@
+{
+    "digs": [],
+    "matrix": [{
+            "maxIndex": 5,
+            "item": "Spare Exploration Kit"
+        },
+        {
+            "maxIndex": 11,
+            "item": [
+                { "maxIndex": 4, "item": "Abomasite" },
+                { "maxIndex": 8, "item": "Aerodactylite" },
+                { "maxIndex": 12, "item": "Aggronite" },
+                { "maxIndex": 16, "item": "Ampharosite" },
+                { "maxIndex": 20, "item": "Audinite" },
+                { "maxIndex": 24, "item": "Gyaradosite" },
+                { "maxIndex": 28, "item": "Heracronite" },
+                { "maxIndex": 32, "item": "Houndoominite" },
+                { "maxIndex": 36, "item": "Manectite" },
+                { "maxIndex": 40, "item": "Medichamite" },
+                { "maxIndex": 44, "item": "Pidgeotite" },
+                { "maxIndex": 48, "item": "Pinsirite" },
+                { "maxIndex": 52, "item": "Steelixite" },
+                { "maxIndex": 55, "item": "Absolite" },
+                { "maxIndex": 58, "item": "Banettite" },
+                { "maxIndex": 61, "item": "Beedrillite" },
+                { "maxIndex": 64, "item": "Blastoisinite" },
+                { "maxIndex": 67, "item": "Cameruptite" },
+                { "maxIndex": 70, "item": "Charizardite X" },
+                { "maxIndex": 73, "item": "Charizardite Y" },
+                { "maxIndex": 76, "item": "Galladite" },
+                { "maxIndex": 79, "item": "Gardevoirite" },
+                { "maxIndex": 82, "item": "Glalitite" },
+                { "maxIndex": 85, "item": "Lopunnite" },
+                { "maxIndex": 88, "item": "Mawilite" },
+                { "maxIndex": 91, "item": "Sablenite" },
+                { "maxIndex": 94, "item": "Scizorite" },
+                { "maxIndex": 97, "item": "Sceptilite" },
+                { "maxIndex": 100, "item": "Sharpedonite" },
+                { "maxIndex": 103, "item": "Slowbronite" },
+                { "maxIndex": 106, "item": "Swampertite" },
+                { "maxIndex": 109, "item": "Venusaurite" },
+                { "maxIndex": 111, "item": "Alakazite" },
+                { "maxIndex": 113, "item": "Altarianite" },
+                { "maxIndex": 115, "item": "Blazikenite" },
+                { "maxIndex": 117, "item": "Garchompite" },
+                { "maxIndex": 119, "item": "Gengarite" },
+                { "maxIndex": 121, "item": "Kangaskhanite" },
+                { "maxIndex": 123, "item": "Lucarionite" },
+                { "maxIndex": 125, "item": "Metagrossite" },
+                { "maxIndex": 127, "item": "Salamencite" },
+                { "maxIndex": 129, "item": "Tyranitarite" },
+                { "maxIndex": 130, "item": "Diancite" },
+                { "maxIndex": 131, "item": "Latiasite" },
+                { "maxIndex": 132, "item": "Latiosite" },
+                { "maxIndex": 133, "item": "Mewtwonite X" },
+                { "maxIndex": 134, "item": "Mewtwonite Y" },
+                { "maxIndex": 135, "item": "Blue Orb" },
+                { "maxIndex": 136, "item": "Red Orb" }
+            ]
+        },
+        {
+            "maxIndex": 17,
+            "item": [
+                { "maxIndex": 2, "item": "Normalium Z" },
+                { "maxIndex": 4, "item": "Grassium Z" },
+                { "maxIndex": 6, "item": "Firium Z" },
+                { "maxIndex": 8, "item": "Waterium Z" },
+                { "maxIndex": 10, "item": "Electrium Z" },
+                { "maxIndex": 12, "item": "Icium Z" },
+                { "maxIndex": 14, "item": "Fightinium Z" },
+                { "maxIndex": 16, "item": "Poisonium Z" },
+                { "maxIndex": 18, "item": "Groundium Z" },
+                { "maxIndex": 20, "item": "Flyinium Z" },
+                { "maxIndex": 22, "item": "Psychium Z" },
+                { "maxIndex": 24, "item": "Buginium Z" },
+                { "maxIndex": 26, "item": "Rockium Z" },
+                { "maxIndex": 28, "item": "Ghostium Z" },
+                { "maxIndex": 30, "item": "Dragonium Z" },
+                { "maxIndex": 32, "item": "Steelium Z" },
+                { "maxIndex": 34, "item": "Darkinium Z" },
+                { "maxIndex": 36, "item": "Fairium Z" },
+                { "maxIndex": 37, "item": "Pikanium Z" },
+                { "maxIndex": 38, "item": "Aloraichium Z" },
+                { "maxIndex": 39, "item": "Eevium Z" },
+                { "maxIndex": 40, "item": "Snorlium Z" },
+                { "maxIndex": 41, "item": "Mewnium Z" },
+                { "maxIndex": 42, "item": "Decidium Z" },
+                { "maxIndex": 43, "item": "Incinium Z" },
+                { "maxIndex": 44, "item": "Primarium Z" },
+                { "maxIndex": 45, "item": "Tapunium Z" },
+                { "maxIndex": 46, "item": "Marshadium Z" },
+                { "maxIndex": 47, "item": "Pikashunium Z" },
+                { "maxIndex": 48, "item": "Lycanium Z" },
+                { "maxIndex": 49, "item": "Mimikium Z" },
+                { "maxIndex": 50, "item": "Kommonium Z" },
+                { "maxIndex": 51, "item": "Solganium Z" },
+                { "maxIndex": 52, "item": "Lunalium Z" }
+            ]
+        },
+        {
+            "maxIndex": 35,
+            "item": [
+                { "maxIndex": 1, "item": "Odd Keystone (Spiritomb) or Old Amber (Aerodactyl)! (player's choice on which fossil to choose!)" },
+                {
+                    "maxIndex": 10,
+                    "item": [
+                        { "maxIndex": 1, "item": "Dome Fossil (Kabuto) or Helix Fossil (Omanyte)" },
+                        { "maxIndex": 2, "item": "Claw Fossil (Anorith) or Root Fossil (Lileep)" },
+                        { "maxIndex": 3, "item": "Armor Fossil (Shieldon) or Skull Fossil (Cranidos)" },
+                        { "maxIndex": 4, "item": "Cover Fossil (Tirtouga) or Plume Fossil (Archen)" },
+                        { "maxIndex": 5, "item": "Jaw Fossil (Tyrunt) or Sail Fossil (Amaura) }" }
+                    ]
+                }
+            ]
+        },
+        {
+            "maxIndex": 50,
+            "item": [
+                { "maxIndex": 4, "item": "Pale Sphere" },
+                { "maxIndex": 14, "item": "Prism Sphere" },
+                { "maxIndex": 30, "item": "Green Sphere" },
+                { "maxIndex": 59, "item": "Blue Sphere" },
+                { "maxIndex": 100, "item": "Red Sphere" }
+            ]
+        },
+        {
+            "maxIndex": 69,
+            "item": [
+                { "maxIndex": 4, "item": "Leftovers" },
+                { "maxIndex": 19, "item": "Random TM from the Pokemart" },
+                { "maxIndex": 29, "item": "Random Plate" },
+                { "maxIndex": 39, "item": "Held Items: Berserk Gene, Iron Ball, Life Orb, Light Clay, Red Card, Rocky Helmet" },
+                { "maxIndex": 59, "item": "Gems" },
+                { "maxIndex": 79, "item": "Shards" },
+                { "maxIndex": 100, "item": "Damp Rock, Heat Rock, Icy Rock, Smooth Rock, Terrain Extender" }
+            ]
+        },
+        {
+            "maxIndex": 84,
+            "item": [
+                { "maxIndex": 1, "item": "Coronet Stone" },
+                { "maxIndex": 2, "item": "Dawn Stone" },
+                { "maxIndex": 3, "item": "Dusk Stone" },
+                { "maxIndex": 4, "item": "Fire Stone" },
+                { "maxIndex": 5, "item": "Frozen Rock" },
+                { "maxIndex": 6, "item": "Ice Stone" },
+                { "maxIndex": 7, "item": "Leaf Stone" },
+                { "maxIndex": 8, "item": "Moon Stone" },
+                { "maxIndex": 9, "item": "Moss Rock" },
+                { "maxIndex": 10, "item": "Oval Stone" },
+                { "maxIndex": 11, "item": "Pixie Stone" },
+                { "maxIndex": 12, "item": "Shiny Stone" },
+                { "maxIndex": 13, "item": "Thunder Stone" },
+                { "maxIndex": 14, "item": "Water Stone" }
+            ]
+        },
+        {
+            "maxIndex": 100,
+            "item": [
+                { "maxIndex": 4, "item": "Big Nugget" },
+                {
+                    "maxIndex": 19,
+                    "item": [
+                        { "maxIndex": 1, "item": "Nugget" },
+                        { "maxIndex": 2, "item": "Pearl String" }
+                    ]
+                },
+                { "maxIndex": 29, "item": "Heart Scale" },
+                {
+                    "maxIndex": 54,
+                    "item": [
+                        { "maxIndex": 1, "item": "Star Piece" },
+                        { "maxIndex": 2, "item": "Big Pearl" },
+                        { "maxIndex": 3, "item": "Relic Silver" }
+                    ]
+                }, {
+                    "maxIndex": 100,
+                    "item": [
+                        { "maxIndex": 1, "item": "Relic Copper" },
+                        { "maxIndex": 2, "item": "Pearl" },
+                        { "maxIndex": 3, "item": "Stardust" }
+                    ]
+                }
+            ]
+        }
+    ]
+}

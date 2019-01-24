@@ -290,7 +290,6 @@ pokemonSchema.methods.dex = async function() {
 pokemonSchema.methods.learnset = async function() {
     await this.populate("moves.level moves.tm moves.hm moves.bm moves.mt moves.sm").execPopulate()
 
-    console.log(Object.keys(this.moves))
     let moveCount = Object.values(this.moves).slice(1).reduce((acc, obj) => acc + (obj ? obj.length : 0), 0)
     let embed = new RichEmbed()
         .setTitle(`${this.displayName} can learn ${moveCount} move(s)`)
@@ -301,7 +300,6 @@ pokemonSchema.methods.learnset = async function() {
         if (moveList.length > 0) learnset[method] = [...moveList.map(m => m.moveName)]
     })
 
-    learnset.forEach(x => console.log(x))
     // 1024 character splitter
     for (let method in learnset) {
         learnset[method] = learnset[method].sort()
