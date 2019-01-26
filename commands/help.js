@@ -16,7 +16,6 @@ module.exports = class HelpCommand extends BaseCommand {
         })
     }
 
-    //TODO: This needs to filter on per-command configuration much more effectively
     async run(message, args = [], flags = []) {
         if (!args[0]) {
             //Remove commands that the user doesn't have access too

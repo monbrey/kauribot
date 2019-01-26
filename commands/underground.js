@@ -9,10 +9,11 @@ module.exports = class UndergroundCommand extends BaseCommand {
             name: "underground",
             aliases: ["ug"],
             category: "Game",
-            description: "Explore the Underground for a random item",
-            usage: stripIndent `
-            !ug`,
-            enabled: false,
+            description: "URPG's item lottery - explore the Underground for a chance at rare and valuables items!",
+            usage: stripIndent`
+            !ug          Explore the Underground! ($2,500)
+            !ug list     Show all Underground rewards`,
+            enabled: true,
             defaultConfig: false
         })
     }

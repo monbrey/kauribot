@@ -68,7 +68,7 @@ class UltraRpgBot extends Client {
 
             if (event.init)
                 await event.init(this)
-                
+
             return this.on(event.name, event.run.bind(event))
         } catch (e) {
             return this.logger.error(`${eventFile} failed to load\n${e.stack}`)

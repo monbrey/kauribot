@@ -5,7 +5,7 @@ module.exports = class BotstatCommand extends BaseCommand {
         super({
             name: "botstat",
             description: "Returns data about the bot system process",
-            enabled: true,
+            enabled: false,
             defaultConfig: false,
             lockConfig: true,
             requiresOwner: true

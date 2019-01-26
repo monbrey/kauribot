@@ -39,16 +39,6 @@ module.exports = class TrainerCommand extends BaseCommand {
         return embed
     }
 
-    /**
-     * @param {Message} profile - Message containing the embedded profile
-     * @param {GuildMember} member - Discord GuildMember object
-     * @param {Trainer} trainer - URPG Trainer object
-     */
-    async editProfile(member, trainer) {
-        //TODO
-        return new RichEmbed().warning("Profile editing is not yet implemented.")
-    }
-
     async run(message, args = [], flags = []) {
         let member = args.length === 0 ? message.member : (message.mentions.members.first() ? message.mentions.members.first() : null)
 
