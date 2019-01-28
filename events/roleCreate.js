@@ -5,7 +5,7 @@ module.exports = class RoleCreateEvent extends BaseEvent {
     constructor() {
         super({
             name: "roleCreate",
-            enabled: true
+            enabled: false
         })
     }
 

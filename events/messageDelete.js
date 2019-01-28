@@ -4,7 +4,7 @@ module.exports = class MessageDeleteEvent extends BaseEvent {
     constructor() {
         super({
             name: "messageDelete",
-            enabled: true
+            enabled: false
         })
     }
 

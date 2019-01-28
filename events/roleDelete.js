@@ -5,7 +5,7 @@ module.exports = class RoleDeleteEvent extends BaseEvent {
     constructor() {
         super({
             name: "roleDelete",
-            enabled: true
+            enabled: false
         })
     }
 

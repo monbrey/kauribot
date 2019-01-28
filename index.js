@@ -5,6 +5,7 @@ require("dotenv").config({ path: "variables.env" })
 require("./util/db")
 
 const { Client, Collection } = require("discord.js")
+const { stripIndent } = require("common-tags")
 const path = require("path")
 const { promisify } = require("util")
 const readdir = promisify(require("fs").readdir)
@@ -149,6 +150,12 @@ try {
     client.logger.error(`Unable to initialise bot. ${e}`)
 }
 
-process.on("unhandledRejection", (reason) => {
-    client.logger.error(`Unhandled Promise Rejection: ${reason.stack}`)
+process.on("unhandledRejection", (reason, p) => {
+    client.logger.error(stripIndent `
+    Unhandled Promise Rejection at ${p}
+    Reason: ${reason}`)
+})
+
+process.on("uncaughtException", (err) => {
+    client.logger.error(`Uncaught Exception: ${err.stack}`)
 })
