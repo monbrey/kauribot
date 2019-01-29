@@ -22,36 +22,39 @@ module.exports = class MessageEvent extends BaseEvent {
             key: "message"
         })
 
-        //Before we get args, testing a method which would parse CSV as a single arg
+        //Parse CSV's with spaces as a single argument
         let content = message.content.replace(/, +/g, ",")
+        //Split the args on spaces
         let _args = content.slice(message.client.prefix.length).trim().split(/ +/g)
+        //Pull the command the array
         let carg = _args.shift().toLowerCase()
 
+        //Get the matching command class
         let command = message.client.commands.get(carg) || message.client.commands.get(message.client.aliases.get(carg))
         if (!command) return
 
         let [flags, args] = await super.argsplit(_args)
 
+        //Intercept help flags as they aren't command-specific
+        if (flags.includes("h")) return command.getHelp(message.channel)
+        
         //If its the bot owner, run the command now without further checks
-        if(message.author.id === message.client.applicationInfo.owner.id)
+        if (message.author.id === message.client.applicationInfo.owner.id)
             return command.run(message, args, flags)
 
-        //Check if its an owner-only command, dont run if it is
-        if (command.requiresOwner && message.author.id !== message.client.applicationInfo.owner.id) return
+        //Check if its an owner-only command, don't run if it is We already ran 
+        if (command.requiresOwner) return
 
         //Check that the command is enabled in this channel/server
-        if(command.config.channels.get(message.channel.id) === undefined) {
-            if(command.config.guilds.get(message.guild.id) === undefined)
-                return message.channel.send("This command has not been configured for use in this server")
-            if(!command.config.guilds.get(message.guild.id))
-                return message.channel.send("This command has been disabled on this server")
-        } else if(!command.config.channels.get(message.channel.id)) {
-            return message.channel.send("This command has been disabled in this channel")
+        if (command.config.channels.get(message.channel.id) === undefined) {
+            if (command.config.guilds.get(message.guild.id) === undefined)
+                return message.channel.send(`${this.prefix}${command.name} has not been configured for use in this server`)
+            if (!command.config.guilds.get(message.guild.id))
+                return message.channel.send(`${this.prefix}${command.name} has been disabled on this server`)
+        } else if (!command.config.channels.get(message.channel.id)) {
+            return message.channel.send(`${this.prefix}${command.name} has been disabled in this channel`)
         }
         //If we reach this point, it should be enabled
-
-        //Intercept help flags as they aren't command-specific
-        if(flags.includes("h")) return command.getHelp(message.channel)
 
         //Check if a guild-only command is being run in DM
         if (command.guildOnly && message.channel.type == "dm") return
@@ -71,6 +74,6 @@ module.exports = class MessageEvent extends BaseEvent {
         if (!permissions)
             return message.channel.send("You don't have the required server/channel permissions to use this command.")
         if (!roles)
-            return message.channel.send(oneLineCommaListsAnd`This command can only be used by ${command.requiresRole}`)
+            return message.channel.send(oneLineCommaListsAnd `This command can only be used by ${command.requiresRole}`)
     }
 }

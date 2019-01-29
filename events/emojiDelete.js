@@ -1,7 +1,5 @@
 const BaseEvent = require("./base")
-const {
-    emojiServers
-} = require("../config").common
+const { emojiServers } = require("../config").common
 
 module.exports = class EmojiDeleteEvent extends BaseEvent {
     constructor() {

@@ -20,7 +20,9 @@ var starboardConfigSchema = new mongoose.Schema({
 })
 
 starboardConfigSchema.statics.getConfigForGuild = async function(_guild) {
-    return this.findOne({"guild":_guild})
+    const configs = await this.find({}).cache(30)
+
+    return await configs.find(cfg => cfg.guild === _guild)
 }
 
 starboardConfigSchema.statics.clearStarboardChannel = async function (_guild) {

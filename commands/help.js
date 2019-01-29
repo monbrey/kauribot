@@ -27,7 +27,7 @@ module.exports = class HelpCommand extends BaseCommand {
                     message.channel.memberPermissions(message.member).has(cmd.requiresPermission, true) :
                     true
 
-                return (enabled && permission)
+                return (enabled && permission && !this.requiresOwner)
             })
 
             let game = commands.filter(cmd => cmd.category === "Game")
@@ -59,7 +59,7 @@ module.exports = class HelpCommand extends BaseCommand {
                 "embed": embed
             })
         } else {
-            let cmd = message.client.commands.get(args[0])
+            let cmd = message.client.commands.get(args[0]) || message.client.commands.get(message.client.aliases.get(args[0]))
             if (!cmd) return
 
             return cmd.getHelp(message.channel)

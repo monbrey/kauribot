@@ -12,7 +12,9 @@ var logConfigSchema = new mongoose.Schema({
 })
 
 logConfigSchema.statics.getLogChannel = async function(_guild) {
-    let mapping = await this.findOne({"guild":_guild})
+    const configs = await this.find({}).cache(30)
+
+    let mapping = await configs.find(cfg => cfg.guild === _guild)
     if(mapping) return mapping.channel
     else return null
 }

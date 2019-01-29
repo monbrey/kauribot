@@ -86,13 +86,6 @@ class UltraRpgBot extends Client {
     }
 
     async init() {
-        try {
-            await this.login()
-            this.logger.info("Ultra RPG Bot connected to Discord")
-        } catch (e) {
-            this.logger.error(`Login failed: ${e.message}`)
-        }
-
         //Load all commands
         try {
             let cmds = await readdir(path.join(__dirname, "commands"))
@@ -119,6 +112,13 @@ class UltraRpgBot extends Client {
             this.logger.info("Event loading complete")
         } catch (e) {
             this.logger.error(`${e.message}`)
+        }
+
+        try {
+            await this.login()
+            this.logger.info("Ultra RPG Bot connected to Discord")
+        } catch (e) {
+            this.logger.error(`Login failed: ${e.message}`)
         }
 
         //Run per-guild configuration
