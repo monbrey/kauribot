@@ -22,6 +22,10 @@ module.exports = class ConfigCommand extends BaseCommand {
         message.channel.send("Wizardy stuff not yet implemented - use specific config commands")
     }
 
+    /**
+     * @param {Message} message - A Discord.Message object 
+     * @param {string} arg - Configuration to retrieve
+     */
     async getConfig(message, arg) {
         switch (arg) {
             case "logs": 

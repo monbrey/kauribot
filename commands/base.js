@@ -33,18 +33,30 @@ module.exports = class BaseCommand {
         this.requiresOwner = options.requiresOwner || false
     }
 
+    /**
+     * @param {CommandConfig} config - A CommandConfig Mongoose document
+     */
     async setConfig(config) {
         this.config = config
     }
 
+    /**
+     * @param {string} guild - Discord Guild ID
+     */
     async isEnabledInGuild(guild) {
         return this.config.guilds.includes(guild)
     }
 
+    /**
+     * @param {string} channel - Discord Channel ID
+     */
     async isEnabledInChannel(channel) {
         return this.config.channel.includes(channel)
     }
 
+    /**
+     * @param {Channel} channel - A Discord Channel object
+     */
     async getHelp(channel) {
         let prefix = channel.client.prefix
 
