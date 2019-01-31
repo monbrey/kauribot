@@ -29,7 +29,7 @@ Make your way over to the URPG Discord server to say hello! There, in the ${star
             member.client.logger.guildMemberAdd(member)
             return member.send(embed)
         } catch (e) {
-            return member.client.logger.error({ ...e, key: this.name })
+            return member.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
         }
     }
 }

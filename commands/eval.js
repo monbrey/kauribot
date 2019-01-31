@@ -33,7 +33,7 @@ module.exports = class EvalCommand extends BaseCommand {
                 else message.channel.send(clean(evaled), { code: "xl" })
             }
         } catch (e) {
-            message.client.logger.error({ ...e, key: this.name })
+            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
         }
     }
 }

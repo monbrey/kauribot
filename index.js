@@ -53,7 +53,7 @@ class UltraRpgBot extends Client {
             }
             return
         } catch (e) {
-            return this.logger.error({ ...e, key: "loadCommand" })
+            return this.logger.error({ code: e.code, stack: e.stack, key: "loadCommand" })
 
         } finally {
             delete require.cache[require.resolve(path.join(__dirname, `commands/${cmdFile}`))]
@@ -72,7 +72,7 @@ class UltraRpgBot extends Client {
 
             return this.on(event.name, event.run.bind(event))
         } catch (e) {
-            return this.logger.error({ ...e, key: "loadEvent" })
+            return this.logger.error({ code: e.code, stack: e.stack, key: "loadEvent" })
         } finally {
             delete require.cache[require.resolve(path.join(__dirname, `events/${eventFile}`))]
         }
@@ -97,7 +97,7 @@ class UltraRpgBot extends Client {
 
             this.logger.info({ message: "Command loading complete", key: "init" })
         } catch (e) {
-            this.logger.error({ ...e, key: "init" })
+            this.logger.error({ code: e.code, stack: e.stack, key: "init" })
         }
 
         //Load all events
@@ -111,14 +111,14 @@ class UltraRpgBot extends Client {
 
             this.logger.info({ message: "Event loading complete", key: "init" })
         } catch (e) {
-            this.logger.error({ ...e, key: "init" })
+            this.logger.error({ code: e.code, stack: e.stack, key: "init" })
         }
 
         try {
             await this.login()
             this.logger.info({ message: "Ultra RPG Bot connected to Discord", key: "init" })
         } catch (e) {
-            this.logger.error({ ...e, key: "login" })
+            this.logger.error({ code: e.code, stack: e.stack, key: "login" })
         }
 
         //Run per-guild configuration
@@ -147,7 +147,7 @@ const client = new UltraRpgBot({
 try {
     client.init()
 } catch (e) {
-    this.logger.error({ ...e, key: "init" })
+    this.logger.error({ code: e.code, stack: e.stack, key: "init" })
 }
 
 process.on("unhandledRejection", (reason, p) => {
@@ -155,5 +155,5 @@ process.on("unhandledRejection", (reason, p) => {
 })
 
 process.on("uncaughtException", (e) => {
-    this.logger.error({ ...e, key: "uncaughtException" })
+    this.logger.error({ code: e.code, stack: e.stack, key: "uncaughtException" })
 })

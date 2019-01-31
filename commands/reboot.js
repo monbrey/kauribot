@@ -19,7 +19,7 @@ module.exports = class RebootCommand extends BaseCommand {
             
             message.client.init()
         } catch (e) {
-            message.client.logger.error({ ...e, key: this.name })
+            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
         }
     }
 }

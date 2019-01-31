@@ -125,7 +125,7 @@ module.exports = class StartCommand extends BaseCommand {
             } else return username
         } catch (e) {
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ ...e, key: this.name })
+            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
         }
     }
 
@@ -144,7 +144,7 @@ module.exports = class StartCommand extends BaseCommand {
             return await sentMessage.reactConfirm(message.author.id) ? username : await this.confirmUsername(message, sentMessage, embed)
         } catch (e) {
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ ...e, key: this.name })
+            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
 
         }
     }
@@ -207,7 +207,7 @@ module.exports = class StartCommand extends BaseCommand {
             }
         } catch (e) {
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ ...e, key: this.name })
+            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
 
         }
     }
@@ -231,7 +231,7 @@ module.exports = class StartCommand extends BaseCommand {
             return await sentMessage.reactConfirm(message.author.id) ? starter : await this.confirmStarter(message, sentMessage, embed)
         } catch (e) {
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ ...e, key: this.name })
+            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
 
         }
     }

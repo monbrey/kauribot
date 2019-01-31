@@ -4,11 +4,20 @@ const { Loggly } = require("winston-loggly-bulk")
 const { stripIndent } = require("common-tags")
 
 const consoleFormat = format.combine(
+    format(info => { return (info.level !== "error" ? info : false) })(),
     format.label({ label: process.env.NODE_ENV }),
     format.timestamp(),
-    format.json(),
     format.colorize(),
     format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`)
+)
+
+const consoleErrorFormat = format.combine(
+    format.label({ label: process.env.NODE_ENV }),
+    format.timestamp(),
+    format.colorize(),
+    format.printf(info => {
+        return `[${info.timestamp}] ${info.level}: ${info.message.code}\n${info.message.stack}`
+    })
 )
 
 const _transports = [
@@ -19,7 +28,12 @@ const _transports = [
         json: true,
     }),
     new transports.Console({
-        format: consoleFormat
+        format: consoleFormat,
+        level: "info",
+    }),
+    new transports.Console({
+        format: consoleErrorFormat,
+        level: "error",
     })
 ]
 
@@ -43,7 +57,7 @@ class Logger {
     }
 
     async message(message) {
-        this.info({ 
+        this.info({
             message: "Message processed",
             content: message.content,
             author: { nickname: message.member.displayName, username: message.author.username, id: message.author.id },

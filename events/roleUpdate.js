@@ -23,7 +23,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
                 return false
             }
         } catch (e) {
-            oldRole.client.logger.error({ ...e, key: this.name })
+            oldRole.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
         }
 
         dbRole.roleName = newRole.name
@@ -34,7 +34,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
         try {
             return await dbRole.save()
         } catch (e) {
-            oldRole.client.logger.error({ ...e, key: this.name })
+            oldRole.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
         }
     }
 
@@ -106,7 +106,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
                 return dbRole
             })
         } catch (e) {
-            newRole.client.logger.error({ ...e, key: this.name })
+            newRole.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
         }
     }
 

@@ -98,7 +98,7 @@ module.exports = class ConfigCommand extends BaseCommand {
                 command.setConfig(update)
                 return message.channel.send(`${message.client.prefix}${arg} ${status ? "enabled" : "disabled"} in ${message.mentions.channels.array().join(", ")}.`)
             } catch (e) {
-                message.client.logger.error({ ...e, key: "config" })
+                message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
                 return message.channel.send(`Error updating command configuration: ${e.message}`)
             }
         } else {
@@ -110,7 +110,7 @@ module.exports = class ConfigCommand extends BaseCommand {
                 command.setConfig(update)
                 return message.channel.send(`${message.client.prefix}${arg} ${status ? "enabled" : "disabled"} server-wide. Any existing channel overrides will still apply.`)
             } catch (e) {
-                message.client.logger.error({ ...e, key: "config" })
+                message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
                 return message.channel.send(`Error updating command configuration: ${e.message}`)
             }
         }
@@ -127,7 +127,7 @@ module.exports = class ConfigCommand extends BaseCommand {
                     return message.channel.send(`Log channel has been set to ${logChannel}. It is recommended that you prevent other users from sending messages to this channel.`)
 
                 } catch (e) {
-                    message.client.logger.error({ ...e, key: "config" })
+                    message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
                     return message.channel.send(`Error updating function configuration: ${e.message}`)
                 }
             case "starboard":
@@ -143,7 +143,7 @@ module.exports = class ConfigCommand extends BaseCommand {
                     return message.channel.send(`Starboard channel has been set to ${starChannel}. It is recommended that you prevent other users from sending messages to this channel.`)
 
                 } catch (e) {
-                    message.client.logger.error({ ...e, key: "config" })
+                    message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
                     return message.channel.send(`Error updating function configuration: ${e.message}`)
                 }
             case "starboard-emoji":
@@ -200,7 +200,7 @@ module.exports = class ConfigCommand extends BaseCommand {
             command.setConfig(update)
             return message.channel.send(`${message.client.prefix}${arg} configuration has been cleared.`)
         } catch (e) {
-            message.client.logger.error({ ...e, key: this.name })
+            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
             return message.channel.send(`Error updating command configuration: ${e.message}`)
         }
     }
