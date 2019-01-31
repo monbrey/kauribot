@@ -37,9 +37,7 @@ module.exports = class ReloadCommand extends BaseCommand {
                     }
                 } catch (e) {
                     message.channel.send(`${arg} failed to load`)
-                    return message.client.logger.error(`${arg} failed to reload\n${e.stack}`, {
-                        key: "reload"
-                    })
+                    message.client.logger.error({ ...e, key: this.name })
                 } finally {
                     delete require.cache[require.resolve(`./${arg.toLowerCase()}`)]
                 }
@@ -51,10 +49,10 @@ module.exports = class ReloadCommand extends BaseCommand {
                     if (event.enabled) {
                         message.client.removeAllListeners(arg)
                         message.client.on(event.name, event.run)
-                        return await message.client.logger.info(`${event.constructor.name} loaded`)
-                    } else return await message.client.logger.info(`${event.constructor.name} is disabled`)
+                        return message.client.logger.info(`${event.constructor.name} loaded`)
+                    } else return message.client.logger.info(`${event.constructor.name} is disabled`)
                 } catch (e) {
-                    return await message.client.logger.error(`${arg} failed to load\n${e.stack}`)
+                    return message.client.logger.error({ ...e, key: this.name })
                 } finally {
                     delete require.cache[require.resolve(`../events/${arg}`)]
                 }

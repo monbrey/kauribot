@@ -1,0 +1,53 @@
+[{
+    "category": ["Redeemables"],
+    "itemName": "Spare Exploration Kit",
+    "desc": "Redeemable for a free dig in the Underground"
+}, {
+    "category": ["Redeemables"],
+    "itemName": "Odd Keystone",
+    "desc": "Contains the fossilized DNA of a Spiritomb"
+}, {
+    "category": ["Redeemables"],
+    "itemName": "Old Amber",
+    "desc": "Contains the fossilized DNA of an Aerodactyl"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Dome Fossil",
+    "desc": "Contains the fossilized DNA of a Kabuto"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Helix Fossil",
+    "desc": "Contains the fossilized DNA of an Omanyte"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Claw Fossil",
+    "desc": "Contains the fossilized DNA of an Anorith"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Root Fossil",
+    "desc": "Contains the fossilized DNA of a Lileep"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Armor Fossil",
+    "desc": "Contains the fossilized DNA of a Shieldon"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Skull Fossil",
+    "desc": "Contains the fossilized DNA of a Cranidos"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Cover Fossil",
+    "desc": "Contains the fossilized DNA of a Tirtouga"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Plume Fossil",
+    "desc": "Contains the fossilized DNA of an Archen"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Jaw Fossil",
+    "desc": "Contains the fossilized DNA of a Tyrunt"
+},{
+    "category": ["Redeemables"],
+    "itemName": "Sail Fossil",
+    "desc": "Contains the fossilized DNA of an Amaura"
+}]

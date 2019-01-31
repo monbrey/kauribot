@@ -5,7 +5,6 @@ require("dotenv").config({ path: "variables.env" })
 require("./util/db")
 
 const { Client, Collection } = require("discord.js")
-const { stripIndent } = require("common-tags")
 const path = require("path")
 const { promisify } = require("util")
 const readdir = promisify(require("fs").readdir)
@@ -54,7 +53,8 @@ class UltraRpgBot extends Client {
             }
             return
         } catch (e) {
-            return this.logger.error(`${cmdFile} failed to load\n${e.stack}`)
+            return this.logger.error({ ...e, key: "loadCommand" })
+
         } finally {
             delete require.cache[require.resolve(path.join(__dirname, `commands/${cmdFile}`))]
         }
@@ -72,7 +72,7 @@ class UltraRpgBot extends Client {
 
             return this.on(event.name, event.run.bind(event))
         } catch (e) {
-            return this.logger.error(`${eventFile} failed to load\n${e.stack}`)
+            return this.logger.error({ ...e, key: "loadEvent" })
         } finally {
             delete require.cache[require.resolve(path.join(__dirname, `events/${eventFile}`))]
         }
@@ -95,9 +95,9 @@ class UltraRpgBot extends Client {
                 return this.loadCommand(next)
             }, Promise.resolve())
 
-            this.logger.info("Command loading complete")
+            this.logger.info({ message: "Command loading complete", key: "init" })
         } catch (e) {
-            this.logger.error(`${e.message}`)
+            this.logger.error({ ...e, key: "init" })
         }
 
         //Load all events
@@ -109,16 +109,16 @@ class UltraRpgBot extends Client {
                 return this.loadEvent(next)
             }, Promise.resolve())
 
-            this.logger.info("Event loading complete")
+            this.logger.info({ message: "Event loading complete", key: "init" })
         } catch (e) {
-            this.logger.error(`${e.message}`)
+            this.logger.error({ ...e, key: "init" })
         }
 
         try {
             await this.login()
-            this.logger.info("Ultra RPG Bot connected to Discord")
+            this.logger.info({ message: "Ultra RPG Bot connected to Discord", key: "init" })
         } catch (e) {
-            this.logger.error(`Login failed: ${e.message}`)
+            this.logger.error({ ...e, key: "login" })
         }
 
         //Run per-guild configuration
@@ -147,15 +147,13 @@ const client = new UltraRpgBot({
 try {
     client.init()
 } catch (e) {
-    client.logger.error(`Unable to initialise bot. ${e}`)
+    this.logger.error({ ...e, key: "init" })
 }
 
 process.on("unhandledRejection", (reason, p) => {
-    client.logger.error(stripIndent `
-    Unhandled Promise Rejection at ${p}
-    Reason: ${reason}`)
+    this.logger.error({ ...p, key: "unhandledRejection" })
 })
 
-process.on("uncaughtException", (err) => {
-    client.logger.error(`Uncaught Exception: ${err.stack}`)
+process.on("uncaughtException", (e) => {
+    this.logger.error({ ...e, key: "uncaughtException" })
 })

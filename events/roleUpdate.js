@@ -23,9 +23,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
                 return false
             }
         } catch (e) {
-            oldRole.client.logger.error(`Error searching for "${oldRole.name}" (${oldRole.id}) in the database: ${e}`, {
-                key: "roleUpdate"
-            })
+            oldRole.client.logger.error({ ...e, key: this.name })
         }
 
         dbRole.roleName = newRole.name
@@ -36,9 +34,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
         try {
             return await dbRole.save()
         } catch (e) {
-            oldRole.client.logger.error(`Error saving role update from "${oldRole.name}" to "${newRole.name}": ${e}`, {
-                key: "roleUpdate"
-            })
+            oldRole.client.logger.error({ ...e, key: this.name })
         }
     }
 
@@ -110,9 +106,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
                 return dbRole
             })
         } catch (e) {
-            return newRole.client.logger.error(`Error configuring "${newRole.name}" by role prompting: ${e}`, {
-                key: "roleUpdate"
-            })
+            newRole.client.logger.error({ ...e, key: this.name })
         }
     }
 

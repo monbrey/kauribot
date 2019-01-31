@@ -3,10 +3,8 @@ const { transports, format, createLogger } = require("winston")
 const { Loggly } = require("winston-loggly-bulk")
 const { stripIndent } = require("common-tags")
 
-const _logFormat = format.combine(
-    format.label({
-        label: process.env.NODE_ENV
-    }),
+const consoleFormat = format.combine(
+    format.label({ label: process.env.NODE_ENV }),
     format.timestamp(),
     format.json(),
     format.colorize(),
@@ -15,12 +13,14 @@ const _logFormat = format.combine(
 
 const _transports = [
     new Loggly({
-        token: "e4331153-6ed4-44f4-a2aa-b03c967a4d66",
+        token: "d44ad9d7-6adf-43f1-bfa8-deddd4e209b4",
         subdomain: "monbrey",
-        tags: ["Winston-NodeJS"],
-        json: true
+        tags: ["Winston-NodeJS", process.env.NODE_ENV],
+        json: true,
     }),
-    new transports.Console()
+    new transports.Console({
+        format: consoleFormat
+    })
 ]
 
 if (process.env.NODE_ENV === "production") {
@@ -38,9 +38,19 @@ class Logger {
     constructor() {
         Object.assign(this, createLogger({
             level: "info",
-            format: _logFormat,
             transports: _transports
         }))
+    }
+
+    async message(message) {
+        this.info({ 
+            message: "Message processed",
+            content: message.content,
+            author: { nickname: message.member.displayName, username: message.author.username, id: message.author.id },
+            server: { name: message.guild.name, id: message.guild.id },
+            channel: { name: message.channel.name, id: message.channel.id },
+            key: "message"
+        })
     }
 
     async newStarter(message, trainer, starter) {
@@ -68,7 +78,7 @@ class Logger {
         let embed = new RichEmbed()
             .setFooter("Battle logged")
             .setColor(parseInt("1f8b4c", 16))
-            .setDescription(stripIndent`
+            .setDescription(stripIndent `
             ${message.member} logged a battle in [${log.channel}](${log.url})
             ${description}`)
             .setTimestamp()
@@ -86,7 +96,7 @@ class Logger {
         let embed = new RichEmbed()
             .setFooter("Contest logged")
             .setColor(parseInt("1f8b4c", 16))
-            .setDescription(stripIndent`
+            .setDescription(stripIndent `
             ${message.member} logged a contest in [${log.channel}](${log.url})
             ${description}`)
             .setTimestamp()

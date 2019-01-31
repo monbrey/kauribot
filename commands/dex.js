@@ -64,7 +64,7 @@ module.exports = class DexCommand extends BaseCommand {
         let embed = new RichEmbed(dex.embeds[0])
         embed.setFooter("")
         await dex.edit(embed)
-        return await dex.clearReactions()
+        return dex.clearReactions()
     }
 
     async run(message, args = [], flags = []) {
@@ -74,26 +74,22 @@ module.exports = class DexCommand extends BaseCommand {
         }
 
         let query = args.join(" ")
-        message.client.logger.info(`${message.author.username} searched for ${query}`, {
-            key: "dex"
-        })
 
         //Send an exact match
         let pokemon = await Pokemon.findOneExact(query)
-        let dex
-        if (pokemon) dex = await message.channel.send(await pokemon.dex(message.client))
-        else {
+        message.client.logger.info({ key: "dex", search: query, result: 1 })
+        if(!pokemon) {
             //Otherwise do a partial match search
             pokemon = await Pokemon.findPartial(query)
+            message.client.logger.info({ key: "dex", search: query, result: pokemon.length })
             //If nothing, search failed
-            if (pokemon.length === 0) return await message.channel.send(`No results found for ${query}`)
+            if (pokemon.length === 0) return message.channel.send(`No results found for ${query}`)
             //If one result, return it
             else if (pokemon.length === 1) {
                 pokemon = pokemon[0]
-                dex = await message.channel.send(await pokemon.dex(message.client))
             } else {
                 //If multiple, prompt for a new command
-                return await message.channel.send({
+                return message.channel.send({
                     "embed": {
                         title: `${pokemon.length} results found for "${query}"`,
                         description: `${pokemon.map(p => p.speciesName).join("\n")}`,
@@ -105,9 +101,10 @@ module.exports = class DexCommand extends BaseCommand {
             }
         }
 
-        //If we get here, we should have sent a Message (dex), start prompt workflow
+        //If we get here, we should have found a Pokemon, start prompt workflow
+        let dex = await message.channel.send(await pokemon.dex(message.client))
         dex.pokemon = pokemon
         dex.orig_author = message.author
-        await this.prompt(dex)
+        return this.prompt(dex)
     }
 }

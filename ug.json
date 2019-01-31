@@ -1,0 +1,556 @@
+[{
+        "maxIndex": 5,
+        "item": "Spare Exploration Kit"
+    },
+    {
+        "maxIndex": 11,
+        "catName": "Megastones",
+        "item": [{
+                "maxIndex": 4,
+                "item": 172
+            },
+            {
+                "maxIndex": 8,
+                "item": 174
+            },
+            {
+                "maxIndex": 12,
+                "item": 175
+            },
+            {
+                "maxIndex": 16,
+                "item": 178
+            },
+            {
+                "maxIndex": 20,
+                "item": 179
+            },
+            {
+                "maxIndex": 24,
+                "item": 193
+            },
+            {
+                "maxIndex": 28,
+                "item": 194
+            },
+            {
+                "maxIndex": 32,
+                "item": 195
+            },
+            {
+                "maxIndex": 36,
+                "item": 201
+            },
+            {
+                "maxIndex": 40,
+                "item": 203
+            },
+            {
+                "maxIndex": 44,
+                "item": 207
+            },
+            {
+                "maxIndex": 48,
+                "item": 208
+            },
+            {
+                "maxIndex": 52,
+                "item": 215
+            },
+            {
+                "maxIndex": 55,
+                "item": 173
+            },
+            {
+                "maxIndex": 58,
+                "item": 180
+            },
+            {
+                "maxIndex": 61,
+                "item": 181
+            },
+            {
+                "maxIndex": 64,
+                "item": 182
+            },
+            {
+                "maxIndex": 67,
+                "item": 184
+            },
+            {
+                "maxIndex": 70,
+                "item": 185
+            },
+            {
+                "maxIndex": 73,
+                "item": 186
+            },
+            {
+                "maxIndex": 76,
+                "item": 188
+            },
+            {
+                "maxIndex": 79,
+                "item": 190
+            },
+            {
+                "maxIndex": 82,
+                "item": 192
+            },
+            {
+                "maxIndex": 85,
+                "item": 199
+            },
+            {
+                "maxIndex": 88,
+                "item": 202
+            },
+            {
+                "maxIndex": 91,
+                "item": 209
+            },
+            {
+                "maxIndex": 94,
+                "item": 212
+            },
+            {
+                "maxIndex": 97,
+                "item": 211
+            },
+            {
+                "maxIndex": 100,
+                "item": 213
+            },
+            {
+                "maxIndex": 103,
+                "item": 214
+            },
+            {
+                "maxIndex": 106,
+                "item": 216
+            },
+            {
+                "maxIndex": 109,
+                "item": 218
+            },
+            {
+                "maxIndex": 111,
+                "item": 176
+            },
+            {
+                "maxIndex": 113,
+                "item": 177
+            },
+            {
+                "maxIndex": 115,
+                "item": 183
+            },
+            {
+                "maxIndex": 117,
+                "item": 189
+            },
+            {
+                "maxIndex": 119,
+                "item": 191
+            },
+            {
+                "maxIndex": 121,
+                "item": 196
+            },
+            {
+                "maxIndex": 123,
+                "item": 200
+            },
+            {
+                "maxIndex": 125,
+                "item": 204
+            },
+            {
+                "maxIndex": 127,
+                "item": 210
+            },
+            {
+                "maxIndex": 129,
+                "item": 217
+            },
+            {
+                "maxIndex": 130,
+                "item": 187
+            },
+            {
+                "maxIndex": 131,
+                "item": 197
+            },
+            {
+                "maxIndex": 132,
+                "item": 198
+            },
+            {
+                "maxIndex": 133,
+                "item": 205
+            },
+            {
+                "maxIndex": 134,
+                "item": 206
+            },
+            {
+                "maxIndex": 135,
+                "item": 220
+            },
+            {
+                "maxIndex": 136,
+                "item": 219
+            }
+        ]
+    },
+    {
+        "maxIndex": 17,
+        "catName": "Z-Crystals",
+        "item": [{
+                "maxIndex": 2,
+                "item": 233
+            },
+            {
+                "maxIndex": 4,
+                "item": 230
+            },
+            {
+                "maxIndex": 6,
+                "item": 227
+            },
+            {
+                "maxIndex": 8,
+                "item": 238
+            },
+            {
+                "maxIndex": 10,
+                "item": 224
+            },
+            {
+                "maxIndex": 12,
+                "item": 232
+            },
+            {
+                "maxIndex": 14,
+                "item": 226
+            },
+            {
+                "maxIndex": 16,
+                "item": 234
+            },
+            {
+                "maxIndex": 18,
+                "item": 231
+            },
+            {
+                "maxIndex": 20,
+                "item": 228
+            },
+            {
+                "maxIndex": 22,
+                "item": 235
+            },
+            {
+                "maxIndex": 24,
+                "item": 221
+            },
+            {
+                "maxIndex": 26,
+                "item": 236
+            },
+            {
+                "maxIndex": 28,
+                "item": 229
+            },
+            {
+                "maxIndex": 30,
+                "item": 223
+            },
+            {
+                "maxIndex": 32,
+                "item": 237
+            },
+            {
+                "maxIndex": 34,
+                "item": 222
+            },
+            {
+                "maxIndex": 36,
+                "item": 225
+            },
+            {
+                "maxIndex": 37,
+                "item": 239
+            },
+            {
+                "maxIndex": 38,
+                "item": 240
+            },
+            {
+                "maxIndex": 39,
+                "item": 241
+            },
+            {
+                "maxIndex": 40,
+                "item": 242
+            },
+            {
+                "maxIndex": 41,
+                "item": 243
+            },
+            {
+                "maxIndex": 42,
+                "item": 244
+            },
+            {
+                "maxIndex": 43,
+                "item": 255
+            },
+            {
+                "maxIndex": 44,
+                "item": 246
+            },
+            {
+                "maxIndex": 45,
+                "item": 247
+            },
+            {
+                "maxIndex": 46,
+                "item": 248
+            },
+            {
+                "maxIndex": 47,
+                "item": 249
+            },
+            {
+                "maxIndex": 48,
+                "item": 250
+            },
+            {
+                "maxIndex": 49,
+                "item": 251
+            },
+            {
+                "maxIndex": 50,
+                "item": 252
+            },
+            {
+                "maxIndex": 51,
+                "item": 253
+            },
+            {
+                "maxIndex": 52,
+                "item": 254
+            }
+        ]
+    },
+    {
+        "maxIndex": 35,
+        "catName": "Fossils",
+        "item": [{
+                "maxIndex": 1,
+                "item": ["Odd Keystone","Old Amber"]
+            },
+            {
+                "maxIndex": 10,
+                "item": [{
+                        "maxIndex": 1,
+                        "item": ["Dome Fossil","Helix Fossil"]
+                    },
+                    {
+                        "maxIndex": 2,
+                        "item": ["Claw Fossil","Root Fossil"]
+                    },
+                    {
+                        "maxIndex": 3,
+                        "item": ["Armor Fossil","Skull Fossil"]
+                    },
+                    {
+                        "maxIndex": 4,
+                        "item": ["Cover Fossil","Plume Fossil"]
+                    },
+                    {
+                        "maxIndex": 5,
+                        "item": ["Jaw Fossil","Sail Fossil"]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "maxIndex": 50,
+        "catName": "Spheres",
+        "item": [{
+                "maxIndex": 4,
+                "item": "Pale Sphere"
+            },
+            {
+                "maxIndex": 14,
+                "item": "Prism Sphere"
+            },
+            {
+                "maxIndex": 30,
+                "item": "Green Sphere"
+            },
+            {
+                "maxIndex": 59,
+                "item": "Blue Sphere"
+            },
+            {
+                "maxIndex": 100,
+                "item": "Red Sphere"
+            }
+        ]
+    },
+    {
+        "maxIndex": 69,
+        "catName": "Battle Items",
+        "item": [{
+                "maxIndex": 4,
+                "item": "Leftovers"
+            },
+            {
+                "maxIndex": 19,
+                "item": "Random TM from the Pokemart"
+            },
+            {
+                "maxIndex": 29,
+                "item": "Random Plate"
+            },
+            {
+                "maxIndex": 39,
+                "item": "Held Items: Berserk Gene, Iron Ball, Life Orb, Light Clay, Red Card, Rocky Helmet"
+            },
+            {
+                "maxIndex": 59,
+                "item": "Gems"
+            },
+            {
+                "maxIndex": 79,
+                "item": "Shards"
+            },
+            {
+                "maxIndex": 100,
+                "item": "Damp Rock, Heat Rock, Icy Rock, Smooth Rock, Terrain Extender"
+            }
+        ]
+    },
+    {
+        "maxIndex": 84,
+        "catName": "Evolution Items",
+        "item": [{
+                "maxIndex": 1,
+                "item": "Coronet Stone"
+            },
+            {
+                "maxIndex": 2,
+                "item": "Dawn Stone"
+            },
+            {
+                "maxIndex": 3,
+                "item": "Dusk Stone"
+            },
+            {
+                "maxIndex": 4,
+                "item": "Fire Stone"
+            },
+            {
+                "maxIndex": 5,
+                "item": "Frozen Rock"
+            },
+            {
+                "maxIndex": 6,
+                "item": "Ice Stone"
+            },
+            {
+                "maxIndex": 7,
+                "item": "Leaf Stone"
+            },
+            {
+                "maxIndex": 8,
+                "item": "Moon Stone"
+            },
+            {
+                "maxIndex": 9,
+                "item": "Moss Rock"
+            },
+            {
+                "maxIndex": 10,
+                "item": "Oval Stone"
+            },
+            {
+                "maxIndex": 11,
+                "item": "Pixie Stone"
+            },
+            {
+                "maxIndex": 12,
+                "item": "Shiny Stone"
+            },
+            {
+                "maxIndex": 13,
+                "item": "Thunder Stone"
+            },
+            {
+                "maxIndex": 14,
+                "item": "Water Stone"
+            }
+        ]
+    },
+    {
+        "maxIndex": 100,
+        "catName": "Valuables",
+        "item": [{
+                "maxIndex": 4,
+                "item": "Big Nugget"
+            },
+            {
+                "maxIndex": 19,
+                "item": [{
+                        "maxIndex": 1,
+                        "item": "Nugget"
+                    },
+                    {
+                        "maxIndex": 2,
+                        "item": "Pearl String"
+                    }
+                ]
+            },
+            {
+                "maxIndex": 29,
+                "item": "Heart Scale"
+            },
+            {
+                "maxIndex": 54,
+                "item": [{
+                        "maxIndex": 1,
+                        "item": "Star Piece"
+                    },
+                    {
+                        "maxIndex": 2,
+                        "item": "Big Pearl"
+                    },
+                    {
+                        "maxIndex": 3,
+                        "item": "Relic Silver"
+                    }
+                ]
+            },
+            {
+                "maxIndex": 100,
+                "item": [{
+                        "maxIndex": 1,
+                        "item": "Relic Copper"
+                    },
+                    {
+                        "maxIndex": 2,
+                        "item": "Pearl"
+                    },
+                    {
+                        "maxIndex": 3,
+                        "item": "Stardust"
+                    }
+                ]
+            }
+        ]
+    }
+]

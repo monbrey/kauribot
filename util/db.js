@@ -14,15 +14,15 @@ mongoose.set("useCreateIndex", true)
 let db = mongoose.connection
 
 db.on("connected", async () => {
-    logger.info("Mongoose database connection established")
+    logger.info({ message: "Mongoose database connection established", key: "db" })
 })
 
 db.on("error", async (err) => {
-    logger.error(`Mongoose default connection error: ${err}`)
+    logger.error({ ...err, key: "db" })
 })
 
 db.on("disconnected", async () => {
-    logger.warn("Mongoose default connection disconnected")
+    logger.warn({ message: "Mongoose default connection disconnected", key: "db"})
 })
 
 module.exports = db

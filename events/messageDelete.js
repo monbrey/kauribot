@@ -35,7 +35,7 @@ module.exports = class MessageDeleteEvent extends BaseEvent {
                 //We don't care about bots deleting their own messages
                 if (!message.author.bot) return message.client.logger.messageDelete(message)
             } catch (e) {
-                message.client.logger.error(e.stack)
+                message.client.logger.error({ ...e, key: this.name })
             }
         }
 

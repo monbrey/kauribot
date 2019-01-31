@@ -28,7 +28,7 @@ module.exports = class GuildMemberRemoveEvent extends BaseEvent {
                 }
             }, 1000)
         } catch (e) {
-            return member.client.logger.error(`${e.stack}`)
+            return member.client.logger.error({ ...e, key: this.name })
         }
     }
 }

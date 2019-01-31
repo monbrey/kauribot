@@ -15,12 +15,8 @@ module.exports = class MessageEvent extends BaseEvent {
         // Ignore messages that don't start with the prefix
         if (!message.content.startsWith(message.client.prefix)) return
 
-        //Determine the location of the message, a server or a DM
-        message.location = message.guild ? `${message.guild.name} #${message.channel.name}` : "DM"
-        //Log the message
-        message.client.logger.info(`${message.author.username} in ${message.location}: ${message.content}`, {
-            key: "message"
-        })
+        //Log the message - refer to util/logger.js to see what is logged
+        message.client.logger.message(message)
 
         //Parse CSV's with spaces as a single argument
         let content = message.content.replace(/, +/g, ",")

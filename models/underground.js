@@ -20,8 +20,9 @@ const undergroundSchema = new mongoose.Schema({
             required: true
         },
         item: {
-            type: mongoose.Schema.Types.Mixed,
-            required: true
+            type: Number,
+            required: true,
+            ref: "Item"
         },
         _id: false
     }]
