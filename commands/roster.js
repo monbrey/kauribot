@@ -40,7 +40,7 @@ module.exports = class TrainerCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        let member = args.length === 0 ? message.member : (message.mentions.members.first() ? message.mentions.members.first() : null)
+        let member = args.length === 0 ? message.member : message.mentions.members.first()
 
         if (!member) member = message.guild.members.find(m => (
             m.displayName.localeCompare(args[0], "en", {
