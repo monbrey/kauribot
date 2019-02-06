@@ -86,42 +86,42 @@ trainerSchema.virtual("balanceString").get(function() {
     return `$${this.cash.toLocaleString()} | ${this.contestCredit.toLocaleString()} CC`
 })
 
-trainerSchema.statics.usernameExists = async function (username) {
+trainerSchema.statics.usernameExists = async function(username) {
     return this.findOne({
         "username": new RegExp(`^${username}$`, "i")
     })
 }
 
-trainerSchema.statics.findByDiscordId = async function (id) {
+trainerSchema.statics.findByDiscordId = async function(id) {
     return this.findOne({
         "discord_id": id
     })
 }
 
-trainerSchema.statics.discordIdExists = async function (id) {
+trainerSchema.statics.discordIdExists = async function(id) {
     return this.findOne({
         "discord_id": id
     }) ? true : false
 }
 
-trainerSchema.methods.cantAfford = function (cash = null, contestCredit = null) {
+trainerSchema.methods.cantAfford = function(cash = null, contestCredit = null) {
     const cashError = cash && cash > this.cash ? true : false
     const ccError = contestCredit && contestCredit > this.contestCredit ? true : false
 
     return (cashError && ccError ? "cash and contest credit" : (cashError ? "cash" : (ccError ? "contestCredit" : false)))
 }
 
-trainerSchema.methods.modifyCash = async function (amount) {
+trainerSchema.methods.modifyCash = async function(amount) {
     this.cash += parseInt(amount)
     return this.save()
 }
 
-trainerSchema.methods.modifyContestCredit = async function (amount) {
+trainerSchema.methods.modifyContestCredit = async function(amount) {
     this.contestCredit += parseInt(amount)
     return this.save()
 }
 
-trainerSchema.methods.populatePokemon = async function () {
+trainerSchema.methods.populatePokemon = async function() {
     return await this.populate({
         path: "pokemon",
         populate: {
@@ -130,25 +130,25 @@ trainerSchema.methods.populatePokemon = async function () {
     }).execPopulate()
 }
 
-trainerSchema.methods.getPokemon = async function (index = null) {
+trainerSchema.methods.getPokemon = async function(index = null) {
     if (!this.populated("pokemon")) await this.populatePokemon()
     return index !== null ? this.pokemon[index] : this.pokemon
 }
 
-trainerSchema.methods.findPokemon = async function (query) {
+trainerSchema.methods.findPokemon = async function(query) {
     if (!this.populated("pokemon")) await this.populatePokemon()
     return this.pokemon.filter(p => {
         return (p.nickname && new RegExp(`^${query}$`, "i").test(p.nickname)) || new RegExp(`^${query}$`, "i").test(p.pokemon.uniqueName)
     })
 }
 
-trainerSchema.methods.listPokemon = async function () {
+trainerSchema.methods.listPokemon = async function() {
     if (!this.populated("pokemon")) await this.populatePokemon()
     return this.pokemon.map(p => p.nickname || p.pokemon.uniqueName)
 }
 
-//Adds a new TrainerPokemon for the provided Pokemon ID number
-trainerSchema.methods.addNewPokemon = async function (pokemon) {
+// Adds a new TrainerPokemon for the provided Pokemon ID number
+trainerSchema.methods.addNewPokemon = async function(pokemon) {
     let tp = new TrainerPokemon({
         basePokemon: pokemon.id,
         moves: {
@@ -186,7 +186,12 @@ trainerSchema.methods.addNewPokemon = async function (pokemon) {
     })
     await tp.save()
     this.pokemon.push(tp.id)
-    return await this.save()
+    return this.save()
+}
+
+trainerSchema.methods.addNewItem = async function(item, type) {
+    this.inventory.push({"item": item.id, "itemType": type})
+    return this.save()
 }
 
 module.exports = mongoose.model("Trainer", trainerSchema)

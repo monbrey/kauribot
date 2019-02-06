@@ -1,10 +1,13 @@
 #!/usr/bin/node
 
-require("./util/discordExtensions") //Custom methods on Discord objects, to be replaced in 12.0 with Structures.extend
 require("dotenv").config({ path: "variables.env" })
-require("./util/db")
 
-const { Client, Collection } = require("discord.js")
+
+require("./util/discordExtensions") // Custom methods on Discord objects, to be replaced in 12.0 with Structures.extend
+require("./util/db")
+const logger = require("./util/logger")
+
+const { Client, Collection, Util } = require("discord.js")
 const path = require("path")
 const { promisify } = require("util")
 const readdir = promisify(require("fs").readdir)
@@ -18,7 +21,7 @@ const StarboardConfig = require("./models/starboardConfig")
 class UltraRpgBot extends Client {
     constructor(options = {}) {
         super(options)
-        this.logger = require("./util/logger")
+        this.logger = logger
         this.config = config
         this.prefix = config.prefix
         this.commands = new Collection()
@@ -26,7 +29,7 @@ class UltraRpgBot extends Client {
         this.activeCommands = new Collection()
         this.emojiCharacters = require("./util/emojiCharacters")
 
-        //Queues for some events
+        // Queues for some events
         this.reactionQueue = new queue({
             concurrency: 1,
             autostart: true,
@@ -39,11 +42,11 @@ class UltraRpgBot extends Client {
         try {
             const _command = require(path.join(__dirname, `commands/${cmdFile}`))
             let command = new _command()
-            //Check if the command is enabled globally
+            // Check if the command is enabled globally
             if (!command.enabled) return
 
             await command.setConfig(await CommandConfig.getConfigForCommand(this, command))
-            //Check if the command has an init method
+            // Check if the command has an init method
             if (command.init)
                 await command.init(this)
 
@@ -81,12 +84,12 @@ class UltraRpgBot extends Client {
     async login() {
         await super.login(process.env.DISCORD_TOKEN)
         this.applicationInfo = await this.fetchApplication()
-        //this.applicationInfo.owner.send("URPG Discord Bot started")
+        // this.applicationInfo.owner.send("URPG Discord Bot started")
         return
     }
 
     async init() {
-        //Load all commands
+        // Load all commands
         try {
             let cmds = await readdir(path.join(__dirname, "commands"))
 
@@ -100,7 +103,7 @@ class UltraRpgBot extends Client {
             this.logger.error({ code: e.code, stack: e.stack, key: "init" })
         }
 
-        //Load all events
+        // Load all events
         try {
             let events = await readdir(path.join(__dirname, "events"))
 
@@ -121,9 +124,9 @@ class UltraRpgBot extends Client {
             this.logger.error({ code: e.code, stack: e.stack, key: "login" })
         }
 
-        //Run per-guild configuration
+        // Run per-guild configuration
         this.guilds.forEach(async guild => {
-            //Set my nickname
+            // Set my nickname
             try {
                 await guild.me.setNickname(null)
             } catch (e) {
@@ -140,20 +143,18 @@ class UltraRpgBot extends Client {
     }
 }
 
-const client = new UltraRpgBot({
-    disableEveryone: true
-})
+const client = new UltraRpgBot({ disableEveryone: true })
 
-try {
-    client.init()
-} catch (e) {
-    this.logger.error({ code: e.code, stack: e.stack, key: "init" })
+try { 
+    client.init() 
+} catch (e) { 
+    this.logger.error({ code: e.code, stack: e.stack, key: "init" }) 
 }
 
-process.on("unhandledRejection", (reason, p) => {
-    this.logger.error({ ...p, key: "unhandledRejection" })
+process.on("uncaughtException", (e) => {
+    logger.error({ code: e.code, stack: e.stack, key: "uncaughtException" })
 })
 
-process.on("uncaughtException", (e) => {
-    this.logger.error({ code: e.code, stack: e.stack, key: "uncaughtException" })
+process.on("unhandledRejection", (reason, p) => {
+    logger.error({ ...Util.makePlainError(reason), key: "unhandledRejection" })
 })

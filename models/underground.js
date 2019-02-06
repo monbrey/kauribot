@@ -19,10 +19,16 @@ const undergroundSchema = new mongoose.Schema({
             type: Number,
             required: true
         },
+        catName: {
+            type: String
+        },
         item: {
-            type: Number,
+            type: mongoose.Schema.Types.Mixed,
             required: true,
             ref: "Item"
+        },
+        function: {
+            type: String
         },
         _id: false
     }]

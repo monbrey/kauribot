@@ -1,4 +1,5 @@
 const BaseEvent = require("./base")
+const { Util } = require("discord.js")
 
 module.exports = class ErrorEvent extends BaseEvent {
     constructor() {
@@ -12,13 +13,13 @@ module.exports = class ErrorEvent extends BaseEvent {
         this.logger = client.logger
     }
     
-    async run (error) {
-        //So APPARENTLY the mere EXISTENCE of this error handler
-        //will make the bot auto-reconnect. Might as well log too
+    async run(error) {
+        // So APPARENTLY the mere EXISTENCE of this error handler
+        // will make the bot auto-reconnect. Might as well log too
         try {
-            this.logger.error({ code: error.code, stack: error.stack, key: this.name })
+            this.logger.error({ ...Util.makePlainError(error.error), key: this.name })
         } catch (e) {
-            //If the logger fails, default to console for both errors
+            // If the logger fails, default to console for both errors
             console.error(error.stack)
             console.error(e.stack)
         }

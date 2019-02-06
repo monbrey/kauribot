@@ -92,7 +92,7 @@ module.exports = class ConfigCommand extends BaseCommand {
             let dbConfig = await CommandConfig.getConfigForCommand(message.client, command)
 
             try {
-                //If no guild config exists, set it to false as a default
+                // If no guild config exists, set it to false as a default
                 if (!command.config.guilds.has(message.guild.id)) await dbConfig.setGuild(message.guild.id, false)
                 let update = await dbConfig.setChannels(message.mentions.channels.map(c => c.id), status)
                 command.setConfig(update)
@@ -206,7 +206,7 @@ module.exports = class ConfigCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        //No args should just run the wizard for full config
+        // No args should just run the wizard for full config
         if (args.length == 0) return await this.runWizard(message)
         switch (args[0]) {
             case "status":

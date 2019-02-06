@@ -63,7 +63,7 @@ React with ✅ to complete your purchase, or ❌ to cancel`)
 
     let moveCart = await getCart(message.pokemon, mValid)
 
-    //Construct the embed fields
+    // Construct the embed fields
     if (moveCart["tm"]) embed.addField("By TM", moveCart["tm"].join(", "))
     if (moveCart["tm1"]) embed.addField("By TM", moveCart["tm1"].join(", "))
     if (moveCart["tm2"]) embed.addField("By TM (cont)", moveCart["tm2"].join(", "))
@@ -147,10 +147,10 @@ let buyMoves = async (message, mValid = [], cart = null) => {
     return (await cart.reactConfirm(message.author.id, 0) ? async () => {
         responses.stop()
 
-        //TODO: Filter on HMs
-        //TODO: Daycare Passes / Heart Scales
+        // TODO: Filter on HMs
+        // TODO: Daycare Passes / Heart Scales
 
-        //Handle cash exception
+        // Handle cash exception
         if (getSubtotal(message.pokemon, mValid) > message.trainer.cash) {
             cart.clearReactions()
             let error = await message.channel.send("You have insufficient cash to complete this purchase. Please remove some items and try again.")
@@ -159,7 +159,7 @@ let buyMoves = async (message, mValid = [], cart = null) => {
         }
 
         return processPurchase(message, mValid, cart)
-    }: () => {
+    } : () => {
         responses.stop()
         return message.channel.send("Purchase cancelled - no funds have been deducted")
     })()

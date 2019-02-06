@@ -8,15 +8,29 @@ const consoleFormat = format.combine(
     format.label({ label: process.env.NODE_ENV }),
     format.timestamp(),
     format.colorize(),
-    format.printf(info => `[${info.timestamp}] ${info.level}: ${info.message}`)
+    format.json(),
+    format.printf(info => {
+        return `[${info.timestamp}] ${info.level}: ${info.message}`
+    })
 )
 
 const consoleErrorFormat = format.combine(
     format.label({ label: process.env.NODE_ENV }),
     format.timestamp(),
     format.colorize(),
+    format.json(),
     format.printf(info => {
-        return `[${info.timestamp}] ${info.level}: ${info.message.code}\n${info.message.stack}`
+        return `[${info.timestamp}] ${info.level}: ` + (info.stack || info.message.stack || info.message)
+    })
+)
+
+const logglyFormat = format.combine(
+    format.label({ label: process.env.NODE_ENV }),
+    format.json(),
+    format.printf(info => {
+        if(info.message.constructor.name === "Object")
+            return Object.assign({message: info.message.message || ""}, [].concat(Object.keys(info).map(k => ({[k]: info[k]}))))
+        return info
     })
 )
 
@@ -25,6 +39,7 @@ const _transports = [
         token: "d44ad9d7-6adf-43f1-bfa8-deddd4e209b4",
         subdomain: "monbrey",
         tags: ["Winston-NodeJS", process.env.NODE_ENV],
+        format: logglyFormat,
         json: true,
     }),
     new transports.Console({
@@ -228,7 +243,7 @@ class Logger {
             .setAuthor(`${member.user.tag} (${member.id})`, member.user.avatarURL)
             .setTimestamp()
 
-        if (auditLog) { //Was kicked
+        if (auditLog) { // Was kicked
             this.info(`${member.user.tag} was kicked from ${member.guild.name} by ${executorTag}`, {
                 key: "guildMemberRemove"
             })

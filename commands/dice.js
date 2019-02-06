@@ -18,8 +18,13 @@ All numbers must be positive integers`,
         })
     }
 
-    async run(message, args = [], flags = []) {        
-        let rolls = args.filter(arg => /^[1-9]\d*(?:,*[1-9]\d*)?$/.test(arg)).map(arg => { if(!arg.includes(",")) return arg
+    async run(message, args = [], flags = []) {
+        console.log(args)     
+        let rolls = args.filter(arg => /^[1-9]\d*(?:,*[1-9]\d*)?$/.test(arg)).map(arg => {
+            if(!arg.includes(",")) return arg
+            if(/^[1-9]\d*$/.test(arg.split(",")[0]) && arg.split(",")[1] == "")
+
+                console.log(arg.split(","))
             if(/^[1-9]\d*$/.test(arg.split(",")[0]) && /^[1-9]\d*$/.test(arg.split(",")[1]))
                 return new Array(parseInt(arg.split(",")[0])).fill(arg.split(",")[1])
         }).reduce((acc, val) => acc.concat(val), []).map(arg => Math.floor((Math.random() * arg) + 1))
