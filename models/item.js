@@ -44,13 +44,13 @@ itemSchema.statics.findExact = function(itemNames, query = {}) {
     }))
 }
 
-itemSchema.statics.findPartial = function (itemName) {
+itemSchema.statics.findPartial = function(itemName) {
     return this.find({
         "itemName": new RegExp(itemName, "i")
     })
 }
 
-itemSchema.methods.info = async function () {
+itemSchema.methods.info = async function() {
     let embed = new RichEmbed()
         .setTitle(this.itemName)
         .setDescription(this.desc)

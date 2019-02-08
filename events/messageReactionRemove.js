@@ -14,23 +14,23 @@ module.exports = class MessageReactionRemoveEvent extends BaseEvent {
     async run(reaction, user) {
         const message = reaction.message
 
-        //Check that the starChannel is set
+        // Check that the starChannel is set
         if (!message.guild.starboard || !message.guild.starboard.channel) return
 
         let starChannel = message.guild.channels.get(message.guild.starboard.channel)
         let starEmoji = message.guild.starboard.emoji || "⭐"
         let minReacts = message.guild.starboard.minReacts
 
-        //And check it still exists
+        // And check it still exists
         if (!starChannel) return 
 
-        //And that you're not trying to star a message in the starboard
+        // And that you're not trying to star a message in the starboard
         if (message.channel.id === starChannel.id) return
 
-        //Ignore the author
+        // Ignore the author
         if (message.author.id === user.id) return
 
-        //Check for the star emoji
+        // Check for the star emoji
         if (reaction.emoji.toString() !== starEmoji) return
 
         let getImage = async (attachment) => {
@@ -41,15 +41,15 @@ module.exports = class MessageReactionRemoveEvent extends BaseEvent {
             return attachment
         }
 
-        //If we've passed ALL the checks, we can add this to the queue
-        message.client.reactionQueue.add(async function () {
-            //Get the messages from the channel
+        // If we've passed ALL the checks, we can add this to the queue
+        message.client.reactionQueue.add(async function() {
+            // Get the messages from the channel
             let fetch = await starChannel.fetchMessages({
                 limit: 100
             })
 
             fetch = fetch.filter(m => m.embeds.length > 0)
-            //Check if it was previously starred
+            // Check if it was previously starred
             const previous = fetch.find(m => m.embeds[0].footer.text.startsWith("⭐") && m.embeds[0].footer.text.endsWith(message.id))
 
             if (previous) {

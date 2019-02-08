@@ -26,13 +26,13 @@ module.exports = class MessageDeleteEvent extends BaseEvent {
                         logResult.createdTimestamp > (Date.now() - 5000)
                 ) return message.client.logger.messageDelete(message, logResult)
 
-                //This may need a loop to deal with delayed logs
+                // This may need a loop to deal with delayed logs
                 if (++count < 3) return setTimeout(() => {
                     findLog(message)
                 }, 3000)
 
-                //Otherwise we can assume this was deleted by the author
-                //We don't care about bots deleting their own messages
+                // Otherwise we can assume this was deleted by the author
+                // We don't care about bots deleting their own messages
                 if (!message.author.bot) return message.client.logger.messageDelete(message)
             } catch (e) {
                 message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })

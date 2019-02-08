@@ -1,13 +1,8 @@
 const mongoose = require("mongoose")
-const {
-    RichEmbed,
-    Collection
-} = require("discord.js")
+const { RichEmbed, Collection } = require("discord.js")
 const Color = require("./color")
-const {
-    oneLine,
-    stripIndent
-} = require("common-tags")
+const { oneLine, stripIndent } = require("common-tags")
+const strsim = require("string-similarity")
 require("./mega")
 
 let pokemonSchema = new mongoose.Schema({
@@ -228,19 +223,32 @@ pokemonSchema.statics.findOneExact = function(uniqueName, query = {}) {
     }))
 }
 
+pokemonSchema.statics.findClosest = async function(uniqueName, query = {}) {
+    let allNames = (await this.find({}).select("uniqueName -_id").cache()).map(p => p.uniqueName)
+    let closest = strsim.findBestMatch(uniqueName, allNames).bestMatch
+    let pokemon = await this.findOne(Object.assign(query, {
+        "uniqueName": closest.target
+    }))
+    pokemon.matchRating = closest.rating
+    return pokemon
+}
+
 pokemonSchema.statics.findPartial = function(uniqueName, query = {}) {
     return this.find(Object.assign(query, {
         "uniqueName": new RegExp(uniqueName, "i"),
     }))
 }
 
-pokemonSchema.methods.dex = async function() {
+pokemonSchema.methods.dex = async function(query) {
     const embed = new RichEmbed()
         .setTitle(`URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3, "0")})`)
         .setColor(await Color.getColorForType(this.type1.toLowerCase()))
         .setImage(`https://pokemonurpg.com/img/models/${this.dexNumber}${this.spriteCode ? `-${this.spriteCode}` : ""}.gif`)
         .addField(`${this.type2 ? "Types" : "Type" }`, `${this.type1}${this.type2 ? `\n${this.type2}` : ""}`, true)
         .setFooter("Reactions | [M] View Moves ")
+    
+    if(this.matchRating !== 1) 
+        embed.setDescription(`Closest match to your search "${query}" with ${Math.round(this.matchRating * 100)}% similarity`)
 
     await this.populate("ability").execPopulate()
     embed.addField("Ability", `${this.ability.map(a => a.abilityName).join("\n")}`, true)

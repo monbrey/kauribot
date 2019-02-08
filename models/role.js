@@ -29,11 +29,11 @@ let roleSchema = new mongoose.Schema({
     }
 })
 
-roleSchema.statics.getRoleByName = async function (roleName) {
+roleSchema.statics.getRoleByName = async function(roleName) {
     return await this.findOne({"roleName": roleName})
 }
 
-roleSchema.statics.getRolesForGuild = async function (guildId) {
+roleSchema.statics.getRolesForGuild = async function(guildId) {
     return await this.find({"guildId": guildId})
 }
 

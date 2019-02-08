@@ -20,10 +20,10 @@ module.exports = class ReloadCommand extends BaseCommand {
                     const _command = require(`./${arg.toLowerCase()}`)
                     if (!_command) throw new Error()
                     let command = new _command()
-                    //Check if the command is enabled globally
+                    // Check if the command is enabled globally
                     if (command.enabled) {
                         await command.setConfig(await CommandConfig.getConfigForCommand(message.client, command))
-                        //Check if the command has an init method
+                        // Check if the command has an init method
                         if (command.init)
                             await command.init(message.client)
 

@@ -17,7 +17,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        //Check that four mentions are included
+        // Check that four mentions are included
         if (message.mentions.members.size != 4)
             return message.channel.send("This command requires that four coordinators be mentioned.")
 
@@ -26,7 +26,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
         let third = message.mentions.members.get(args[2].replace(/[<@!>]/g, ""))
         let fourth = message.mentions.members.get(args[3].replace(/[<@!>]/g, ""))
         let judge = message.member
-        //Check that the ref isnt also a battler
+        // Check that the ref isnt also a battler
         if ([first.id, second.id, third.id, fourth.id].includes(judge.id)) return message.channel.send("Illegal command usage - judge cannot also be a coordinator.")
 
         if (!await Trainer.discordIdExists(first.id)) return message.channel.send(`Could not find a URPG Trainer for ${first}`)

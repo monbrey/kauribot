@@ -112,7 +112,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
 
     async run(oldRole, newRole) {
         // URPG, non-everyone roles only 
-        //if (oldRole.guild.id !== "135864828240592896") return false
+        // if (oldRole.guild.id !== "135864828240592896") return false
         if (oldRole.name === "@everyone" || newRole.name === "@everyone") return false
         // Discord sends an update event on every role when one is saved
         // Do a check that the roles actually have a difference in name or position

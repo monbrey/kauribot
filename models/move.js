@@ -97,13 +97,13 @@ moveSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
 })
 
 
-moveSchema.statics.findOneExact = async function (moveName, query = {}) {
+moveSchema.statics.findOneExact = async function(moveName, query = {}) {
     return await this.findOne(Object.assign(query, {
         "moveName": new RegExp(`^${moveName}$`, "i")
     }))
 }
 
-moveSchema.statics.findExact = function (moveNames, query = {}) {
+moveSchema.statics.findExact = function(moveNames, query = {}) {
     moveNames = moveNames.map(name => new RegExp(`^${name}$`, "i"))
     return this.find(Object.assign(query, {
         "moveName": {
@@ -112,13 +112,13 @@ moveSchema.statics.findExact = function (moveNames, query = {}) {
     }))
 }
 
-moveSchema.statics.findPartial = async function (moveName) {
+moveSchema.statics.findPartial = async function(moveName) {
     return await this.find({
         "moveName": new RegExp(moveName, "i")
     })
 }
 
-moveSchema.statics.metronome = async function () {
+moveSchema.statics.metronome = async function() {
     let move = await this.aggregate([
         { $match: { metronome: true } },
         { $sample: { size: 1 }}
@@ -127,13 +127,13 @@ moveSchema.statics.metronome = async function () {
     return new this(move[0])
 }
 
-moveSchema.methods.info = async function () {
+moveSchema.methods.info = async function() {
     let embed = new RichEmbed()
         .setTitle(this.moveName)
         .setDescription(`
 | Type: ${this.moveType} | Power: ${this.power ? this.power : "-"} | Accuracy: ${this.accuracy ? this.accuracy : "-"} | PP: ${this.pp} | Category: ${this.category} |
 
-${this.desc} ${this.contact ? "Makes contact. ": ""}${this.sheerForce ? "Boosted by Sheer Force. " : ""}${this.substitute ? "Bypasses Substitute. " : ""}${this.snatch ? "Can be Snatched. " : ""}${this.magicCoat ? "Can be reflected by Magic Coat. " : ""}`)
+${this.desc} ${this.contact ? "Makes contact. " : ""}${this.sheerForce ? "Boosted by Sheer Force. " : ""}${this.substitute ? "Bypasses Substitute. " : ""}${this.snatch ? "Can be Snatched. " : ""}${this.magicCoat ? "Can be reflected by Magic Coat. " : ""}`)
         .setFooter(this.note || "")
         .setColor(parseInt(await Color.getColorForType(this.moveType.toLowerCase()), 16))
 

@@ -20,14 +20,14 @@ module.exports = class StartCommand extends BaseCommand {
         this.scripts = {
             valid: (p) => {
                 return {
-                    "name": `You've selected ${p.displayName}${p.formName ? " ("+p.formName+")" : ""}!`,
+                    "name": `You've selected ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""}!`,
                     "value": `In URPG, we have no four-move limit, so ${p.displayName} will start with all of the moves that it can learn level up. You can see a full list of ${p.displayName}’s moves here, on its [URPG Dex page](https://pokemonurpg.com/pokemon/${p.speciesName}).`
                 }
             },
             valid_filtered: (p) => {
                 return {
                     "embed": {
-                        "title": `You've selected ${p.displayName}${p.formName ? " ("+p.formName+")" : ""}!`,
+                        "title": `You've selected ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""}!`,
                         "description": `In URPG, we have no four-move limit, so ${p.displayName} will start with all of the moves that it can learn level up. You can see a full list of ${p.displayName}’s moves here, on its [URPG Dex page](https://pokemonurpg.com/pokemon/${p.speciesName}).\n\nIs this the Pokemon that you want to start with?\nClick :white_check_mark: to confirm your choice, or :x: to cancel and choose something else`,
                         "thumbnail": {
                             "url": `https://pokemonurpg.com/img/models/${p.dexNumber}${p.speciesName.indexOf("Alola") > 0 ? "-alola" : ""}.gif`
@@ -62,7 +62,7 @@ module.exports = class StartCommand extends BaseCommand {
             invalid: (p) => {
                 return {
                     "embed": {
-                        "title": `Oops! ${p.displayName}${p.formName ? " ("+p.formName+")" : ""} is an invalid selection.`,
+                        "title": `Oops! ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""} is an invalid selection.`,
                         "description": "It looks like you’ve chosen a starter that either doesn’t evolve, is already an evolved form, or is on our exception list:\n\nDratini, Larvitar, Bagon, Kabuto, Omanyte, Scyther, Lileep, Anorith, Beldum, Porygon, Gible, Shieldon, Cranidos, Munchlax, Riolu, Tirtouga, Archen, Deino, Larvesta, Amaura, Tyrunt, Goomy.\n\nRemember that the Pokemon must be able to evolve, must be the lowest form in that evolution line, and must not be on the above list to be chosen as a starter."
                     }
                 }
@@ -194,11 +194,11 @@ module.exports = class StartCommand extends BaseCommand {
                 let validResults = partialMatch.filter(p => p.starterEligible)
 
                 if (!validResults || validResults.length == 0) {
-                    //No valid starters
+                    // No valid starters
                     message.channel.send(this.scripts.invalid_multi(query))
                     return await this.getStarter(message, sentMessage, embed)
                 } else if (validResults.length == 1) {
-                    //One valid starter
+                    // One valid starter
                     return validResults[0]
                 } else {
                     message.channel.send(this.scripts.valid_multi(validResults, query))
@@ -237,7 +237,7 @@ module.exports = class StartCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        //Check if this user already has the command active
+        // Check if this user already has the command active
         if(message.client.activeCommands.some(ac => ac.user === message.author.id && ac.command === "start")) {
             let warn = await message.channel.send(new RichEmbed().warning("Command error", `You already have an active ${message.client.prefix}start command.`))
             warn.delete(5000)
@@ -258,7 +258,7 @@ module.exports = class StartCommand extends BaseCommand {
             .setDescription("To begin with, lets get some information about you, new Pokemon Trainer!")
 
         let sentMessage = await message.channel.send(embed)
-        //Log this as an active command to prevent running in parallel
+        // Log this as an active command to prevent running in parallel
         message.client.activeCommands.set(Date.now(), {
             user: message.author.id,
             command: "start",
@@ -286,7 +286,7 @@ module.exports = class StartCommand extends BaseCommand {
             sentMessage.edit(embed)
             message.client.logger.newStarter(message, trainer, starter)
 
-            //TODO: Preferred pronoun/role handling
+            // TODO: Preferred pronoun/role handling
         }
     }
 }

@@ -19,13 +19,13 @@ logConfigSchema.statics.getLogChannel = async function(_guild) {
     else return null
 }
 
-logConfigSchema.statics.setLogChannel = async function (_guild, _channel) {
+logConfigSchema.statics.setLogChannel = async function(_guild, _channel) {
     let log = await this.findOne({"guild": _guild}) || await this.create({"guild":_guild, "channel": _channel})
     log.channel = _channel
     return await log.save()
 }
 
-logConfigSchema.statics.clearLogChannel = async function (_guild) {
+logConfigSchema.statics.clearLogChannel = async function(_guild) {
     return await this.deleteOne({"guild":_guild})
 }
 

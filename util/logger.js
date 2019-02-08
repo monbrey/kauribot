@@ -10,7 +10,8 @@ const consoleFormat = format.combine(
     format.colorize(),
     format.json(),
     format.printf(info => {
-        return `[${info.timestamp}] ${info.level}: ${info.message}`
+        const message = info.message instanceof Object ? JSON.stringify(info.message) : info.message
+        return `[${info.timestamp}] ${info.level}: ${message}`
     })
 )
 

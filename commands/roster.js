@@ -24,7 +24,7 @@ module.exports = class TrainerCommand extends BaseCommand {
      */
     async roster(member, trainer) {
         await trainer.populatePokemon()
-        let plist1 = trainer.pokemon.map((p, i) => `${i+1}. ${p.basePokemon.uniqueName}`)
+        let plist1 = trainer.pokemon.map((p, i) => `${i + 1}. ${p.basePokemon.uniqueName}`)
         let split = Math.ceil(trainer.pokemon.length / 2)
         let plist2 = plist1.splice(split)
 

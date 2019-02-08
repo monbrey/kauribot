@@ -42,7 +42,7 @@ module.exports = class TrainerCommand extends BaseCommand {
      * @param {Trainer} trainer - URPG Trainer object
      */
     async editProfile(member, trainer) {
-        //TODO
+        // TODO
         return new RichEmbed().warning("Profile editing is not yet implemented.")
     }
 

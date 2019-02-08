@@ -10,45 +10,45 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
             enabled: true
         })
 
-        //Stores messages and the time at which they were stored
-        //Used to apply a 60 second timeout to errors
+        // Stores messages and the time at which they were stored
+        // Used to apply a 60 second timeout to errors
         this.messageCache = new Collection()
     }
 
     async run(reaction, user) {
         const message = reaction.message
 
-        //Clear out any messages which were cached over a minute ago
-        this.messageCache = this.messageCache.filter(m => m < Date.now()-60000)
+        // Clear out any messages which were cached over a minute ago
+        this.messageCache = this.messageCache.filter(m => m < Date.now() - 60000)
 
-        //If the message is still in the cache, we don't want to output errors
+        // If the message is still in the cache, we don't want to output errors
         let hideErrors = this.messageCache.has(message.id)
 
-        //Cache the message ID with the current timestamp
-        //This is a rolling 60 seconds to prevent spam
+        // Cache the message ID with the current timestamp
+        // This is a rolling 60 seconds to prevent spam
         this.messageCache.set(message.id, Date.now())
 
-        //Check that the starChannel is set
+        // Check that the starChannel is set
         if (!message.guild.starboard || !message.guild.starboard.channel) return
 
         let starChannel = message.guild.channels.get(message.guild.starboard.channel)
         let starEmoji = message.guild.starboard.emoji || "⭐"
         let minReacts = message.guild.starboard.minReacts
 
-        //And check it still exists
+        // And check it still exists
         if (!starChannel)
             return hideErrors ? null : message.channel.send("The configured Starboard channel could not be found.")
 
-        //And that you're not trying to star a message in the starboard
+        // And that you're not trying to star a message in the starboard
         if (message.channel.id === starChannel.id) return
 
-        //Check for the star emoji
+        // Check for the star emoji
         if (reaction.emoji.toString() !== starEmoji) return
 
-        //Check they arent a narcissistic douchebag
+        // Check they arent a narcissistic douchebag
         if (message.author.id === user.id) return hideErrors ? null : message.channel.send("You cannot star your own messages")
 
-        //Check that the minimum number of reactions has been reached
+        // Check that the minimum number of reactions has been reached
         if (reaction.count < minReacts) return
 
         let getImage = async (message) => {
@@ -64,17 +64,17 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
             return null
         }
 
-        //If we've passed ALL the checks, we can add this to the queue
-        message.client.reactionQueue.add(async function () {
-        //Get the messages from the channel
+        // If we've passed ALL the checks, we can add this to the queue
+        message.client.reactionQueue.add(async function() {
+        // Get the messages from the channel
             let fetch = await starChannel.fetchMessages({
                 limit: 100
             })
-            //Check if it was previously starred
+            // Check if it was previously starred
             fetch = fetch.filter(m => m.embeds.length > 0)
             const previous = fetch.find(m => m.embeds[0].footer.text.startsWith("⭐") && m.embeds[0].footer.text.endsWith(message.id))
 
-            //Regex to check how many stars the embed has.
+            // Regex to check how many stars the embed has.
             const star = previous ? parseInt(previous.embeds[0].fields[0].value) + 1 : minReacts
             // We use the this.extension function to see if there is anything attached to the message.
             const image = await getImage(message)

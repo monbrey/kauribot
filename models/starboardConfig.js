@@ -25,7 +25,7 @@ starboardConfigSchema.statics.getConfigForGuild = async function(_guild) {
     return await configs.find(cfg => cfg.guild === _guild)
 }
 
-starboardConfigSchema.statics.clearStarboardChannel = async function (_guild) {
+starboardConfigSchema.statics.clearStarboardChannel = async function(_guild) {
     return await this.deleteOne({"guild":_guild})
 }
 

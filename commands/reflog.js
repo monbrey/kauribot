@@ -19,11 +19,11 @@ module.exports = class RefLogCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        //Check that two mentions are included
+        // Check that two mentions are included
         if (message.mentions.members.size != 2)
             return message.channel.send("This command requires that two battlers (winner/loser) be mentioned.")
 
-        //Extract the arguments into named variables
+        // Extract the arguments into named variables
         let battlers = args.filter(arg => arg.startsWith("<@")).map(arg => arg.replace(/[<@!>]/g, ""))
         let battleCode = args.find(arg => !arg.startsWith("<@"))
         battleCode = battleCode.indexOf("v") == 1 ? battleCode[0] : battleCode
@@ -35,7 +35,7 @@ module.exports = class RefLogCommand extends BaseCommand {
         let loserTrainer = Trainer.findByDiscordId(loser.id)
         let ref = message.member
         let refTrainer = Trainer.findByDiscordId(ref.id)
-        //Check that the ref isnt also a battler
+        // Check that the ref isnt also a battler
         if ([winner.id, loser.id].includes(ref.id)) return message.channel.send("Illegal command usage - referee cannot also be a battler.")
 
         if (!winnerTrainer) return message.channel.send(`Could not find a URPG Trainer for ${winner}`)

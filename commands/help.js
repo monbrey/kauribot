@@ -18,10 +18,10 @@ module.exports = class HelpCommand extends BaseCommand {
 
     async run(message, args = [], flags = []) {
         if (!args[0]) {
-            //Remove commands that the user doesn't have access too
+            // Remove commands that the user doesn't have access too
             let commands = message.client.commands.filter(cmd => {
-                let enabled = cmd.config.channels.has(message.channel.id) ? //If channel config
-                    cmd.config.channels.get(message.channel.id) : //Get channel config
+                let enabled = cmd.config.channels.has(message.channel.id) ? // If channel config
+                    cmd.config.channels.get(message.channel.id) : // Get channel config
                     cmd.config.guilds.get(message.guild.id)
                 let permission = cmd.requiresPermission ?
                     message.channel.memberPermissions(message.member).has(cmd.requiresPermission, true) :

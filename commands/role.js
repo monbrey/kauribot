@@ -141,7 +141,7 @@ module.exports = class RoleCommand extends BaseCommand {
     }
 
     async init(client) {
-        //Get all roles from each guild, check that they exist in db
+        // Get all roles from each guild, check that they exist in db
         client.guilds.tap(async guild => {
             let dbRoles = await Role.getRolesForGuild(guild.id)
             dbRoles = dbRoles.map(r => r.id)
@@ -152,7 +152,7 @@ module.exports = class RoleCommand extends BaseCommand {
                 return !guild.roles.find(gr => gr.id == r)
             })
 
-            //Log each missing role into the database
+            // Log each missing role into the database
             missing.forEach(m => {
                 /**
                  * Assigners are:
@@ -171,7 +171,7 @@ module.exports = class RoleCommand extends BaseCommand {
                 })
             })
 
-            //Remove each removed role from the database
+            // Remove each removed role from the database
             removed.forEach(r => r.remove())
 
         })
@@ -242,7 +242,7 @@ module.exports = class RoleCommand extends BaseCommand {
         if (!dbRole) return message.channel.send(`Configuration for ${roleName} not found.`)
 
         if (flags.includes("c")) {
-            //Only allow configuration by users with MANAGE_ROLES or higher
+            // Only allow configuration by users with MANAGE_ROLES or higher
             let permission = message.member.hasPermission("MANAGE_ROLES", false, true, true)
             if (permission) {
                 await this.addAssigners(message, dbRole)
@@ -250,7 +250,7 @@ module.exports = class RoleCommand extends BaseCommand {
                 return
             }
         } else {
-            //Do nothing
+            // Do nothing
         }
 
         /*

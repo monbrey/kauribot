@@ -26,20 +26,20 @@ abilitySchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
 })
 
 
-abilitySchema.statics.findExact = function (abilityName) {
+abilitySchema.statics.findExact = function(abilityName) {
     return this.findOne({
         "abilityName": new RegExp(`^${abilityName}$`, "i")
     })
 
 }
 
-abilitySchema.statics.findPartial = function (abilityName) {
+abilitySchema.statics.findPartial = function(abilityName) {
     return this.find({
         "abilityName": new RegExp(abilityName, "i")
     })
 }
 
-abilitySchema.methods.info = function () {
+abilitySchema.methods.info = function() {
     let embed = {
         title: `${this.abilityName}`,
         description: `${this.desc}`,

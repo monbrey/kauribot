@@ -1,4 +1,4 @@
-const { Message, RichEmbed } = require("discord.js")
+const { Message, TextChannel, RichEmbed } = require("discord.js")
 
 Object.defineProperties(Message.prototype, {
     /**
@@ -65,6 +65,27 @@ Object.defineProperties(Message.prototype, {
         value: async function() {
             clearTimeout(this.deleteTimer)
             return this
+        }
+    }
+})
+
+Object.defineProperties(TextChannel.prototype, {
+    deleteAfterSend: {
+        /**
+         * @param {StringResolvable} [content] - Text for the message
+         * @param {MessageOptions|Attachment|RichEmbed} options - Options for the message, can also be just a RichEmbed or Attachment
+         * @param {Number} [timer] - How long to wait to delete the message in milliseconds
+         */
+        value: async function(content, options, timer) {
+            if(!timer && typeof (options) === "number") {
+                timer = options
+                options = undefined
+            } else {
+                timer = 5000
+            }
+
+            const m = await this.send(content, options)
+            return m.delete(timer)
         }
     }
 })

@@ -18,27 +18,26 @@ module.exports = class MoveCommand extends BaseCommand {
         if(flags.includes("m")) {
             let move = await Move.metronome()
             return await message.channel.send(await move.info())
-        }
-        else if (args.length === 0) {
-            //Usage
+        } else if (args.length === 0) {
+            // Usage
             return
         }
         
         let query = args.join(" ")
         message.client.logger.info(`${message.author.username} searched for ${query}`, { key: "move" })
 
-        //Return an exact match
+        // Return an exact match
         let move = await Move.findOneExact(query)
         if (move) return await message.channel.send(await move.info())
             
-        //Otherwise do a partial match search
+        // Otherwise do a partial match search
         let moves = await Move.findPartial(query)
-        //If nothing, search failed
+        // If nothing, search failed
         if (moves.length === 0) return await message.channel.send(`No results found for ${query}`)
-        //If one result, return it
+        // If one result, return it
         if (moves.length === 1) return await message.channel.send(await moves[0].info())
 
-        //If multiple, prompt for a new command
+        // If multiple, prompt for a new command
         return await message.channel.send({
             "embed": {
                 title: `${moves.length} results found for "${query}"`,

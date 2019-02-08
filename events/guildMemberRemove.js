@@ -17,7 +17,7 @@ module.exports = class GuildMemberRemoveEvent extends BaseEvent {
                     limit: 1
                 })
                 let lastLog = auditLogs.entries.first()
-                if (lastLog.target.id === member.id && (Date.now() - lastLog.createdTimestamp) < 3000+(count*1000)) {
+                if (lastLog.target.id === member.id && (Date.now() - lastLog.createdTimestamp) < 3000 + (count * 1000)) {
                     member.client.clearInterval(interval)
                     return member.client.logger.guildMemberRemove(member, lastLog)
                 } else {

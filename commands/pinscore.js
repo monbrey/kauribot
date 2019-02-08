@@ -42,7 +42,7 @@ module.exports = class PinscoreCommand extends BaseCommand {
             }), {})
 
         let scoreString = JSON.stringify(newScore, null, 2)
-        embed.setDescription(scoreString.substring(1, scoreString.length-1))
+        embed.setDescription(scoreString.substring(1, scoreString.length - 1))
         placeholder.edit({"embed": embed})
     }
 }

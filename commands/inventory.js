@@ -23,7 +23,7 @@ module.exports = class TrainerCommand extends BaseCommand {
      * @param {Trainer} trainer - URPG Trainer object
      */
     async inventory(member, trainer) {
-        //TODO
+        // TODO
         return new RichEmbed().warning("Browsing inventory is not yet implemented.")
     }
 

@@ -101,13 +101,13 @@ trainerPokemonSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
     startAt: 1
 })
 
-trainerPokemonSchema.methods.getName = async function () {
+trainerPokemonSchema.methods.getName = async function() {
     if (this.nickname) return this.nickname
     if (!this.populated("basePokemon")) await this.populate("basePokemon").execPopulate()
     return this.basePokemon.uniqueName
 }
 
-trainerPokemonSchema.methods.isValidMove = function (moveID) {
+trainerPokemonSchema.methods.isValidMove = function(moveID) {
     let filter = this.populated("moves.tm.move") === undefined ?
         m => m.move === moveID :
         m => m.move.id === moveID
@@ -121,7 +121,7 @@ trainerPokemonSchema.methods.isValidMove = function (moveID) {
     if (m) return true
 }
 
-trainerPokemonSchema.methods.isMoveKnown = function (moveID) {
+trainerPokemonSchema.methods.isMoveKnown = function(moveID) {
     let filter = this.populated("moves.tm.move") === undefined ?
         m => m.move === moveID :
         m => m.move.id === moveID
@@ -135,7 +135,7 @@ trainerPokemonSchema.methods.isMoveKnown = function (moveID) {
     return (!m || !m.learned) ? false : true
 }
 
-trainerPokemonSchema.methods.getMovePrice = function (moveID) {
+trainerPokemonSchema.methods.getMovePrice = function(moveID) {
     let filter = this.populated("moves.tm.move") === undefined ?
         m => m.move === moveID :
         m => m.move.id === moveID
@@ -154,7 +154,7 @@ trainerPokemonSchema.methods.getMovePrice = function (moveID) {
     return 0
 }
 
-trainerPokemonSchema.methods.unlockMoves = async function (moves) {
+trainerPokemonSchema.methods.unlockMoves = async function(moves) {
     let populated = this.populated("moves.tm.move") === undefined
 
     moves.forEach(move => {

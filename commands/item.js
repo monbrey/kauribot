@@ -15,24 +15,24 @@ module.exports = class ItemCommand extends BaseCommand {
 
     async run(message, args = [], flags = []) {
         if (args.length === 0) {
-            //Usage
+            // Usage
             return
         }
         
         let query = args.join(" ")
         message.client.logger.info(`${message.author.username} searched for ${query}`, { key: "item" })
 
-        //Return an exact match
+        // Return an exact match
         let item = await Item.findExact(query)
         if (item) return await message.channel.send(await item.info())
             
-        //Otherwise do a partial match search
+        // Otherwise do a partial match search
         let items = await Item.findPartial(query)
-        //If nothing, search failed
+        // If nothing, search failed
         if (items.length === 0) return await message.channel.send(`No results found for ${query}`)
-        //If one result, return it
+        // If one result, return it
         if (items.length === 1) return await message.channel.send(await items[0].info())
-        //If multiple, prompt for a new command
+        // If multiple, prompt for a new command
         return await message.channel.send({
             "embed": {
                 title: `${items.length} results found for "${query}"`,

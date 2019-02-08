@@ -34,7 +34,7 @@ purchasableSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
 })
 purchasableSchema.plugin(require("./plugins/paginator"))
 
-purchasableSchema.statics.getPokemon = async function (_page = 0) {
+purchasableSchema.statics.getPokemon = async function(_page = 0) {
     return await this.paginate({
         refType: "Pokemon"
     }, {
@@ -51,7 +51,7 @@ purchasableSchema.statics.getPokemon = async function (_page = 0) {
     )
 }
 
-purchasableSchema.statics.getTMs = async function (_page = 1) {
+purchasableSchema.statics.getTMs = async function(_page = 1) {
     return await this.paginate({
         refType: "Move",
         purchaseKey: /TM.*/
@@ -69,7 +69,7 @@ purchasableSchema.statics.getTMs = async function (_page = 1) {
     )
 }
 
-purchasableSchema.statics.getTMsByNumbers = async function (_array) {
+purchasableSchema.statics.getTMsByNumbers = async function(_array) {
     let all = await this.find({
         refType: "TM"
     }, null, {
@@ -86,7 +86,7 @@ purchasableSchema.statics.getTMsByNumbers = async function (_array) {
     return all.filter(item => _array.includes(item.refItem.tmNumber))
 }
 
-purchasableSchema.statics.getHMs = async function (_page = 1) {
+purchasableSchema.statics.getHMs = async function(_page = 1) {
     return await this.paginate({
         refType: "Move",
         purchaseKey: /HM.*/

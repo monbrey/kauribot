@@ -8,7 +8,7 @@ module.exports = class ReadyEvent extends BaseEvent {
         })
     }
     
-    //Place where I can trigger whatever I want when the bot is done
-    async run () {
+    // Place where I can trigger whatever I want when the bot is done
+    async run() {
     }
 }

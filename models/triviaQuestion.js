@@ -16,7 +16,7 @@ triviaQuestionSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
     startAt: 1
 })
 
-triviaQuestionSchema.statics.random = async function () {
+triviaQuestionSchema.statics.random = async function() {
     let question = await this.aggregate([
         { $sample: { size: 1 }}
     ])
