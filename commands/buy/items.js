@@ -37,7 +37,7 @@ const showInvalid = (message, items) => {
             .error("Invalid item added",
                 `The folowing Items are not available in the Pokemart and were not added to your cart:
 \`\`\`${items.map(i=>i.itemName).join(", ")}\`\`\``)
-        message.channel.send(embed).then(m=>m.delete(5000))
+        message.channel.deleteAfterSend(embed)
     }
 }
 
@@ -65,7 +65,7 @@ const buyItems = async (message, args = [], cart = null) => {
         return iResult.find(i=>regex.test(i.itemName))
     })
 
-    let [iValid, iInvalid] =iResult.reduce(([pass, fail], item) => {
+    let [iValid, iInvalid] = iResult.reduce(([pass, fail], item) => {
         return item.martPrice ? [
             [...pass, item], fail
         ] : [pass, [...fail, item]]
@@ -93,9 +93,9 @@ const buyItems = async (message, args = [], cart = null) => {
         remove.forEach(r => {
             let regex = new RegExp(`^${r}$`, "i")
             let i = iValid.findIndex(i => regex.test(i.itemName))
-            i >= 0 ? iValid.splice(i, 1) : message.channel.send(
-                new RichEmbed().warning(`"${r}" was not found in your cart`)
-            ).then(m => m.delete(5000))
+            i >= 0 ? iValid.splice(i, 1) : message.channel.deleteAfterSend(
+                RichEmbed.warning(`"${r}" was not found in your cart`)
+            )
         })
 
         cart = await updateCart(message, iValid, cart)
@@ -105,16 +105,16 @@ const buyItems = async (message, args = [], cart = null) => {
     return (await cart.reactConfirm(message.author.id, 0) ? async () => {
         responses.stop()
 
-        //TODO: Pickup / Honey Gather
+        // TODO: Pickup / Honey Gather
 
-        //Check affordability
+        // Check affordability
         let subtotals = getSubtotals(iValid)
         let currencyError = message.trainer.canAfford(subtotals[0], subtotals[1])
         if(currencyError) {
             cart.clearReactions()
-            let embed = new RichEmbed().error("Insufficient funds", 
+            let embed = RichEmbed.error("Insufficient funds", 
                 `You have insufficient ${currencyError} to complete this purchase. Please remove some items and try again.`)
-            message.channel.send(embed).then(m=>m.delete(5000))
+            message.channel.deleteAfterSend(embed)
             return this.buyItems(message, iValid.map(i=>i.itemName), cart)
         }
 

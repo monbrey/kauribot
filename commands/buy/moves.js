@@ -104,7 +104,7 @@ let processPurchase = async (message, mValid, cart) => {
 
 let showInvalid = (message, known, invalid) => {
     if (known.length > 0 || invalid.length > 0) {
-        let embed = new RichEmbed().error("Invalid item added", "The following moves were not added to your cart:")
+        let embed = RichEmbed.error("Invalid item added", "The following moves were not added to your cart:")
         
         if(known.length > 0)
             embed.addField("Already knows:", `\`\`\`${known.map(m=>m.moveName).join(", ")}\`\`\``)
@@ -112,7 +112,7 @@ let showInvalid = (message, known, invalid) => {
         if(invalid.length > 0)
             embed.addField("Cannot learn:", `\`\`\`${invalid.map(m=>m.moveName).join(", ")}\`\`\``)
 
-        message.channel.send(embed).then(m => m.delete(5000))
+        message.channel.deleteAfterSend(embed)
     }
 }
 
@@ -136,7 +136,7 @@ let buyMoves = async (message, mValid = [], cart = null) => {
         remove.forEach(r => {
             let i = mValid.findIndex(m => m.moveName === r)
             i >= 0 ? mValid.splice(i, 1) : message.channel.send(
-                new RichEmbed().warning(`"${r}" was not found in your cart`)
+                RichEmbed.warning(`"${r}" was not found in your cart`)
             ).then(msg => msg.delete(5000))
         })
 

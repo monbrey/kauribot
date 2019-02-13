@@ -80,7 +80,7 @@ module.exports = class DexCommand extends BaseCommand {
         console.log(pokemon.matchRating)
 
         // Return an error if nothing was found
-        if(!pokemon) return message.channel.deleteAfterSend(new RichEmbed.error(`No matches found for ${query}`))
+        if(!pokemon) return message.channel.deleteAfterSend(RichEmbed.error(`No matches found for ${query}`))
 
         // Log the search
         message.client.logger.info({ key: "dex", search: query, result: pokemon.uniqueName})

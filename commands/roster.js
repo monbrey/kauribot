@@ -2,7 +2,7 @@ const BaseCommand = require("./base")
 const { RichEmbed } = require("discord.js")
 const Trainer = require("../models/trainer")
 
-module.exports = class TrainerCommand extends BaseCommand {
+module.exports = class RosterCommand extends BaseCommand {
     constructor() {
         super({
             name: "roster",

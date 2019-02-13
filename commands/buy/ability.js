@@ -10,7 +10,7 @@ let processPurchase = async (message, ability, cart) => {
     await message.pokemon.save()
     await message.trainer.modifyCash(-4000)
 
-    embed.fields[embed.fields.length-1] = {
+    embed.fields[embed.fields.length - 1] = {
         name: "Purchase complete!",
         value: `New balances: ${await message.trainer.balanceString}`
     }
@@ -29,11 +29,10 @@ let buyAbility = async (message) => {
         ...message.pokemon.hiddenAbility.filter(a => a.unlocked).map(a => `${a.ability.abilityName} (HA)`)
     ]
     let locked = [...message.pokemon.hiddenAbility.filter(a => !a.unlocked)]
-    let lockedList = locked.map((a,i) => `${i+1}. ${a.ability.abilityName}`)
+    let lockedList = locked.map((a,i) => `${i + 1}. ${a.ability.abilityName}`)
 
     if(locked.length === 0) {
-        return message.channel.send(new RichEmbed().warning("No locked abilities",`Your ${name} does not have any more Hidden Abilities that require unlocking`))
-            .then(m => m.delete(5000))
+        return message.channel.deleteAfterSend(RichEmbed.warning("No locked abilities",`Your ${name} does not have any more Hidden Abilities that require unlocking`))
     }
 
     let embed = new RichEmbed()
@@ -46,8 +45,8 @@ let buyAbility = async (message) => {
 
     let listen = []
     for(let i in locked) {
-        listen.push(message.client.emojiCharacters[parseInt(i)+1])
-        await cart.react(message.client.emojiCharacters[parseInt(i)+1])
+        listen.push(message.client.emojiCharacters[parseInt(i) + 1])
+        await cart.react(message.client.emojiCharacters[parseInt(i) + 1])
     }
 
     await cart.react("❌")
@@ -67,13 +66,13 @@ let buyAbility = async (message) => {
         (response.first().emoji.name === "❌") ? async () => {
             return message.channel.send("Purchase cancelled - no funds have been deducted")
     
-            //TODO: Filter on HMs
-            //TODO: Daycare Passes / Heart Scales
-        }: () => {
-            //Handle cash exception
+            // TODO: Filter on HMs
+            // TODO: Daycare Passes / Heart Scales
+        } : () => {
+            // Handle cash exception
             if (4000 > message.trainer.cash) {
                 cart.clearReactions()
-                return message.channel.send("You have insufficient cash to complete this purchase.").then(m=>m.delete(5000))
+                return message.channel.deleteAfterSend("You have insufficient cash to complete this purchase.")
             }
     
             let ability = locked[listen.indexOf(response.first().emoji.name)]

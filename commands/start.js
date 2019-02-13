@@ -108,18 +108,18 @@ module.exports = class StartCommand extends BaseCommand {
             response.first().delete()
 
             if (await Trainer.usernameExists(username)) {
-                let warn = await message.channel.send(new RichEmbed().warning("Invalid Trainer name", "A trainer with that name already exists"))
+                let warn = await message.channel.send(RichEmbed.warning("Invalid Trainer name", "A trainer with that name already exists"))
                 warn.delete(5000)
                 return await this.getUsername(message, sentMessage, embed)
             } else if (!validator.isAscii(username)) {
-                let warn = await message.channel.send(new RichEmbed().warning("Invalid Trainer name", "The trainer name provided contains invalid (non-ASCII) characters"))
+                let warn = await message.channel.send(RichEmbed.warning("Invalid Trainer name", "The trainer name provided contains invalid (non-ASCII) characters"))
                 warn.delete(5000)
                 return await this.getUsername(message, sentMessage, embed)
             } else if (!validator.isLength(username, {
                 min: 1,
                 max: 64
             })) {
-                let warn = await message.channel.send(new RichEmbed().warning("Invalid Trainer name", "Trainer names must be between 1 and 64 characters"))
+                let warn = await message.channel.send(RichEmbed.warning("Invalid Trainer name", "Trainer names must be between 1 and 64 characters"))
                 warn.delete(5000)
                 return await this.getUsername(message, sentMessage, embed)
             } else return username
@@ -239,7 +239,7 @@ module.exports = class StartCommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         // Check if this user already has the command active
         if(message.client.activeCommands.some(ac => ac.user === message.author.id && ac.command === "start")) {
-            let warn = await message.channel.send(new RichEmbed().warning("Command error", `You already have an active ${message.client.prefix}start command.`))
+            let warn = await message.channel.send(RichEmbed.warning("Command error", `You already have an active ${message.client.prefix}start command.`))
             warn.delete(5000)
             return
         }

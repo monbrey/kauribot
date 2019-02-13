@@ -77,7 +77,7 @@ Object.defineProperties(TextChannel.prototype, {
          * @param {Number} [timer] - How long to wait to delete the message in milliseconds
          */
         value: async function(content, options, timer) {
-            if(!timer && typeof (options) === "number") {
+            if (!timer && typeof (options) === "number") {
                 timer = options
                 options = undefined
             } else {
@@ -90,21 +90,35 @@ Object.defineProperties(TextChannel.prototype, {
     }
 })
 
-Object.defineProperties(RichEmbed.prototype, {
+Object.defineProperties(RichEmbed, {
     error: {
-        value: function(title, description = null) {
-            this.setTitle(title)
-            this.setColor(parseInt("dc3545", 16))
-            if (description) this.setDescription(description)
-            return this
+        value: function(title = null, description = null) {
+            let embed = new this().setColor("0xE50000")
+
+            if (title) embed.setTitle(title)
+            if (description) embed.setDescription(description)
+
+            return embed
         }
     },
     warning: {
-        value: function(title, description = null) {
-            this.setTitle(title)
-            this.setColor(parseInt("ffc107", 16))
-            if (description) this.setDescription(description)
-            return this
+        value: function(title = null, description = null) {
+            let embed = new this().setColor("0xffc107")
+
+            if (title) embed.setTitle(title)
+            if (description) embed.setDescription(description)
+
+            return embed
+        }
+    },
+    cancel: {
+        value: function(title = null, description = null) {
+            let embed = new this().setColor("0x004A7F")
+
+            if (title) embed.setTitle(title)
+            if (description) embed.setDescription(description)
+
+            return embed
         }
     }
 })

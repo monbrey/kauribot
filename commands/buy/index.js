@@ -31,7 +31,7 @@ module.exports = class BuyCommand extends BaseCommand {
                     if (!validator.isInt(args[1], { min: 1 }))
                         return message.channel.send("Not a valid index (name lookup coming later)")
                     message.pokemon = await message.trainer.getPokemon(parseInt(args[1]) - 1)
-                    if (!message.pokemon) return message.channel.send(new RichEmbed().error(`Pokemon not found","No Pokemon found for index [${args[1]}]`))
+                    if (!message.pokemon) return message.channel.send(RichEmbed.error(`Pokemon not found","No Pokemon found for index [${args[1]}]`))
                     else return await BuyMoves(message)
                 }
                 return message.channel.send("No index provided (name lookup coming later)")
@@ -40,7 +40,7 @@ module.exports = class BuyCommand extends BaseCommand {
                     if (!validator.isInt(args[1], { min: 1 }))
                         return message.channel.send("Not a valid index (name lookup coming later)")
                     message.pokemon = await message.trainer.getPokemon(parseInt(args[1]) - 1)
-                    if (!message.pokemon) return message.channel.send(new RichEmbed().error(`Pokemon not found","No Pokemon found for index [${args[1]}]`))
+                    if (!message.pokemon) return message.channel.send(RichEmbed.error(`Pokemon not found","No Pokemon found for index [${args[1]}]`))
                     else return await BuyAbility(message)
                 }
                 return message.channel.send("No index provided (name lookup coming later)")
