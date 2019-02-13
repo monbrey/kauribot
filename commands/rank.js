@@ -12,7 +12,7 @@ module.exports = class RankCommand extends BaseCommand {
 !rank <Rank>        View all Pokemon of <Rank>
                     Accept Story, Art and Park ranks`,
             enabled: true,
-            defaultConfig: true
+            defaultConfig: false
         })
     }
 
