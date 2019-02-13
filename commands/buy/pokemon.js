@@ -113,7 +113,7 @@ const buyPokemon = async (message, args = [], cart = null) => {
 
         // Check affordability
         let subtotals = getSubtotals(pValid)
-        let currencyError = message.trainer.canAfford(subtotals[0], subtotals[1])
+        let currencyError = message.trainer.cantAfford(subtotals[0], subtotals[1])
         if(currencyError) {
             cart.clearReactions()
             message.channel.deleteAfterSend(RichEmbed.error(null, 
