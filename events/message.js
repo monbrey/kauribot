@@ -44,11 +44,11 @@ module.exports = class MessageEvent extends BaseEvent {
         // Check that the command is enabled in this channel/server
         if (command.config.channels.get(message.channel.id) === undefined) {
             if (command.config.guilds.get(message.guild.id) === undefined)
-                return message.channel.send(`${this.prefix}${command.name} has not been configured for use in this server`)
+                return message.channel.send(`${this.config.prefix}${command.name} has not been configured for use in this server`)
             if (!command.config.guilds.get(message.guild.id))
-                return message.channel.send(`${this.prefix}${command.name} has been disabled on this server`)
+                return message.channel.send(`${this.config.prefix}${command.name} has been disabled on this server`)
         } else if (!command.config.channels.get(message.channel.id)) {
-            return message.channel.send(`${this.prefix}${command.name} has been disabled in this channel`)
+            return message.channel.send(`${this.config.prefix}${command.name} has been disabled in this channel`)
         }
         // If we reach this point, it should be enabled
 
