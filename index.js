@@ -14,10 +14,6 @@ const readdir = promisify(require("fs").readdir)
 const config = Object.assign(require("./config")[process.env.NODE_ENV], require("./config")["common"])
 const queue = require("p-queue")
 
-const CommandConfig = require("./models/commandConfig")
-const LogConfig = require("./models/logConfig")
-const StarboardConfig = require("./models/starboardConfig")
-
 class UltraRpgBot extends Client {
     constructor(options = {}) {
         super(options)
@@ -44,11 +40,6 @@ class UltraRpgBot extends Client {
             let command = new _command()
             // Check if the command is enabled globally
             if (!command.enabled) return
-
-            await command.setConfig(await CommandConfig.getConfigForCommand(this, command))
-            // Check if the command has an init method
-            if (command.init)
-                await command.init(this)
 
             this.commands.set(command.name, command)
             if (command.aliases) {
@@ -123,21 +114,6 @@ class UltraRpgBot extends Client {
         } catch (e) {
             this.logger.error({ code: e.code, stack: e.stack, key: "login" })
         }
-
-        // Run per-guild configuration
-        this.guilds.forEach(async guild => {
-            // Set my nickname
-            try {
-                await guild.me.setNickname(null)
-            } catch (e) {
-                this.logger.warn(`${guild.name}: ${e.message}`)
-            }
-
-            guild.logChannel = guild.channels.get(await LogConfig.getLogChannel(guild.id))
-            guild.starboard = await StarboardConfig.getConfigForGuild(guild.id)
-        })
-
-        this.myEmojis = this.emojis.filter(e => config.emojiServers.includes(e.guild.id))
 
         return
     }

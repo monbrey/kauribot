@@ -83,6 +83,23 @@ class Logger {
         })
     }
 
+    async purchase(message, customer, log) {
+        this.info({
+            "message": `${customer} made a Pokemart purchase`,
+            "log": log.url,
+            "key": "buy"
+        })
+
+        if(!message.guild.logChannel) return
+
+        let embed = new RichEmbed()
+            .setFooter("Pokemart purchase")
+            .setTimestmap()
+            .setDescription(`${customer} made a purchase in [${log.channel}](${log.url}`)
+
+        return message.guild.logChannel(embed)
+    }
+
     async newStarter(message, trainer, starter) {
         this.info(`New trainer ${trainer.username} (${trainer.discord_id}) registered`, {
             key: "start"
@@ -91,7 +108,7 @@ class Logger {
         if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
-            .setFooter("New trainer started")
+            .setFooter("New trainer")
             .setTimestamp()
             .setDescription(`New trainer ${trainer.username} (${message.member}) started with ${starter.uniqueName}`)
 
