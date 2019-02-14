@@ -32,13 +32,6 @@ module.exports = class BaseCommand {
     }
 
     /**
-     * @param {CommandConfig} config - A CommandConfig Mongoose document
-     */
-    async setConfig(config) {
-        this.config = config
-    }
-
-    /**
      * @param {string} guild - Discord Guild ID
      */
     async isEnabledInGuild(guild) {

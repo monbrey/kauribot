@@ -38,6 +38,11 @@ commandConfigSchema.statics.getConfigForCommand = async function(client, command
             }, {}),
             "usage": [...client.guilds.map(g => { return { "guild": g.id } })]
         })
+
+    for(let g of client.guilds.keyArray()) {
+        if(!config.guilds[g]) config.guilds[g] = command.defaultConfig
+    }
+
     return config
 }
 

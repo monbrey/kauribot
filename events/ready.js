@@ -17,11 +17,12 @@ module.exports = class ReadyEvent extends BaseEvent {
     // Place where I can trigger whatever I want when the bot is done
     async run() {
         this.client.commands.forEach(async command => {
-            command.setConfig(await CommandConfig.getConfigForCommand(this.client, command))
+            // Get the configuration for the command
+            command.config = await CommandConfig.getConfigForCommand(this.client, command)
+            
             // Check if the command has an init method
             if (command.init)
-                await command.init(this.client)
-            // Run per-guild configuration
+                await command.init(this.client)            
         })
 
         this.client.guilds.forEach(async guild => {
