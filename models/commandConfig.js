@@ -40,8 +40,10 @@ commandConfigSchema.statics.getConfigForCommand = async function(client, command
         })
 
     for(let g of client.guilds.keyArray()) {
-        if(!config.guilds[g]) config.guilds[g] = command.defaultConfig
-    }
+        if(!config.guilds.has(g)) {
+            config.guilds.set(g, command.defaultConfig)
+        }
+    }   
 
     if(config.isModified()) await config.save()
 

@@ -28,11 +28,15 @@ const consoleErrorFormat = format.combine(
 const logglyFormat = format.combine(
     format.label({ label: process.env.NODE_ENV }),
     format.json(),
-    format.printf(info => {
-        if(info.message.constructor.name === "Object")
-            return Object.assign({message: info.message.message || ""}, [].concat(Object.keys(info).map(k => ({[k]: info[k]}))))
+    format(info => {
+        if(info.message.constructor.name === "Object") {
+            const message = info.message
+            if(message.message) info.message = info.message.message
+            else delete info.message
+            Object.assign(info, message)
+        }
         return info
-    })
+    })()
 )
 
 const _transports = [
@@ -76,7 +80,7 @@ class Logger {
         this.info({
             message: "Message processed",
             content: message.content,
-            author: { nickname: message.member.displayName, username: message.author.username, id: message.author.id },
+            author: message.author.id,
             server: { name: message.guild.name, id: message.guild.id },
             channel: { name: message.channel.name, id: message.channel.id },
             key: "message"

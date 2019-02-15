@@ -3,6 +3,7 @@ const { RichEmbed, Collection } = require("discord.js")
 const Color = require("./color")
 const { oneLine, stripIndent } = require("common-tags")
 const strsim = require("string-similarity")
+const getAsset = require("../util/getAsset")
 require("./mega")
 
 let pokemonSchema = new mongoose.Schema({
@@ -240,24 +241,31 @@ pokemonSchema.statics.findPartial = function(uniqueName, query = {}) {
 }
 
 pokemonSchema.methods.dex = async function(query) {
+    const dexResources = [
+        getAsset(this),
+        Color.getColorForType(this.type1.toLowerCase()),
+        this.populate("ability").execPopulate(),
+        this.populate("hiddenAbility").execPopulate()
+    ]
+
+    const [assets, color] = await Promise.all(dexResources)
+
     const embed = new RichEmbed()
-        .setTitle(`URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3, "0")})`)
-        .setColor(await Color.getColorForType(this.type1.toLowerCase()))
-        .setImage(`https://pokemonurpg.com/img/models/${this.dexNumber}${this.spriteCode ? `-${this.spriteCode}` : ""}.gif`)
+        .setAuthor(`URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3, "0")})`, assets.icon)
+        .setColor(color)
+        .setImage(assets.image)
         .addField(`${this.type2 ? "Types" : "Type" }`, `${this.type1}${this.type2 ? `\n${this.type2}` : ""}`, true)
         .setFooter("Reactions | [M] View Moves ")
     
     if(this.matchRating !== 1) 
         embed.setDescription(`Closest match to your search "${query}" with ${Math.round(this.matchRating * 100)}% similarity`)
 
-    await this.populate("ability").execPopulate()
     embed.addField("Ability", `${this.ability.map(a => a.abilityName).join("\n")}`, true)
 
-    if (this.hiddenAbility.length > 0) {
-        await this.populate("hiddenAbility").execPopulate()
+    if (this.hiddenAbility.length > 0) { 
         embed.addField("Hidden Ability", `${this.hiddenAbility.map(a => a.abilityName).join("\n")}`, true)
     } else {
-        embed.addBlankField()
+        embed.addBlankField(true)
     }
 
     embed.addField(`Gender${this.gender.male && this.gender.female ? "s" : ""}`,
@@ -281,7 +289,7 @@ pokemonSchema.methods.dex = async function(query) {
     }
 
     for (ranks; ranks > 0 && ranks < 3; ranks++) {
-        embed.addBlankField()
+        embed.addBlankField(true)
     }
 
     if (this.martPrice.pokemart) {
