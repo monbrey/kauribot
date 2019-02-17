@@ -8,12 +8,16 @@ module.exports = class ChargeCommand extends BaseCommand {
             name: "deduct",
             category: "Game",
             description: "Removes money from a mentioned user's account",
-            usage: "!deduct [-cc] <@User> <amount>",
+            usage: "!deduct",
             enabled: true,
             defaultConfig: false,
             requiresRole: ["moderator", "official", "chief-judge",
                 "elder-arbiter", "elite-ranger", "expert-curator",
                 "lead-grader", "senior-referee"
+            ],
+            examples: [
+                "!deduct @User 10000",
+                "!deduct @User 5000 -cc"
             ]
         })
     }

@@ -6,16 +6,21 @@ module.exports = class AbilityCommand extends BaseCommand {
         super({
             name: "ability",
             category: "Info",
-            description: "Provides Ability information",
+            description: "Provides information on Pokemon Abilities",
             usage: "!ability <Ability>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: true,
+            examples: [
+                "!ability Overgrow",
+                "!ability Blaze",
+                "!ability Torrent"
+            ]
         })
     }
 
     async run(message, args = [], flags = []) {
         if (args.length === 0) {
-            return this.getHelp()
+            return this.getHelp(true)
         }
 
         let query = args.join(" ")

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const {	RichEmbed } = require("discord.js")
 
-var abilitySchema = new mongoose.Schema({
+const abilitySchema = new mongoose.Schema({
     abilityName: {
         type: String,
         required: true
@@ -30,7 +30,6 @@ abilitySchema.statics.findExact = function(abilityName) {
     return this.findOne({
         "abilityName": new RegExp(`^${abilityName}$`, "i")
     })
-
 }
 
 abilitySchema.statics.findPartial = function(abilityName) {

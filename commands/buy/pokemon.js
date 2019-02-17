@@ -54,11 +54,9 @@ const processPurchase = async (message, pokemon, cart) => {
 
 const showInvalid = (message, pokemon) => {
     if (pokemon.length > 0) {
-        let embed = RichEmbed()
-            .error("Invalid item added",
-                `The following Pokemon are not available in the Pokemart and were not added to your cart:
+        message.channel.sendPopup("error", "Invalid item added",
+            `The following Pokemon are not available in the Pokemart and were not added to your cart:
 \`\`\`${pokemon.map(p=>p.uniqueName).join(", ")}\`\`\``)
-        message.channel.deleteAfterSend(embed)
     }
 }
 
@@ -97,9 +95,7 @@ const buyPokemon = async (message, args = [], cart = null) => {
         remove.forEach(r => {
             let regex = new RegExp(`^${r}$`, "i")
             let i = pValid.findIndex(p => regex.test(p.uniqueName))
-            i >= 0 ? pValid.splice(i, 1) : message.channel.deleteAfterSend(
-                RichEmbed.warning(`"${r}" was not found in your cart`)
-            )
+            i >= 0 ? pValid.splice(i, 1) : message.channel.sendPopup("warn", null `"${r}" was not found in your cart`)
         })
 
         cart = await updateCart(message, pValid, cart)
@@ -116,8 +112,8 @@ const buyPokemon = async (message, args = [], cart = null) => {
         let currencyError = message.trainer.cantAfford(subtotals[0], subtotals[1])
         if(currencyError) {
             cart.clearReactions()
-            message.channel.deleteAfterSend(RichEmbed.error(null, 
-                `You have insufficient ${currencyError} to complete this purchase. Please remove some items and try again.`))
+            message.channel.sendPopup("error", null, 
+                `You have insufficient ${currencyError} to complete this purchase. Please remove some items and try again.`)
             return this.buyItems(message, pValid.map(i=>i.itemName), cart)
         }
 
@@ -125,7 +121,7 @@ const buyPokemon = async (message, args = [], cart = null) => {
         // TODO: Log the purchase to the logs channel
     } : () => {
         responses.stop()
-        return message.channel.send(RichEmbed.cancel(null,"Purchase cancelled - no funds have been deducted"))
+        return message.channel.sendPopup("cancel", null,"Purchase cancelled - no funds have been deducted")
     })()
 }
 

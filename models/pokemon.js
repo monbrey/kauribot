@@ -2,7 +2,6 @@ const mongoose = require("mongoose")
 const { RichEmbed, Collection } = require("discord.js")
 const Color = require("./color")
 const { oneLine, stripIndent } = require("common-tags")
-const strsim = require("string-similarity")
 const getAsset = require("../util/getAsset")
 require("./mega")
 
@@ -222,16 +221,6 @@ pokemonSchema.statics.findOneExact = function(uniqueName, query = {}) {
     return this.findOne(Object.assign(query, {
         "uniqueName": new RegExp(`^${uniqueName}$`, "i"),
     }))
-}
-
-pokemonSchema.statics.findClosest = async function(uniqueName, query = {}) {
-    let allNames = (await this.find({}).select("uniqueName -_id").cache()).map(p => p.uniqueName)
-    let closest = strsim.findBestMatch(uniqueName, allNames).bestMatch
-    let pokemon = await this.findOne(Object.assign(query, {
-        "uniqueName": closest.target
-    }))
-    pokemon.matchRating = closest.rating
-    return pokemon
 }
 
 pokemonSchema.statics.findPartial = function(uniqueName, query = {}) {

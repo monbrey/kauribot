@@ -104,15 +104,15 @@ let processPurchase = async (message, mValid, cart) => {
 
 let showInvalid = (message, known, invalid) => {
     if (known.length > 0 || invalid.length > 0) {
-        let embed = RichEmbed.error("Invalid item added", "The following moves were not added to your cart:")
+        let desc = "The following moves were not added to your cart:"
         
         if(known.length > 0)
-            embed.addField("Already knows:", `\`\`\`${known.map(m=>m.moveName).join(", ")}\`\`\``)
+            desc += `\n\n**Already knows**: \`\`\`${known.map(m=>m.moveName).join(", ")}\`\`\``
 
         if(invalid.length > 0)
-            embed.addField("Cannot learn:", `\`\`\`${invalid.map(m=>m.moveName).join(", ")}\`\`\``)
+            desc += `\n\n**Cannot learn**" \`\`\`${invalid.map(m=>m.moveName).join(", ")}\`\`\``
 
-        message.channel.deleteAfterSend(embed)
+        message.channel.sendPopup("error", "Invalid items selected", desc)
     }
 }
 
@@ -135,9 +135,7 @@ let buyMoves = async (message, mValid = [], cart = null) => {
 
         remove.forEach(r => {
             let i = mValid.findIndex(m => m.moveName === r)
-            i >= 0 ? mValid.splice(i, 1) : message.channel.send(
-                RichEmbed.warning(`"${r}" was not found in your cart`)
-            ).then(msg => msg.delete(5000))
+            i >= 0 ? mValid.splice(i, 1) : message.channel.sendPopup("warn", null, `"${r}" was not found in your cart`)
         })
 
         cart = await updateCart(message, mValid, cart)
@@ -153,8 +151,7 @@ let buyMoves = async (message, mValid = [], cart = null) => {
         // Handle cash exception
         if (getSubtotal(message.pokemon, mValid) > message.trainer.cash) {
             cart.clearReactions()
-            let error = await message.channel.send("You have insufficient cash to complete this purchase. Please remove some items and try again.")
-            error.delete(5000)
+            message.channel.sendPopup("error", null, "You have insufficient cash to complete this purchase. Please remove some items and try again.")
             return this.buyMoves(message, mValid, cart)
         }
 

@@ -4,6 +4,7 @@ require("dotenv").config({ path: "variables.env" })
 
 
 require("./util/discordExtensions") // Custom methods on Discord objects, to be replaced in 12.0 with Structures.extend
+require("./util/mongooseExtensions")
 require("./util/db")
 const logger = require("./util/logger")
 

@@ -20,8 +20,9 @@ module.exports = class BaseCommand {
         this.name = options.name || "base"
         this.category = options.category || null
         this.aliases = options.aliases || []
-        this.description = options.description || ""
-        this.usage = options.usage || ""
+        this.description = options.description || "No description provided"
+        this.usage = options.usage || "No usage specified"
+        this.examples = options.examples || ["None available"]
         this.enabled = options.enabled || false
         this.defaultConfig = options.defaultConfig || false
         this.guildOnly = options.guildOnly || false
@@ -56,16 +57,19 @@ module.exports = class BaseCommand {
      * @param {Channel} channel - A Discord Channel object
      */
     async getHelp(channel) {
-        let prefix = channel.client.prefix
-
         if (this.requiresOwner) return
 
         let embed = new RichEmbed()
-            .setTitle(`${prefix}${this.name}`)
-            .setDescription(this.description)
-            .addField("Usage", `\`\`\`${this.usage}\`\`\``)
-            .addField("Available in DM", this.guildOnly ? "No" : "Yes", true)
-            .addField("Requires Permissions", this.requiresPermission ? this.requiresPermission.join(", ") : "No", true)
+            .setDescription(`\`${this.usage}\``)
+            .addField("Description", this.description)
+        if(this.aliases.length > 0) 
+            embed.addField("Aliases", `\`${this.aliases.join("` `")}\``)
+        embed.addField("Examples", `\`${this.examples.join("`\n`")}\``)
+            .addField("Available in DMs", this.guildOnly ? "No" : "Yes", true)
+        if(this.requiresPermission)
+            embed.addField("Requires Permissions", this.requiresPermission.join("\n"), true)
+        if(this.requiresRole)
+            embed.addField("Requires Roles", this.requiresRole.join("\n"), true)
 
         return channel.send(embed)
     }

@@ -7,11 +7,15 @@ module.exports = class DexCommand extends BaseCommand {
         super({
             name: "dex",
             category: "Info",
-            description: "Get Pokedex data for a Pokemon",
-            usage: `
-!dex [x]                        Get Pokedex data for <pokemon>`,
+            description: "Get Ultradex data for a Pokemon",
+            usage: "!dex <Pokemon>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: true,
+            examples: [
+                "!dex Bulbasaur",
+                "!dex Charmander",
+                "!dex Squirtle"
+            ]
         })
     }
 
@@ -74,9 +78,9 @@ module.exports = class DexCommand extends BaseCommand {
 
         let query = args.join(" ")
         // Find a match
-        let pokemon = await Pokemon.findClosest(query)
+        let pokemon = await Pokemon.findClosest("uniqueName", query)
         // Return an error if nothing was found
-        if(!pokemon) return message.channel.deleteAfterSend(RichEmbed.error(`No matches found for ${query}`))
+        if(!pokemon) return message.channel.sendPopup("error", null, `No matches found for ${query}`)
 
         // Log the search
         message.client.logger.info({ key: "dex", search: query, result: pokemon.uniqueName})

@@ -31,13 +31,13 @@ module.exports = class HelpCommand extends BaseCommand {
             })
 
             let game = commands.filter(cmd => cmd.category === "Game")
-                .map(cmd => `${message.client.prefix}${cmd.name.padEnd(12, " ")}${cmd.description}`)
+                .map(cmd => cmd.name)
             let info = commands.filter(cmd => cmd.category === "Info")
-                .map(cmd => `${message.client.prefix}${cmd.name.padEnd(12, " ")}${cmd.description}`)
+                .map(cmd => cmd.name)
             let admin = commands.filter(cmd => cmd.category === "Admin")
-                .map(cmd => `${message.client.prefix}${cmd.name.padEnd(12, " ")}${cmd.description}`)
+                .map(cmd => cmd.name)
             let misc = commands.filter(cmd => cmd.category === "Miscellaneous")
-                .map(cmd => `${message.client.prefix}${cmd.name.padEnd(12, " ")}${cmd.description}`)
+                .map(cmd => cmd.name)
 
             let embed = new RichEmbed()
                 .setTitle("Pokemon URPG Discord Bot")
@@ -50,10 +50,10 @@ module.exports = class HelpCommand extends BaseCommand {
                 **Available Commands**`)
                 .setFooter("Most commands have detailed help available via !help [command] or !command -h")
 
-            if (game.length) embed.addField("Game", `\`\`\`${game.join("\n")}\`\`\``)
-            if (info.length) embed.addField("Information", `\`\`\`${info.join("\n")}\`\`\``)
-            if (admin.length) embed.addField("Administration", `\`\`\`${admin.join("\n")}\`\`\``)
-            if (misc.length) embed.addField("Miscellaneous", `\`\`\`${misc.join("\n")}\`\`\``)
+            if (game.length) embed.addField("Gameplay Interaction", `\`${game.join("` `")}\``)
+            if (info.length) embed.addField("Information and Lookups", `\`${info.join("` `")}\``)
+            if (admin.length) embed.addField("Administration Functions", `\`${admin.join("` `")}\``)
+            if (misc.length) embed.addField("Miscellaneous", `\`${misc.join("` `")}\``)
 
             return message.channel.send({
                 "embed": embed

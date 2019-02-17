@@ -43,7 +43,7 @@ module.exports = class TrainerCommand extends BaseCommand {
      */
     async editProfile(member, trainer) {
         // TODO
-        return RichEmbed.warning("Profile editing is not yet implemented.")
+        // return RichEmbed.warning("Profile editing is not yet implemented.")
     }
 
     async run(message, args = [], flags = []) {

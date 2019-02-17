@@ -70,7 +70,7 @@ Object.defineProperties(Message.prototype, {
 })
 
 Object.defineProperties(TextChannel.prototype, {
-    deleteAfterSend: {
+    "sendAndDelete": {
         /**
          * @param {StringResolvable} [content] - Text for the message
          * @param {MessageOptions|Attachment|RichEmbed} options - Options for the message, can also be just a RichEmbed or Attachment
@@ -80,45 +80,30 @@ Object.defineProperties(TextChannel.prototype, {
             if (!timer && typeof (options) === "number") {
                 timer = options
                 options = undefined
-            } else {
+            } else if (!timer) {
                 timer = 5000
             }
 
             const m = await this.send(content, options)
             return m.delete(timer)
         }
-    }
-})
-
-Object.defineProperties(RichEmbed, {
-    error: {
-        value: function(title = null, description = null) {
-            let embed = new this().setColor("0xE50000")
-
-            if (title) embed.setTitle(title)
-            if (description) embed.setDescription(description)
-
-            return embed
+    },
+    "EMBED_COLORS": {
+        value: {
+            "ERROR": 0xE50000,
+            "WARN": 0xFFC107,
+            "CANCEL": 0x004A7F
         }
     },
-    warning: {
-        value: function(title = null, description = null) {
-            let embed = new this().setColor("0xffc107")
+    "sendPopup": {
+        value: async function(type, title = null, description = null) {
+
+            let embed = new RichEmbed({ color: this.EMBED_COLORS[type.toUpperCase()] })
 
             if (title) embed.setTitle(title)
             if (description) embed.setDescription(description)
 
-            return embed
-        }
-    },
-    cancel: {
-        value: function(title = null, description = null) {
-            let embed = new this().setColor("0x004A7F")
-
-            if (title) embed.setTitle(title)
-            if (description) embed.setDescription(description)
-
-            return embed
+            return this.sendAndDelete(embed)
         }
     }
 })

@@ -4,9 +4,9 @@ const Item = require("../../models/item")
 const seqProm = require("../../util/sequentialPromises")
 
 const getCart = (items) => {
-    return `${ items.length > 0 ? items.map(i => {
+    return `${items.length > 0 ? items.map(i => {
         return `${i.itemName} - ${i.priceString}`
-    }).join("\n") : "Empty" }`
+    }).join("\n") : "Empty"}`
 }
 
 const updateCart = async (message, items, cart = null) => {
@@ -25,19 +25,17 @@ const updateCart = async (message, items, cart = null) => {
 }
 
 const getSubtotals = (items) => {
-    return items.length > 0 ? items.reduce((p,n) => {
+    return items.length > 0 ? items.reduce((p, n) => {
         n.martPrice.pokemart ? p[0] += n.martPrice.pokemart : p[1] += n.martPrice.berryStore
         return p
-    }, [0,0]) : [0,0]
+    }, [0, 0]) : [0, 0]
 }
 
 const showInvalid = (message, items) => {
     if (items.length > 0) {
-        let embed = new RichEmbed()
-            .error("Invalid item added",
-                `The folowing Items are not available in the Pokemart and were not added to your cart:
-\`\`\`${items.map(i=>i.itemName).join(", ")}\`\`\``)
-        message.channel.deleteAfterSend(embed)
+        message.channel.sendPopup("error", "Invalid item added",
+            `The folowing Items are not available in the Pokemart and were not added to your cart:
+\`\`\`${items.map(i => i.itemName).join(", ")}\`\`\``)
     }
 }
 
@@ -54,7 +52,7 @@ const processPurchase = async (message, items, cart) => {
 
     embed.fields[2].name = "Purchase complete"
     embed.fields[2].value = `New balances: ${await message.trainer.balanceString}`
-    
+
     return cart.edit(embed)
 }
 
@@ -62,7 +60,7 @@ const buyItems = async (message, args = [], cart = null) => {
     let iResult = await Item.findExact(args).sort("itemName")
     iResult = args.map(name => {
         let regex = new RegExp(`^${name}$`, "i")
-        return iResult.find(i=>regex.test(i.itemName))
+        return iResult.find(i => regex.test(i.itemName))
     })
 
     let [iValid, iInvalid] = iResult.reduce(([pass, fail], item) => {
@@ -93,9 +91,7 @@ const buyItems = async (message, args = [], cart = null) => {
         remove.forEach(r => {
             let regex = new RegExp(`^${r}$`, "i")
             let i = iValid.findIndex(i => regex.test(i.itemName))
-            i >= 0 ? iValid.splice(i, 1) : message.channel.deleteAfterSend(
-                RichEmbed.warning(`"${r}" was not found in your cart`)
-            )
+            i >= 0 ? iValid.splice(i, 1) : message.channel.sendPopup("warn", null, `"${r}" was not found in your cart`)
         })
 
         cart = await updateCart(message, iValid, cart)
@@ -110,12 +106,11 @@ const buyItems = async (message, args = [], cart = null) => {
         // Check affordability
         let subtotals = getSubtotals(iValid)
         let currencyError = message.trainer.canAfford(subtotals[0], subtotals[1])
-        if(currencyError) {
+        if (currencyError) {
             cart.clearReactions()
-            let embed = RichEmbed.error("Insufficient funds", 
+            message.channel.sendPopup("error", "Insufficient funds",
                 `You have insufficient ${currencyError} to complete this purchase. Please remove some items and try again.`)
-            message.channel.deleteAfterSend(embed)
-            return this.buyItems(message, iValid.map(i=>i.itemName), cart)
+            return this.buyItems(message, iValid.map(i => i.itemName), cart)
         }
 
         processPurchase(message, iValid, cart)

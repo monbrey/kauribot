@@ -18,7 +18,7 @@ module.exports = class ReloadCommand extends BaseCommand {
             if(command) {
                 try {
                     const _command = require(`./${arg.toLowerCase()}`)
-                    if (!_command) throw new Error()
+                    if (!_command) throw new Error(`${arg.toLowerCase()}.js does not export a command`)
                     let command = new _command()
                     // Check if the command is enabled globally
                     if (command.enabled) {

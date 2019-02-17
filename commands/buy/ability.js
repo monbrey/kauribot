@@ -32,7 +32,7 @@ let buyAbility = async (message) => {
     let lockedList = locked.map((a,i) => `${i + 1}. ${a.ability.abilityName}`)
 
     if(locked.length === 0) {
-        return message.channel.deleteAfterSend(RichEmbed.warning("No locked abilities",`Your ${name} does not have any more Hidden Abilities that require unlocking`))
+        return message.channel.sendPopup("warn","No locked abilities",`Your ${name} does not have any more Hidden Abilities that require unlocking`)
     }
 
     let embed = new RichEmbed()
@@ -72,7 +72,7 @@ let buyAbility = async (message) => {
             // Handle cash exception
             if (4000 > message.trainer.cash) {
                 cart.clearReactions()
-                return message.channel.deleteAfterSend("You have insufficient cash to complete this purchase.")
+                return message.channel.sendPopup("error", null, "You have insufficient cash to complete this purchase. Please remove some items and try again.")
             }
     
             let ability = locked[listen.indexOf(response.first().emoji.name)]

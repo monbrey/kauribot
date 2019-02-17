@@ -8,13 +8,21 @@ module.exports = class ConfigCommand extends BaseCommand {
         super({
             name: "config",
             category: "Admin",
-            description: "Change bot configuration",
-            usage: "No example yet",
+            description: "Administration function for changing bot configuration in this server.",
+            usage: "!config [switch] [command]",
             enabled: true,
             defaultConfig: true,
             lockConfig: true,
             guildOnly: true,
-            requiresPermission: ["ADMINISTRATOR", "MANAGE_ROLES"]
+            requiresPermission: ["ADMINISTRATOR", "MANAGE_ROLES"],
+            examples: [
+                "!config - Run the config wizard",
+                "!config status <command>",
+                "!config enable <command>",
+                "!config disable <command>",
+                "!config set logs <channel-mention>",
+                "!config clear <configuration>"
+            ]
         })
     }
 

@@ -97,9 +97,9 @@ module.exports = class RefLogCommand extends BaseCommand {
                 **${winner.displayName}** : $${winnerTrainer.balanceString}
                 **${loser.displayName}** : $${loserTrainer.balanceString}         
                 **${ref.displayName}** : $${refTrainer.balanceString}`)
-        } else await prompt.delete()
 
-        await message.channel.send(embed)
-        return message.client.logger.reflog(message, prompt, description)
+            message.channel.send(embed)
+            return message.client.logger.reflog(message, prompt, description)
+        } else return prompt.delete()
     }
 }
