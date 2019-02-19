@@ -94,17 +94,21 @@ module.exports = class UndergroundCommand extends BaseCommand {
             }
         })()
 
-        message.trainer.modifyCash(amount)
-        const embed = new RichEmbed()
-            .setTitle("Underground result")
-            .setDescription(stripIndent`
-            **Rolls:** ${rolls.join(" | ")}
-            **Found:** ${item}!
+        if(amount) {
+            message.trainer.modifyCash(amount)
+            const embed = new RichEmbed()
+                .setTitle("Underground result")
+                .setDescription(stripIndent`
+                **Rolls:** ${rolls.join(" | ")}
+                **Found:** ${item}!
+    
+                The ${item} has been inspected and valued at $${amount.toLocaleString()}!`)
+                .setFooter("The money has been added to your account")
+    
+            return message.channel.send(embed)
+        }
 
-            The ${item} has been inspected and valued at $${amount.toLocaleString()}!`)
-            .setFooter("The money has been added to your account")
-
-        return message.channel.send(embed)
+                
     }
     
 
