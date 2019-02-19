@@ -14,7 +14,7 @@ module.exports = class UndergroundCommand extends BaseCommand {
             aliases: ["ug"],
             category: "Game",
             description: "URPG's item lottery - explore the Underground for a chance at rare and valuables items!",
-            usage: stripIndent `
+            usage: stripIndent`
             !ug          Explore the Underground! ($2,500)
             !ug list     Show all Underground rewards`,
             enabled: true,
@@ -31,19 +31,16 @@ module.exports = class UndergroundCommand extends BaseCommand {
         await message.trainer.addNewItem(dbItem, "Item")
         const embed = new RichEmbed()
             .setTitle("Underground result")
-            .setDescription(stripIndent `
+            .setDescription(stripIndent`
             **Rolls:** ${rolls.join(" | ")}
-            **Found:** ${dbItem.itemName}`)
+            **Found:** ${dbItem.itemName}!${dbItem.desc ? `\n\n${dbItem.desc}` : ""}`)
             .setFooter("The item has been added to your inventory")
 
         return message.channel.send(embed)
     }
 
     async chooseItem(message, rolls, item) {
-        const items = await item.reduce(async (promise, i) => {
-            await promise
-            return Item.findById(i)
-        }, Promise.resolve())
+        const items = await Promise.all(item.map(i => Item.findById(i)))
 
         const embed = new RichEmbed()
             .setTitle("Underground result")
@@ -61,20 +58,58 @@ module.exports = class UndergroundCommand extends BaseCommand {
         })
 
         // TODO: Meaningful timeout message
-        if(!response.first()) return sentMessage.clearReactions()
+        if (!response.first()) return sentMessage.clearReactions()
         const index = response.first().emoji.name === numEmoji[1] ? 1 : 2
         return await message.trainer.addNewItem(items[index], "Item")
     }
 
     async convertItem(message, rolls, item) {
-
+        item = await Item.findById(item)
+        return message.channel.send(item, { code: "js" })
     }
 
-    async forceConvertItem(mesasge, rolls, item) {
-        
+    async forceConvertItem(message, rolls, item) {
+        const amount = (() => {
+            switch (item) {
+                case "Big Nugget":
+                    return 10000
+                case "Nugget":
+                    return 5000
+                case "Pearl String":
+                    return 7500
+                case "Star Piece":
+                    return 2500
+                case "Big Pearl":
+                    return 3000
+                case "Relic Silver":
+                    return 3500
+                case "Relic Copper":
+                    return 1000
+                case "Pearl":
+                    return 1500
+                case "Stardust":
+                    return 2000
+                default:
+                    return 0
+            }
+        })()
+
+        message.trainer.modifyCash(amount)
+        const embed = new RichEmbed()
+            .setTitle("Underground result")
+            .setDescription(stripIndent`
+            **Rolls:** ${rolls.join(" | ")}
+            **Found:** ${item}!
+
+            The ${item} has been inspected and valued at $${amount.toLocaleString()}!`)
+            .setFooter("The money has been added to your account")
+
+        return message.channel.send(embed)
     }
+    
 
     async redeemItem(message, rolls, item) {
+        console.log(item)
         switch (item.constructor.name) {
             // An array indicates a choice between two options
             case "Array": return this.chooseItem(message, rolls, item)
@@ -99,9 +134,11 @@ module.exports = class UndergroundCommand extends BaseCommand {
 
         const embed = new RichEmbed()
             .setTitle("Underground result")
-            .setDescription(stripIndent `
+            .setDescription(stripIndent`
             **Rolls:** ${rolls.join(" | ")}
-            **Found:** TM${randomTM.tm.number} ${randomTM.moveName}`)
+            **Found:** Random TM!
+            
+            ...TM${randomTM.tm.number} ${randomTM.moveName}!`)
             .setFooter("The TM has been added to your inventory")
 
         return message.channel.send(embed)
@@ -121,14 +158,6 @@ module.exports = class UndergroundCommand extends BaseCommand {
             ug = nextUg.function ? nextUg : nextUg.item
         } while (!ug.function)
 
-        await this[ug.function](message, rolls, ug.item)
-
-        const embed = new RichEmbed()
-            .setTitle("Underground result")
-            .setDescription(stripIndent `
-            **Rolls:** ${rolls.join(" | ")}
-            **Found:** ${ug.itemName}`)
-
-        return message.channel.send(embed)
+        return this[ug.function](message, rolls, ug.item)
     }
 }
