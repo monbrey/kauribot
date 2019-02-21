@@ -55,7 +55,7 @@ module.exports = class UndergroundCommand extends BaseCommand {
         const filter = (reaction, user) => [numEmoji[1], numEmoji[2]].includes(reaction.emoji.name) && user.id === message.author.id
         let response = await sentMessage.awaitReactions(filter, {
             max: 1,
-            time: 60000
+            time: 120000
         })
 
         // Return the message reference if no item is chosen, to be logged as a Pending
@@ -176,36 +176,17 @@ module.exports = class UndergroundCommand extends BaseCommand {
         return true
     }
 
-    async run(message, args = [], flags = []) {
-        message.trainer = await Trainer.findById(message.author.id)
-        if(!message.trainer) return message.channel.sendPopup("error", null, 
-            "You must have a URPG Trainer profile to run this command.")
-
-        if(!this.matrix) await this.init()
-
-        // if(!await Digs.canDig(message.trainer.id)) 
-        //    return message.channel.sendPopup("warn", null, "Maximum digs for this month reached")
-
-        const rolls = []
-        let ug = this.matrix
-
-        // Loop through until we've worked our way to a single item
-        do {
-            const rand = Math.floor(Math.random() * ug.map(i => i.maxIndex)[ug.length - 1]) + 1
-            const nextUg = ug.find(i => i.maxIndex >= rand)
-            rolls.push(`${rand} ${nextUg.catName ? `(${nextUg.catName})` : ""}`.trim())
-            ug = nextUg.function ? nextUg : nextUg.item
-        } while (!ug.function)
-
+    async resolve(message, rolls, ug) {
         let result = await this[ug.function](message, rolls, ug.item)
-        if(result === true) return Digs.addDig(message.trainer.id, result.id)
+        if (result === true) return Digs.addDig(message.trainer.id, result.id)
         else { // Handle pending choices
             Pending.create({
                 "message": result.id,
                 "channel": result.channel.id,
                 "item": ug,
                 "trainer": message.author.id,
-                "month": new Date(Date.now()).getMonth()
+                "month": new Date(Date.now()).getMonth(),
+                "rolls": rolls
             })
             const embed = new RichEmbed()
                 .setTitle("Underground result pending")
@@ -213,8 +194,65 @@ module.exports = class UndergroundCommand extends BaseCommand {
 You can resume your selection at a later time with the command below
 
 \`!ug claim ${result.url}\``, 0)
-            return message.channel.send(embed)
+            try { return await message.author.send(embed) } catch (e) { return await message.channel.send(embed) }
         }
     }
 
+    async run(message, args = [], flags = []) {
+        message.trainer = await Trainer.findById(message.author.id)
+        if (!message.trainer) return message.channel.sendPopup("error", null,
+            "You must have a URPG Trainer profile to run this command.")
+
+        if (!this.matrix) await this.init()
+
+        if (args[0] === "claim" && args[1]) {
+            let [channel, ugMsg] = args[1].split(/\//g).slice(5)
+            try {
+                if (!channel || !ugMsg) {
+                    message.channel.sendPopup("error", null, "Unable to parse Underground Message URL")
+                    throw new Error("Unable to parse Underground Message URL")
+                }
+
+                const pendingUg = await Pending.findOne({
+                    "channel": channel,
+                    "message": ugMsg
+                })
+
+                if (!pendingUg) {
+                    message.channel.sendPopup("warn", null, "No pending Underground item pickup matches that URL")
+                    throw new Error(`No pickup found for ${channel}/${ugMsg}`)
+                }
+
+                if (pendingUg.trainer !== message.author.id) {
+                    message.channel.sendPopup("warn", null, "That pending Underground item pickup is not yours to claim!")
+                    throw new Error("Unauthorised claim attempt")
+                }
+
+                const rolls = pendingUg.rolls
+                const ug = pendingUg.item
+                pendingUg.remove()
+                return this.resolve(message, rolls, ug)
+            } catch (e) {
+                return message.client.logger.error({ code: e.code, stack: e.stack, key: "underground" })
+            }
+        }
+
+        // Else make a new roll
+        if (!await Digs.canDig(message.trainer.id))
+            return message.channel.sendPopup("warn", null, "Maximum digs for this month reached")
+
+        const rolls = []
+        let ug = this.matrix
+
+        // Loop through until we've worked our way to a single item
+        const dice = [28, 10, 5]
+        do {
+            const rand = dice.shift()// Math.floor(Math.random() * ug.map(i => i.maxIndex)[ug.length - 1]) + 1
+            const nextUg = ug.find(i => i.maxIndex >= rand)
+            rolls.push(`${rand} ${nextUg.catName ? `(${nextUg.catName})` : ""}`.trim())
+            ug = nextUg.function ? nextUg : nextUg.item
+        } while (!ug.function)
+
+        return this.resolve(message, rolls, ug)
+    }
 }

@@ -87,6 +87,10 @@ const undergroundPendingSchema = new Schema({
     month: {
         type: String,
         required: true
+    },
+    rolls: {
+        type: Array,
+        required: true
     }
 })
 
