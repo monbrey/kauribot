@@ -30,11 +30,11 @@ module.exports = class RefLogCommand extends BaseCommand {
         let description = args.slice(3).join(" ")
 
         let winner = message.mentions.members.get(battlers[0])
-        let winnerTrainer = Trainer.findByDiscordId(winner.id)
+        let winnerTrainer = Trainer.findById(winner.id)
         let loser = message.mentions.members.get(battlers[1])
-        let loserTrainer = Trainer.findByDiscordId(loser.id)
+        let loserTrainer = Trainer.findById(loser.id)
         let ref = message.member
-        let refTrainer = Trainer.findByDiscordId(ref.id)
+        let refTrainer = Trainer.findById(ref.id)
         // Check that the ref isnt also a battler
         if ([winner.id, loser.id].includes(ref.id)) return message.channel.send("Illegal command usage - referee cannot also be a battler.")
 

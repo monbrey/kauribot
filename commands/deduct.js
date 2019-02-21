@@ -2,7 +2,7 @@ const { RichEmbed } = require("discord.js")
 const BaseCommand = require("./base")
 const Trainer = require("../models/trainer")
 
-module.exports = class ChargeCommand extends BaseCommand {
+module.exports = class DeductCommand extends BaseCommand {
     constructor() {
         super({
             name: "deduct",
@@ -16,8 +16,8 @@ module.exports = class ChargeCommand extends BaseCommand {
                 "lead-grader", "senior-referee"
             ],
             examples: [
-                "!deduct @User 10000",
-                "!deduct @User 5000 -cc"
+                "!deduct @User 10000 <reason>",
+                "!deduct @User 5000cc <reason>"
             ]
         })
     }
@@ -25,17 +25,17 @@ module.exports = class ChargeCommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         let member = message.mentions.members.first()
         if (!member)
-            return message.channel.send("You must mention a URPG player")
+            return message.channel.sendPopup("warn", null, "You must mention a URPG player")
         if (!args[1])
-            return message.channel.send("You must provide an amount of money > 0")
+            return message.channel.sendPopup("warn", null, "You must provide an amount of money > 0")
 
-        let trainer = await Trainer.findByDiscordId(member.id)
+        let trainer = await Trainer.findById(member.id)
         if (!trainer)
-            return message.channel.send(`Could not find a URPG Trainer for ${member}`)
+            return message.channel.sendPopup("error", null, `Could not find a URPG Trainer for ${member}`)
 
         let arg = args.splice(1).join(" ")
         if(!/^\$?[1-9][0-9,]* ?(?:CC)?$/gi.test(arg))
-            return message.channel.send(`Provided amount "${arg}" is not valid`)
+            return message.channel.sendPopup("error", null, `Provided amount "${arg}" is not valid`)
 
         let type = /^[1-9][0-9,]* (?:CC)$/gi.test(arg) ? "cc" : "cash"
         let amount = parseInt(arg.replace(/\D/g, ""))
@@ -55,6 +55,9 @@ module.exports = class ChargeCommand extends BaseCommand {
 
             prompt.edit(embed)
             message.client.logger.deduct(message, member, currency, prompt)
+        } else {
+            prompt.delete()
+            message.channel.sendPopup("cancel","No deduction has been made")
         }
     }
 }

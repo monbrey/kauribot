@@ -4,7 +4,7 @@ module.exports = class BaseEvent {
         this.enabled = options.enabled || false
     }
 
-    async argsplit(array) {
+    argsplit(array) {
         let filterFunc = x => x.startsWith("-")
         return [ 
             array.filter(filterFunc).map(x => x.substring(1).toLowerCase()),

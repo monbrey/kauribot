@@ -5,6 +5,7 @@ module.exports = class BaseCommand {
      * @constructor
      * @param {Object}      [options={}]
      * @param {String}          options.name - The name of the command, used to call it
+     * @param {Object}          options.args - Named arguments and types for string splitting
      * @param {Array}           [options.aliases=[]] - Aliases which can also be used to call the command
      * @param {String}          [options.description=""] - Description of the command for !help
      * @param {String}          [options.usage=""] - Detailed usage of the command
@@ -19,6 +20,7 @@ module.exports = class BaseCommand {
     constructor(options = {}) {
         this.name = options.name || "base"
         this.category = options.category || null
+        this.args = options.args || null
         this.aliases = options.aliases || []
         this.description = options.description || "No description provided"
         this.usage = options.usage || "No usage specified"
@@ -60,17 +62,21 @@ module.exports = class BaseCommand {
         if (this.requiresOwner) return
 
         let embed = new RichEmbed()
-            .setDescription(`\`${this.usage}\``)
-            .addField("Description", this.description)
-        if(this.aliases.length > 0) 
+            .setDescription(`\`${this.name}\` - ${this.description}`)
+        if (this.aliases.length > 0)
             embed.addField("Aliases", `\`${this.aliases.join("` `")}\``)
-        embed.addField("Examples", `\`${this.examples.join("`\n`")}\``)
+        embed.addField("Syntax", `\`${this.usage}\``)
+            .addField("Examples", `\`${this.examples.join("`\n`")}\``)
             .addField("Available in DMs", this.guildOnly ? "No" : "Yes", true)
-        if(this.requiresPermission)
+        if (this.requiresPermission)
             embed.addField("Requires Permissions", this.requiresPermission.join("\n"), true)
-        if(this.requiresRole)
+        if (this.requiresRole)
             embed.addField("Requires Roles", this.requiresRole.join("\n"), true)
 
         return channel.send(embed)
+    }
+
+    async run(message, args = [], flags = []) {
+        return
     }
 }

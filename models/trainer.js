@@ -2,10 +2,9 @@ const mongoose = require("mongoose")
 const TrainerPokemon = require("./trainerPokemon")
 
 var trainerSchema = new mongoose.Schema({
-    discord_id: {
+    _id: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     username: {
         type: String,
@@ -72,12 +71,6 @@ var trainerSchema = new mongoose.Schema({
     }]
 })
 
-trainerSchema.plugin(require("mongoose-timestamp"))
-trainerSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
-    model: "Trainer",
-    startAt: 1
-})
-
 trainerSchema.virtual("balance").get(function() {
     return { cash: this.cash, contestCredit: this.contestCredit }
 })
@@ -90,18 +83,6 @@ trainerSchema.statics.usernameExists = async function(username) {
     return this.findOne({
         "username": new RegExp(`^${username}$`, "i")
     })
-}
-
-trainerSchema.statics.findByDiscordId = async function(id) {
-    return this.findOne({
-        "discord_id": id
-    })
-}
-
-trainerSchema.statics.discordIdExists = async function(id) {
-    return this.findOne({
-        "discord_id": id
-    }) ? true : false
 }
 
 trainerSchema.methods.cantAfford = function(cash = null, contestCredit = null) {

@@ -105,7 +105,7 @@ class Logger {
     }
 
     async newStarter(message, trainer, starter) {
-        this.info(`New trainer ${trainer.username} (${trainer.discord_id}) registered`, {
+        this.info(`New trainer ${trainer.username} (${trainer.id}) registered`, {
             key: "start"
         })
 

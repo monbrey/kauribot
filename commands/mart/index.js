@@ -36,7 +36,7 @@ Moves:    !buy moves <roster-index>${tb}`)
     }
 
     async run(message, args = [], flags = []) {
-        message.trainer = await Trainer.findByDiscordId(message.author.id)
+        message.trainer = await Trainer.findById(message.author.id)
 
         switch (args[0]) {
             case "pokemon":
@@ -44,10 +44,10 @@ Moves:    !buy moves <roster-index>${tb}`)
                 else return browsePokemon(message)
             case "items":
                 return browseItems(message)
-                //case "em":
+                // case "em":
                 //    if (args[1]) return await this.tmInterface(message, args[1].match(/[1-9][0-9]*/) ? args[1] : 1)
                 //    else return await this.tmInterface(message)
-                //case "hm":
+                // case "hm":
                 //    return await this.hmInterface(message)
             default:
                 await this.welcome(message)

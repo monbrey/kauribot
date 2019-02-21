@@ -88,8 +88,8 @@ module.exports = class StartCommand extends BaseCommand {
 
     async getUsername(message, sentMessage, embed) {
         try {
-            if(!embed.fields[0]) embed.addField("What name would you like your Trainer to be known as?", "\u200B")
-            else embed.fields[0].value = "\u200B"
+            if(!embed.fields[1]) embed.addField("What name would you like your Trainer to be known as?", "\u200B")
+            else embed.fields[1].value = "\u200B"
             sentMessage.edit(embed)
 
             let filter = m => m.author.id === message.author.id && !m.content.startsWith(message.client.prefix)
@@ -99,8 +99,8 @@ module.exports = class StartCommand extends BaseCommand {
                 time: 30000
             })
             if (response.size == 0) {
-                embed.fields[0].value = `Username input timed out. You can start again at any time with ${message.client.prefix}start`
-                message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
+                embed.fields[1].value = `Username input timed out. You can start again at any time with ${message.client.prefix}start`
+                sentMessage.edit(embed)
                 return false
             }
 
@@ -129,13 +129,13 @@ module.exports = class StartCommand extends BaseCommand {
     async confirmUsername(message, sentMessage, embed) {
         try {
             sentMessage.clearReactions()
-            if(embed.fields.length == 2) embed.fields.splice(1)
+            if(embed.fields.length == 3) embed.fields.splice(2)
             sentMessage.edit(embed)
 
             let username = await this.getUsername(message, sentMessage, embed)
             if (!username) return
 
-            embed.fields[0].value = username
+            embed.fields[1].value = username
             embed.addField("Is this the name you would like to use?", "\u200B")
             await sentMessage.edit(embed)
             return await sentMessage.reactConfirm(message.author.id) ? username : await this.confirmUsername(message, sentMessage, embed)
@@ -148,8 +148,8 @@ module.exports = class StartCommand extends BaseCommand {
 
     async getStarter(message, sentMessage, embed) {
         try {
-            if(!embed.fields[2]) embed.addField("What Pokemon would you like to be your partner as you begin your URPG journey?", "\u200B")
-            else embed.fields[2].value = "\u200B"
+            if(!embed.fields[3]) embed.addField("What Pokemon would you like to be your partner as you begin your URPG journey?", "\u200B")
+            else embed.fields[3].value = "\u200B"
             sentMessage.edit(embed)
 
             let filter = m => m.author.id === message.author.id && !m.content.startsWith(message.client.prefix)
@@ -159,8 +159,7 @@ module.exports = class StartCommand extends BaseCommand {
                 time: 30000
             })
             if (response.size == 0) {
-                message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-                embed.fields[3].value = `Starter selection timed out. You can start again at any time with ${message.client.prefix}start`
+                embed.fields[4].value = `Starter selection timed out. You can start again at any time with ${message.client.prefix}start`
                 sentMessage.edit(embed)
                 return false
             }
@@ -212,13 +211,13 @@ module.exports = class StartCommand extends BaseCommand {
     async confirmStarter(message, sentMessage, embed) {
         try {
             sentMessage.clearReactions()
-            if(embed.fields.length == 4) embed.fields.splice(3)
+            if(embed.fields.length == 5) embed.fields.splice(4)
             sentMessage.edit(embed)
 
             let starter = await this.getStarter(message, sentMessage, embed)
             if(!starter) return
 
-            embed.fields[2].value = starter.uniqueName
+            embed.fields[3].value = starter.uniqueName
             embed.fields.push(this.scripts.valid(starter))
             embed.setThumbnail(`https://pokemonurpg.com/img/models/${starter.dexNumber}${starter.uniqueName.indexOf("Alola") > 0 ? "-alola" : ""}.gif`)
             embed.addField("Is this the Pokemon you want to start with?", "\u200B")
@@ -234,39 +233,28 @@ module.exports = class StartCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        // Check if this user already has the command active
-        if(message.client.activeCommands.some(ac => ac.user === message.author.id && ac.command === "start")) {
-            return message.channel.sendPopup("warn", "Command error", `You already have an active ${message.client.prefix}start command.`)
-        }
-
         // Check if the user already has a Trainer in the database. Removed for testing
-        let trainer = await Trainer.findByDiscordId(message.author.id)
+        let trainer = await Trainer.findById(message.author.id)
         if (trainer) {
             message.channel.send("You have previously signed up for the URPG. To request a restart, please contact a Moderator.")
-            return
+            return message.client.activeCommands.find()
         } else trainer = new Trainer({
-            "discord_id": message.author.id
+            "_id": message.author.id
         })
 
         let embed = new RichEmbed()
-            .setTitle("Welcome to the Pokemon Ultra Role Playing Game!")
-            .setDescription("To begin with, lets get some information about you, new Pokemon Trainer!")
+            .setDescription("Reply with `cancel` at any time to exit your Starter Request")
+            .addField("Welcome to the Pokemon Ultra Role Playing Game!", "To begin with, lets get some information about you, new Pokemon Trainer!")
 
         let sentMessage = await message.channel.send(embed)
-        // Log this as an active command to prevent running in parallel
-        message.client.activeCommands.set(Date.now(), {
-            user: message.author.id,
-            command: "start",
-            message: sentMessage
-        })
 
         let username = await this.confirmUsername(message, sentMessage, embed)
         if (username) {
             trainer.username = username
         } else return
 
-        embed.fields[1].name = `Okay ${username}, it's time to select your starter Pokemon!`
-        embed.fields[1].value = "Remember that in URPG, you can choose any Pokemon that can evolve as your starter **__except__**:\nDratini, Larvitar, Bagon, Kabuto, Omanyte, Scyther, Lileep, Anorith, Beldum, Porygon, Gible, Shieldon, Cranidos, Munchlax, Riolu, Tirtouga, Archem, Deino, Larvesta, Amura, Tyrunt or Goomy."
+        embed.fields[2].name = `Okay ${username}, it's time to select your starter Pokemon!`
+        embed.fields[2].value = "Remember that in URPG, you can choose any Pokemon that can evolve as your starter **__except__**:\nDratini, Larvitar, Bagon, Kabuto, Omanyte, Scyther, Lileep, Anorith, Beldum, Porygon, Gible, Shieldon, Cranidos, Munchlax, Riolu, Tirtouga, Archem, Deino, Larvesta, Amura, Tyrunt or Goomy."
         await sentMessage.edit(embed)
 
         let starter = await this.confirmStarter(message, sentMessage, embed)
@@ -277,7 +265,7 @@ module.exports = class StartCommand extends BaseCommand {
             await newTrainer.addNewPokemon(starter)
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
 
-            embed.fields[4].value = (`Congratulations! New Trainer ${trainer.username} and ${starter.displayName} registered.`)
+            embed.fields[5].value = (`Congratulations! New Trainer ${trainer.username} and ${starter.displayName} registered.`)
             sentMessage.edit(embed)
             message.client.logger.newStarter(message, trainer, starter)
 

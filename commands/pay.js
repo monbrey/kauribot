@@ -25,7 +25,7 @@ module.exports = class PayCommand extends BaseCommand {
         if (!args[1])
             return message.channel.send("You must provide an amount of money > 0")
 
-        let trainer = await Trainer.findByDiscordId(member.id)
+        let trainer = await Trainer.findById(member.id)
         if (!trainer)
             return message.channel.send(`Could not find a URPG Trainer for ${member}`)
 

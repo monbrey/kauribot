@@ -1,19 +1,7 @@
-const mongoose = require("mongoose")
+const { Schema, model } = require("mongoose")
 const Trainer = require("./trainer")
 
-const undergroundSchema = new mongoose.Schema({
-    digs: [{
-        trainer: {
-            type: Number,
-            ref: Trainer,
-            required: true
-        },
-        month: {
-            type: String,
-            required: true
-        },
-        _id: false
-    }],
+const undergroundSchema = new Schema({
     matrix: [{
         maxIndex: {
             type: Number,
@@ -23,7 +11,7 @@ const undergroundSchema = new mongoose.Schema({
             type: String
         },
         item: {
-            type: mongoose.Schema.Types.Mixed,
+            type: Schema.Types.Mixed,
             required: true,
             ref: "Item"
         },
@@ -35,8 +23,76 @@ const undergroundSchema = new mongoose.Schema({
 })
 
 undergroundSchema.statics.getMatrix = async function() {
-    let matrix = await this.findOne({}).select("matrix -_id").lean()
+    const matrix = await this.findOne({}).select("matrix -_id").lean()
     return matrix.matrix
 }
 
-module.exports = mongoose.model("Underground", undergroundSchema)
+module.exports.Underground = model("Underground", undergroundSchema)
+
+const undergroundDigsSchema = new Schema({
+    trainer: {
+        type: String,
+        ref: Trainer,
+        required: true
+    },
+    month: {
+        type: Number,
+        required: true
+    },
+    result: {
+        type: String
+    }
+})
+
+undergroundDigsSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
+    model: "UndergroundDigs",
+    startAt: 1,
+})
+
+undergroundDigsSchema.statics.canDig = async function(id) {
+    const m = new Date(Date.now()).getMonth()
+    const digs = await this.countDocuments({ "trainer": id, month: m })
+    const pendingDigs = await Pending.countDocuments({ "trainer": id, month: m })
+    return digs + pendingDigs < 2
+}
+
+undergroundDigsSchema.statics.addDig = function(trainerID, resultID) {
+    this.create({
+        trainer: trainerID,
+        month: new Date(Date.now()).getMonth(),
+        result: resultID
+    })
+}
+
+module.exports.Digs = model("UndergroundDigs", undergroundDigsSchema)
+
+const undergroundPendingSchema = new Schema({
+    message: {
+        type: String,
+        required: true
+    },
+    channel: {
+        type: String,
+        required: true
+    },
+    item: {
+        type: Schema.Types.Mixed,
+        required: true,
+        ref: "Item"
+    },
+    trainer: {
+        type: String,
+        required: true
+    },
+    month: {
+        type: String,
+        required: true
+    }
+})
+
+undergroundPendingSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
+    model: "UndergroundPending",
+    startAt: 1,
+})
+
+const Pending = module.exports.Pending = model("UndergroundPending", undergroundPendingSchema)

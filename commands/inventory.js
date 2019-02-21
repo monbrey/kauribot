@@ -39,7 +39,7 @@ module.exports = class TrainerCommand extends BaseCommand {
         ))
         if (!member) return message.channel.send(`Could not find a Discord user matching ${args[0]}`)
 
-        let trainer = await Trainer.findByDiscordId(member.id)
+        let trainer = await Trainer.findById(member.id)
         if (!trainer) return message.channel.send(`Unable to find a trainer profile for ${member.displayName}`)
 
         let red = message.client.myEmojis.find(e => e.name === "red")

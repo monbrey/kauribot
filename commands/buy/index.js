@@ -10,6 +10,7 @@ module.exports = class BuyCommand extends BaseCommand {
     constructor() {
         super({
             name: "buy",
+            category: "Game",
             description: "Make a purchase from the URPG Pokemart or Berry Store",
             usage: `
 !buy <item>                 Purchase <item> and have the cost deducted from your account`,
@@ -19,7 +20,7 @@ module.exports = class BuyCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        message.trainer = await Trainer.findByDiscordId(message.author.id)
+        message.trainer = await Trainer.findById(message.author.id)
 
         switch (args[0].toLowerCase()) {
             case "pokemon":

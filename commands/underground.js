@@ -4,7 +4,7 @@ const { stripIndent } = require("common-tags")
 const Item = require("../models/item")
 const Move = require("../models/move")
 const Trainer = require("../models/trainer")
-const Underground = require("../models/underground")
+const { Underground, Digs, Pending } = require("../models/underground")
 const numEmoji = require("../util/emojiCharacters")
 
 module.exports = class UndergroundCommand extends BaseCommand {
@@ -36,7 +36,8 @@ module.exports = class UndergroundCommand extends BaseCommand {
             **Found:** ${dbItem.itemName}!${dbItem.desc ? `\n\n${dbItem.desc}` : ""}`)
             .setFooter("The item has been added to your inventory")
 
-        return message.channel.send(embed)
+        message.channel.send(embed)
+        return true
     }
 
     async chooseItem(message, rolls, item) {
@@ -57,15 +58,26 @@ module.exports = class UndergroundCommand extends BaseCommand {
             time: 60000
         })
 
-        // TODO: Meaningful timeout message
-        if (!response.first()) return sentMessage.clearReactions()
-        const index = response.first().emoji.name === numEmoji[1] ? 1 : 2
-        return await message.trainer.addNewItem(items[index], "Item")
+        // Return the message reference if no item is chosen, to be logged as a Pending
+        if (!response.first()) {
+            sentMessage.clearReactions()
+            return sentMessage
+        }
+
+        const index = response.first().emoji.name === numEmoji[1] ? 0 : 1
+        message.trainer.addNewItem(items[index], "Item")
+
+        embed.description += `\n\n**Chosen:** ${items[index].itemName}`
+        embed.setFooter("The item has been added to your inventory")
+
+        sentMessage.edit(embed)
+        return true
     }
 
     async convertItem(message, rolls, item) {
         item = await Item.findById(item)
-        return message.channel.send(item, { code: "js" })
+        message.channel.send(item, { code: "js" })
+        return true
     }
 
     async forceConvertItem(message, rolls, item) {
@@ -94,7 +106,7 @@ module.exports = class UndergroundCommand extends BaseCommand {
             }
         })()
 
-        if(amount) {
+        if (amount) {
             message.trainer.modifyCash(amount)
             const embed = new RichEmbed()
                 .setTitle("Underground result")
@@ -104,23 +116,38 @@ module.exports = class UndergroundCommand extends BaseCommand {
     
                 The ${item} has been inspected and valued at $${amount.toLocaleString()}!`)
                 .setFooter("The money has been added to your account")
-    
-            return message.channel.send(embed)
+
+            message.channel.send(embed)
+            return true
         }
 
-                
-    }
-    
+        const tm = await (() => {
+            switch (item) {
+                case "Blue Shard":
+                    return Move.findById(357)
+                case "Green Shard":
+                    return Move.findById(336)
+                case "Red Shard":
+                    return Move.findById(509)
+                case "Yellow Shard":
+                    return Move.findById(387)
+                default:
+                    return 0
+            }
+        })()
 
-    async redeemItem(message, rolls, item) {
-        console.log(item)
-        switch (item.constructor.name) {
-            // An array indicates a choice between two options
-            case "Array": return this.chooseItem(message, rolls, item)
-            // Numbers have an optional conversion
-            case "Number": return this.convertItem(message, rolls, item)
-            // Strings force-convert to something else
-            case "String": return this.forceConvertItem(message, rolls, item)
+        if (tm) {
+            const embed = new RichEmbed()
+                .setTitle("Underground result")
+                .setDescription(stripIndent`
+                **Rolls:** ${rolls.join(" | ")}
+                **Found:** ${item}!
+    
+                The ${item} has been exchanged for TM${tm.tm.number} ${tm.moveName}!`)
+                .setFooter("The TM has been added to your inventory")
+
+            message.channel.send(embed)
+            return true
         }
     }
 
@@ -145,11 +172,19 @@ module.exports = class UndergroundCommand extends BaseCommand {
             ...TM${randomTM.tm.number} ${randomTM.moveName}!`)
             .setFooter("The TM has been added to your inventory")
 
-        return message.channel.send(embed)
+        message.channel.send(embed)
+        return true
     }
 
     async run(message, args = [], flags = []) {
-        message.trainer = await Trainer.findByDiscordId(message.author.id)
+        message.trainer = await Trainer.findById(message.author.id)
+        if(!message.trainer) return message.channel.sendPopup("error", null, 
+            "You must have a URPG Trainer profile to run this command.")
+
+        if(!this.matrix) await this.init()
+
+        // if(!await Digs.canDig(message.trainer.id)) 
+        //    return message.channel.sendPopup("warn", null, "Maximum digs for this month reached")
 
         const rolls = []
         let ug = this.matrix
@@ -162,6 +197,23 @@ module.exports = class UndergroundCommand extends BaseCommand {
             ug = nextUg.function ? nextUg : nextUg.item
         } while (!ug.function)
 
-        return this[ug.function](message, rolls, ug.item)
+        let result = await this[ug.function](message, rolls, ug.item)
+        if(result === true) return Digs.addDig(message.trainer.id, result.id)
+        else { // Handle pending choices
+            Pending.create({
+                "message": result.id,
+                "channel": result.channel.id,
+                "item": ug,
+                "trainer": message.author.id,
+                "month": new Date(Date.now()).getMonth()
+            })
+            return message.author.sendPopup("cancel",
+                "Underground result pending",
+                `Your Underground dig item selection has timed out
+You can resume your selection at a later time with the command below
+
+\`!ug claim ${result.url}\``, 0)
+        }
     }
+
 }

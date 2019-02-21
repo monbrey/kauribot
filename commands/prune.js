@@ -25,5 +25,6 @@ module.exports = class PruneCommand extends BaseCommand {
 
         let deleted = await message.channel.bulkDelete(numToDelete, true)
         message.client.logger.prune(message, deleted.size)
+        return true
     }
 }

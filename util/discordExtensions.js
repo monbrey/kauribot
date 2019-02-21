@@ -1,4 +1,9 @@
-const { Message, TextChannel, RichEmbed } = require("discord.js")
+const { Message, TextChannel, DMChannel, RichEmbed } = require("discord.js")
+const EMBED_COLORS = {
+    "ERROR": 0xE50000,
+    "WARN": 0xFFC107,
+    "CANCEL": 0x004A7F
+}
 
 Object.defineProperties(Message.prototype, {
     /**
@@ -88,22 +93,66 @@ Object.defineProperties(TextChannel.prototype, {
             return m.delete(timer)
         }
     },
-    "EMBED_COLORS": {
-        value: {
-            "ERROR": 0xE50000,
-            "WARN": 0xFFC107,
-            "CANCEL": 0x004A7F
-        }
-    },
     "sendPopup": {
-        value: async function(type, title = null, description = null) {
+        value: async function(type, title = null, description = null, timeout = null) {
+            if (!type) throw new Error("A popup type must be specified")
+            if (timeout === null && typeof (description) === "number") {
+                timeout = description
+                description = null
+            }
+            if (timeout === null && typeof (title) === "number") {
+                timeout = title
+                title = null
+            }
 
-            let embed = new RichEmbed({ color: this.EMBED_COLORS[type.toUpperCase()] })
+            let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
 
             if (title) embed.setTitle(title)
             if (description) embed.setDescription(description)
 
-            return this.sendAndDelete(embed)
+            if (timeout === 0) return this.send(embed)
+            else return this.sendAndDelete(embed, timeout)
+        }
+    }
+})
+
+Object.defineProperties(DMChannel.prototype, {
+    "sendAndDelete": {
+        /**
+         * @param {StringResolvable} [content] - Text for the message
+         * @param {MessageOptions|Attachment|RichEmbed} options - Options for the message, can also be just a RichEmbed or Attachment
+         * @param {Number} [timer] - How long to wait to delete the message in milliseconds
+         */
+        value: async function(content, options, timer) {
+            if (!timer && typeof (options) === "number") {
+                timer = options
+                options = undefined
+            } else if (!timer) {
+                timer = 5000
+            }
+
+            const m = await this.send(content, options)
+            return m.delete(timer)
+        }
+    },
+    "sendPopup": {
+        value: async function(type, title = null, description = null, timeout = null) {
+            if (!type) throw new Error("A popup type must be specified")
+            if (timeout === null && typeof (description) === "number") {
+                timeout = description
+                description = null
+            }
+            if (timeout === null && typeof (title) === "number") {
+                timeout = title
+                title = null
+            }
+
+            let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
+
+            if (title) embed.setTitle(title)
+            if (description) embed.setDescription(description)
+
+            else return this.sendAndDelete(embed, timeout)
         }
     }
 })
