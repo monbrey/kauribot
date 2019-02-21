@@ -207,12 +207,13 @@ module.exports = class UndergroundCommand extends BaseCommand {
                 "trainer": message.author.id,
                 "month": new Date(Date.now()).getMonth()
             })
-            return message.author.sendPopup("cancel",
-                "Underground result pending",
-                `Your Underground dig item selection has timed out
+            const embed = new RichEmbed()
+                .setTitle("Underground result pending")
+                .setDescription(`Your Underground dig item selection has timed out
 You can resume your selection at a later time with the command below
 
 \`!ug claim ${result.url}\``, 0)
+            return message.channel.send(embed)
         }
     }
 
