@@ -5,7 +5,7 @@ module.exports = class GuildMemberAddEvent extends BaseEvent {
     constructor() {
         super({
             name: "guildMemberAdd",
-            enabled: true
+            enabled: false
         })
     }
 

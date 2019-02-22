@@ -4,7 +4,7 @@ module.exports = class GuildMemberRemoveEvent extends BaseEvent {
     constructor() {
         super({
             name: "guildMemberRemove",
-            enabled: true
+            enabled: false
         })
     }
 
