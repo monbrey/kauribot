@@ -200,7 +200,7 @@ You can resume your selection at a later time with the command below
 
     async run(message, args = [], flags = []) {
         message.trainer = await Trainer.findById(message.author.id)
-        if (!message.trainer) return message.channel.sendPopup("error", null,
+        if (!message.trainer) return message.channel.sendPopup("error",
             "You must have a URPG Trainer profile to run this command.")
 
         if (!this.matrix) await this.init()
@@ -209,7 +209,7 @@ You can resume your selection at a later time with the command below
             let [channel, ugMsg] = args[1].split(/\//g).slice(5)
             try {
                 if (!channel || !ugMsg) {
-                    message.channel.sendPopup("error", null, "Unable to parse Underground Message URL")
+                    message.channel.sendPopup("error", "Unable to parse Underground Message URL")
                     throw new Error("Unable to parse Underground Message URL")
                 }
 
@@ -219,12 +219,12 @@ You can resume your selection at a later time with the command below
                 })
 
                 if (!pendingUg) {
-                    message.channel.sendPopup("warn", null, "No pending Underground item pickup matches that URL")
+                    message.channel.sendPopup("warn", "No pending Underground item pickup matches that URL")
                     throw new Error(`No pickup found for ${channel}/${ugMsg}`)
                 }
 
                 if (pendingUg.trainer !== message.author.id) {
-                    message.channel.sendPopup("warn", null, "That pending Underground item pickup is not yours to claim!")
+                    message.channel.sendPopup("warn", "That pending Underground item pickup is not yours to claim!")
                     throw new Error("Unauthorised claim attempt")
                 }
 
@@ -240,7 +240,6 @@ You can resume your selection at a later time with the command below
         // Else make a new roll
         if (!await Digs.canDig(message.trainer.id))
             return message.channel.sendPopup("warn", null, "Maximum digs for this month reached")
-
         const rolls = []
         let ug = this.matrix
 

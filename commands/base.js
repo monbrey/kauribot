@@ -76,6 +76,11 @@ module.exports = class BaseCommand {
         return channel.send(embed)
     }
 
+    /**
+     * @param {Message} message - A Discord.Message
+     * @param {Array} args - Array of command arguments
+     * @param {Array} flags - Array of command flags
+     */
     async run(message, args = [], flags = []) {
         return
     }

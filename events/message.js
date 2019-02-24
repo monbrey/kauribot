@@ -100,7 +100,7 @@ module.exports = class MessageEvent extends BaseEvent {
         const active = this.checkActiveCommand(message, command.name)
         if(active) {
             if(active.timestamp < Date.now() - 5000)
-                message.channel.sendPopup("warn", null, `You already have an active ${message.client.prefix}prune command.`)
+                message.channel.sendPopup("warn", `You already have an active ${message.client.prefix}${command.name} command.`)
 
             active.timestamp = Date.now()
             return

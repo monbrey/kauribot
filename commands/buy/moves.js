@@ -112,7 +112,7 @@ let showInvalid = (message, known, invalid) => {
         if(invalid.length > 0)
             desc += `\n\n**Cannot learn**" \`\`\`${invalid.map(m=>m.moveName).join(", ")}\`\`\``
 
-        message.channel.sendPopup("error", "Invalid items selected", desc)
+        message.channel.sendPopup("error", desc)
     }
 }
 
@@ -135,7 +135,7 @@ let buyMoves = async (message, mValid = [], cart = null) => {
 
         remove.forEach(r => {
             let i = mValid.findIndex(m => m.moveName === r)
-            i >= 0 ? mValid.splice(i, 1) : message.channel.sendPopup("warn", null, `"${r}" was not found in your cart`)
+            i >= 0 ? mValid.splice(i, 1) : message.channel.sendPopup("warn", `"${r}" was not found in your cart`)
         })
 
         cart = await updateCart(message, mValid, cart)
@@ -151,7 +151,7 @@ let buyMoves = async (message, mValid = [], cart = null) => {
         // Handle cash exception
         if (getSubtotal(message.pokemon, mValid) > message.trainer.cash) {
             cart.clearReactions()
-            message.channel.sendPopup("error", null, "You have insufficient cash to complete this purchase. Please remove some items and try again.")
+            message.channel.sendPopup("error", "You have insufficient cash to complete this purchase. Please remove some items and try again.")
             return this.buyMoves(message, mValid, cart)
         }
 

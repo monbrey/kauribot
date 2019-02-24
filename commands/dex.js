@@ -80,7 +80,7 @@ module.exports = class DexCommand extends BaseCommand {
         // Find a match
         let pokemon = await Pokemon.findClosest("uniqueName", query)
         // Return an error if nothing was found
-        if(!pokemon) return message.channel.sendPopup("error", null, `No matches found for ${query}`)
+        if(!pokemon) return message.channel.sendPopup("error", `No matches found for ${query}`)
 
         // Log the search
         message.client.logger.info({ key: "dex", search: query, result: pokemon.uniqueName})

@@ -108,16 +108,16 @@ module.exports = class StartCommand extends BaseCommand {
             response.first().delete()
 
             if (await Trainer.usernameExists(username)) {
-                message.channel.sendPopup("warn", "Invalid Trainer name", "A trainer with that name already exists")
+                message.channel.sendPopup("warn", "A trainer with that name already exists")
                 return await this.getUsername(message, sentMessage, embed)
             } else if (!validator.isAscii(username)) {
-                message.channel.sendPopup("warn", "Invalid Trainer name", "The trainer name provided contains invalid (non-ASCII) characters")
+                message.channel.sendPopup("warn", "The trainer name provided contains invalid (non-ASCII) characters")
                 return await this.getUsername(message, sentMessage, embed)
             } else if (!validator.isLength(username, {
                 min: 1,
                 max: 64
             })) {
-                message.channel.sendPopup("warn", "Invalid Trainer name", "Trainer names must be between 1 and 64 characters")
+                message.channel.sendPopup("warn", "Trainer names must be between 1 and 64 characters")
                 return await this.getUsername(message, sentMessage, embed)
             } else return username
         } catch (e) {

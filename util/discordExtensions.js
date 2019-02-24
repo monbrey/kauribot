@@ -41,7 +41,9 @@ Object.defineProperties(Message.prototype, {
             // If we only have the 'forward' reaction, we want to remove it and put the 'back' in first
             if (this.reactions.has("➡") && !this.reactions.has("⬅")) await this.clearReactions()
             if (back && !this.reactions.has("⬅")) await this.react("⬅")
+            if (!back && this.reactions.has("⬅")) await this.reactions.get("⬅").remove()
             if (next && !this.reactions.has("➡")) await this.react("➡")
+            if (!next && this.reactions.has("➡")) await this.reactions.get("➡").remove()
 
             let filter = (reaction, user) => ["⬅", "➡"].includes(reaction.emoji.name) && user.id === listenTo
 
@@ -94,21 +96,15 @@ Object.defineProperties(TextChannel.prototype, {
         }
     },
     "sendPopup": {
-        value: async function(type, title = null, description = null, timeout = null) {
+        value: async function(type, description = null, timeout = null) {
             if (!type) throw new Error("A popup type must be specified")
             if (timeout === null && typeof (description) === "number") {
                 timeout = description
                 description = null
             }
-            if (timeout === null && typeof (title) === "number") {
-                timeout = title
-                title = null
-            }
 
             let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
-
-            if (title) embed.setTitle(title)
-            if (description) embed.setDescription(description)
+                .setDescription(description)
 
             if (timeout === 0) return this.send(embed)
             else return this.sendAndDelete(embed, timeout)
@@ -136,23 +132,18 @@ Object.defineProperties(DMChannel.prototype, {
         }
     },
     "sendPopup": {
-        value: async function(type, title = null, description = null, timeout = null) {
+        value: async function(type, description = null, timeout = null) {
             if (!type) throw new Error("A popup type must be specified")
             if (timeout === null && typeof (description) === "number") {
                 timeout = description
                 description = null
             }
-            if (timeout === null && typeof (title) === "number") {
-                timeout = title
-                title = null
-            }
 
             let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
+                .setDescription(description)
 
-            if (title) embed.setTitle(title)
-            if (description) embed.setDescription(description)
-
-            else return this.sendAndDelete(embed, timeout)
+            if (timeout === 0) return this.send(embed)
+            return this.sendAndDelete(embed, timeout)
         }
     }
 })

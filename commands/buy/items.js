@@ -33,7 +33,7 @@ const getSubtotals = (items) => {
 
 const showInvalid = (message, items) => {
     if (items.length > 0) {
-        message.channel.sendPopup("error", "Invalid item added",
+        message.channel.sendPopup("error",
             `The folowing Items are not available in the Pokemart and were not added to your cart:
 \`\`\`${items.map(i => i.itemName).join(", ")}\`\`\``)
     }
@@ -91,7 +91,7 @@ const buyItems = async (message, args = [], cart = null) => {
         remove.forEach(r => {
             let regex = new RegExp(`^${r}$`, "i")
             let i = iValid.findIndex(i => regex.test(i.itemName))
-            i >= 0 ? iValid.splice(i, 1) : message.channel.sendPopup("warn", null, `"${r}" was not found in your cart`)
+            i >= 0 ? iValid.splice(i, 1) : message.channel.sendPopup("warn", `"${r}" was not found in your cart`)
         })
 
         cart = await updateCart(message, iValid, cart)
@@ -108,7 +108,7 @@ const buyItems = async (message, args = [], cart = null) => {
         let currencyError = message.trainer.canAfford(subtotals[0], subtotals[1])
         if (currencyError) {
             cart.clearReactions()
-            message.channel.sendPopup("error", "Insufficient funds",
+            message.channel.sendPopup("error",
                 `You have insufficient ${currencyError} to complete this purchase. Please remove some items and try again.`)
             return this.buyItems(message, iValid.map(i => i.itemName), cart)
         }

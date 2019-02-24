@@ -25,17 +25,17 @@ module.exports = class DeductCommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         let member = message.mentions.members.first()
         if (!member)
-            return message.channel.sendPopup("warn", null, "You must mention a URPG player")
+            return message.channel.sendPopup("warn", "You must mention a URPG player")
         if (!args[1])
-            return message.channel.sendPopup("warn", null, "You must provide an amount of money > 0")
+            return message.channel.sendPopup("warn", "You must provide an amount of money > 0")
 
         let trainer = await Trainer.findById(member.id)
         if (!trainer)
-            return message.channel.sendPopup("error", null, `Could not find a URPG Trainer for ${member}`)
+            return message.channel.sendPopup("error", `Could not find a URPG Trainer for ${member}`)
 
         let arg = args.splice(1).join(" ")
         if(!/^\$?[1-9][0-9,]* ?(?:CC)?$/gi.test(arg))
-            return message.channel.sendPopup("error", null, `Provided amount "${arg}" is not valid`)
+            return message.channel.sendPopup("error", `Provided amount "${arg}" is not valid`)
 
         let type = /^[1-9][0-9,]* (?:CC)$/gi.test(arg) ? "cc" : "cash"
         let amount = parseInt(arg.replace(/\D/g, ""))
@@ -57,7 +57,7 @@ module.exports = class DeductCommand extends BaseCommand {
             message.client.logger.deduct(message, member, currency, prompt)
         } else {
             prompt.delete()
-            message.channel.sendPopup("cancel","No deduction has been made")
+            message.channel.sendPopup("cancel", "No deduction has been made")
         }
     }
 }

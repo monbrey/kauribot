@@ -19,8 +19,8 @@ module.exports = class ConfigCommand extends BaseCommand {
                 "!config - Run the config wizard",
                 "!config status <command>",
                 "!config enable <command>",
-                "!config disable <command>",
-                "!config set logs <channel-mention>",
+                "!config disable <command> <#channel>",
+                "!config set logs <#channel>",
                 "!config clear <configuration>"
             ]
         })
