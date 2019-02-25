@@ -14,7 +14,7 @@
         "cachegoose": "^7.1.0",
         "common-tags": "^1.8.0",
         "core-js": "^2.6.3",
-        "discord.js": "^11.4.2",
+        "discord.js": "github:discordjs/discord.js#11.4-dev",
         "dotenv": "^6.2.0",
         "mongoose": "^5.4.6",
         "mongoose-paginate-v2": "^1.0.18",

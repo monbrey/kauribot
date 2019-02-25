@@ -22,13 +22,13 @@ Use \`!buy items [<Item>, <Item>...]\` to make a purchase`)
         max: 1, time: 30000
     })
 
-    if (!response.first()) return sentMessage.clearReactions()
+    sentMessage.clearReactions()
+
+    if (!response.first()) return
     return browseCategory(message, reacts.indexOf(response.first().emoji.name), sentMessage, 0)
 }
 
 const browseCategory = async (message, category = 0, sentMessage = null, subCategory = 0, _page = 1) => {
-    sentMessage.clearReactions()
-
     const catMatches = [
         ["Choice Items", "Condition Lengtheners", "Damage Increasers", "Focus Items", "Gems", "Herbs", "HP Restoration", "Negative Effect on Holder", "Turn Order Alteration", "Power Boosters", "Other Items", "Type-Enhancing", "Plates", "Stat-Enhancing", "Memories"],
         ["Evolution", "Evolution Stones", "Evolution Items", "Trade Evolution Items", "Form Change Items"],

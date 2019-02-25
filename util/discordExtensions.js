@@ -39,8 +39,10 @@ Object.defineProperties(Message.prototype, {
     reactPaginator: {
         value: async function(listenTo, back, next, timeout = 30000) {
             // If we only have the 'forward' reaction, we want to remove it and put the 'back' in first
-            if (this.reactions.has("➡") && !this.reactions.has("⬅")) await this.clearReactions()
-            if (back && !this.reactions.has("⬅")) await this.react("⬅")
+            if (back && !this.reactions.has("⬅")) {
+                if(this.reactions.has("➡")) await this.reactions.get("➡").remove()
+                await this.react("⬅")
+            }
             if (!back && this.reactions.has("⬅")) await this.reactions.get("⬅").remove()
             if (next && !this.reactions.has("➡")) await this.react("➡")
             if (!next && this.reactions.has("➡")) await this.reactions.get("➡").remove()

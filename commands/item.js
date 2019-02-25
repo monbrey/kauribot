@@ -20,7 +20,7 @@ module.exports = class ItemCommand extends BaseCommand {
         }
         
         let query = args.join(" ")
-        let item = await Item.findClosest(query)
+        let item = await Item.findClosest("itemName", query)
         if (item) {
             message.client.logger.info({ key: "ability", search: query, result: item.abilityName })
             return message.channel.send(item.info())
