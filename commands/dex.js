@@ -1,6 +1,6 @@
 const BaseCommand = require("./base")
 const { RichEmbed } = require("discord.js")
-const Pokemon  = require("../models/pokemon")
+const Pokemon = require("../models/pokemon")
 
 module.exports = class DexCommand extends BaseCommand {
     constructor() {
@@ -45,7 +45,7 @@ module.exports = class DexCommand extends BaseCommand {
             max: 1,
             time: 20000
         })
-        
+
         if (response.size > 0) {
             // Otherwise proceed through the workflow
             switch (response.first().emoji.name) {
@@ -80,10 +80,10 @@ module.exports = class DexCommand extends BaseCommand {
         // Find a match
         let pokemon = await Pokemon.findClosest("uniqueName", query)
         // Return an error if nothing was found
-        if(!pokemon) return message.channel.sendPopup("error", `No matches found for ${query}`)
+        if (!pokemon) return message.channel.sendPopup("error", `No matches found for ${query}`)
 
         // Log the search
-        message.client.logger.info({ key: "dex", search: query, result: pokemon.uniqueName})
+        message.client.logger.info({ key: "dex", search: query, result: pokemon.uniqueName })
         // Start the dex prompt workflow
         let dex = await message.channel.send(await pokemon.dex(query))
         dex.pokemon = pokemon

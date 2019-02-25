@@ -26,8 +26,11 @@ module.exports = class AbilityCommand extends BaseCommand {
         let query = args.join(" ")
         let ability = await Ability.findClosest(query)
         if (ability) {
-            message.client.logger.info({ key: "ability", search: query, result: ability.name })
+            message.client.logger.info({ key: "ability", search: query, result: ability.abilityName })
             return message.channel.send(ability.info())
-        } else return message.channel.send(`No results found for ${query}`)
+        } else {
+            message.client.logger.info({ key: "ability", search: query, result: "none" })
+            return message.channel.send(`No results found for ${query}`)
+        }
     }
 }

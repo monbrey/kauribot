@@ -26,6 +26,7 @@ itemSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
     model: "Item",
     startAt: 1
 })
+itemSchema.plugin(require("./plugins/paginator"))
 
 itemSchema.virtual("priceString").get(() => {
     if(this.martPrice.pokemart && this.martPrice.berryStore)

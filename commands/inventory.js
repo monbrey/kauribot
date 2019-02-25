@@ -23,7 +23,7 @@ module.exports = class TrainerCommand extends BaseCommand {
      */
     async inventory(member, trainer) {
         // TODO
-        // return RichEmbed.warning("Browsing inventory is not yet implemented.")
+        // return member.sendPopup("Browsing inventory is not yet implemented.")
     }
 
     async run(message, args = [], flags = []) {

@@ -14,9 +14,7 @@ Use \`!buy pokemon [<Pokemon>, <Pokemon>...]\` to make a purchase`)
 
     while (embed.fields.length % 3 != 0) embed.addBlankField(true)
 
-    if (sentMessage) {
-        await sentMessage.edit(embed)
-    } else sentMessage = await message.channel.send(embed)
+    sentMessage = sentMessage ? await sentMessage.edit(embed) : await message.channel.send(embed)
 
     try {
         let next = await sentMessage.reactPaginator(message.author.id, items.prev, items.next)
