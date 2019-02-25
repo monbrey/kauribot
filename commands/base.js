@@ -1,4 +1,5 @@
-const { RichEmbed } = require("discord.js")
+const Discord = require("discord.js")
+const { Collection, MessageMentions, RichEmbed } = Discord
 
 module.exports = class BaseCommand {
     /**
@@ -74,6 +75,38 @@ module.exports = class BaseCommand {
             embed.addField("Requires Roles", this.requiresRole.join("\n"), true)
 
         return channel.send(embed)
+    }
+
+    async parseArgs(message, argArray) {
+        if (!this.args) return argArray
+
+        const resolved = new Collection()
+        const argNames = Object.keys(this.args)
+        for(let name of argNames) {
+            const arg = argNames.indexOf(name) === argNames.length - 1 ? argArray.join(" ") : argArray.shift()
+            if (arg.match(MessageMentions.USERS_PATTERN))
+                resolved.set(name, await message.guild.fetchMember(arg.replace(/[<@!>]/g, "")))
+            else if (arg.match(MessageMentions.CHANNELS_PATTERN))
+                resolved.set(name, message.client.channels.get(arg.replace(/[<@#>]/g, "")))
+            else if (arg.match(MessageMentions.CHANNELS_PATTERN))
+                resolved.set(name, message.guild.roles.get(arg.replace(/[<@&>]/g, "")))
+            else resolved.set(name, arg)
+        }
+
+        await Promise.all(resolved.values())
+
+        let valid = true
+        resolved.forEach((value, key) => {
+            if(value.constructor.name !== this.args[key] && valid) {
+                const position = argNames.indexOf(key)
+                valid = false
+                return message.channel.sendPopup("warn", `Invalid argument in position ${position + 1}
+**Received:** ${value.constructor.name}
+**Expected:** ${this.args[key]}`, 10000)
+            }
+        })
+
+        return valid ? resolved : false
     }
 
     /**

@@ -18,6 +18,7 @@ module.exports = class PruneCommand extends BaseCommand {
             let clone = await message.channel.clone()
             await clone.setParent(message.channel.parent)
             await clone.setPosition(message.channel.position)
+            message.client.logger.prune(message, deleted.size)
             return message.channel.delete()
         }
 

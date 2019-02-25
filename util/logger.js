@@ -98,7 +98,7 @@ class Logger {
 
         let embed = new RichEmbed()
             .setFooter("Pokemart purchase")
-            .setTimestmap()
+            .setTimestamp()
             .setDescription(`${customer} made a purchase in [${log.channel}](${log.url}`)
 
         return message.guild.logChannel(embed)
@@ -129,9 +129,7 @@ class Logger {
         let embed = new RichEmbed()
             .setFooter("Battle logged")
             .setColor(parseInt("1f8b4c", 16))
-            .setDescription(stripIndent `
-            ${message.member} logged a battle in [${log.channel}](${log.url})
-            ${description}`)
+            .setDescription(`${message.member.displayName} logged a battle in [${log.channel.name}](${log.url})`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)
