@@ -1,7 +1,6 @@
 const { RichEmbed } = require("discord.js")
 const { transports, format, createLogger } = require("winston")
 const { Loggly } = require("winston-loggly-bulk")
-const { stripIndent } = require("common-tags")
 
 const consoleFormat = format.combine(
     format(info => { return (info.level !== "error" ? info : false) })(),
@@ -119,8 +118,13 @@ class Logger {
         return message.guild.logChannel.send(embed)
     }
 
-    async reflog(message, log, description) {
-        this.info(`${message.author.tag} logged a battle: ${log.url}`, {
+    async reflog(message, log) {
+        this.info({
+            message: "Battle logged",
+            author: message.author.id,
+            server: { name: message.guild.name, id: message.guild.id },
+            channel: { name: message.channel.name, id: message.channel.id },
+            log: log.url,
             key: "reflog"
         })
 
@@ -128,14 +132,14 @@ class Logger {
 
         let embed = new RichEmbed()
             .setFooter("Battle logged")
-            .setColor(parseInt("1f8b4c", 16))
+            .setColor("0x1f8b4c")
             .setDescription(`${message.member.displayName} logged a battle in [${log.channel.name}](${log.url})`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)
     }
 
-    async judgelog(message, log, description) {
+    async judgelog(message, log) {
         this.info(`${message.author.tag} logged a contest: ${log.url}`, {
             key: "judgelog"
         })
@@ -144,10 +148,8 @@ class Logger {
 
         let embed = new RichEmbed()
             .setFooter("Contest logged")
-            .setColor(parseInt("1f8b4c", 16))
-            .setDescription(stripIndent `
-            ${message.member} logged a contest in [${log.channel}](${log.url})
-            ${description}`)
+            .setColor("0x9b59b6")
+            .setDescription(`${message.member.displayName} logged a contest in [${log.channel.name}](${log.url})`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)
@@ -162,7 +164,6 @@ class Logger {
 
         let embed = new RichEmbed()
             .setFooter("Payment logged")
-            .setColor(parseInt("1f8b4c", 16))
             .setDescription(`${message.author.tag} paid ${amount} to ${target}: ${log.url}`)
             .setTimestamp()
 
@@ -178,7 +179,6 @@ class Logger {
 
         let embed = new RichEmbed()
             .setFooter("Deduction logged")
-            .setColor(parseInt("1f8b4c", 16))
             .setDescription(`${message.author.tag} deducted ${amount} from ${target}: ${log.url}`)
             .setTimestamp()
 

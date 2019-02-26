@@ -8,37 +8,59 @@ module.exports = class JudgeLogCommand extends BaseCommand {
             name: "judgelog",
             category: "Game",
             aliases: ["jl"],
-            description: "Awards cash to coordinators and judge",
+            args: {
+                "first": "GuildMember",
+                "second": "GuildMember",
+                "third": "GuildMember",
+                "fourth": "GuildMember",
+                "rank": "String",
+                "log": "String"
+            },
+            description: "Logs a contest and awards cash and content credits to Coordinators and Judge",
             usage: "!judgelog @first @second @third @fourth <rank> [-tieMod] <logURL>",
             enabled: true,
             defaultConfig: false,
-            requiresRole: ["judge","chief-judge"]
+            requiresRole: ["judge", "chief-judge"]
         })
     }
 
     async run(message, args = [], flags = []) {
+        args = await this.parseArgs(message, args)
+        if (args === false) return
+
+        args.set("judge", message.member)
+        
         // Check that four mentions are included
-        if (message.mentions.members.size != 4)
-            return message.channel.send("This command requires that four coordinators be mentioned.")
+        // if (args.some(arg => args.filter(a => a.id === arg.id).size > 1))
+        //    return message.channel.sendPopup("warn", "The same Coordinator cannot be placed twice")
+        // Check that the judge isnt also one of the coordinators
+        // if (args.first(4).map(a => a.id).includes(args.get("judge").id))
+        //    return message.channel.sendPopup("warn", "The Judge cannot also be one of the Coordinators")
 
-        let first = message.mentions.members.get(args[0].replace(/[<@!>]/g, ""))
-        let second = message.mentions.members.get(args[1].replace(/[<@!>]/g, ""))
-        let third = message.mentions.members.get(args[2].replace(/[<@!>]/g, ""))
-        let fourth = message.mentions.members.get(args[3].replace(/[<@!>]/g, ""))
-        let judge = message.member
-        // Check that the ref isnt also a battler
-        if ([first.id, second.id, third.id, fourth.id].includes(judge.id)) return message.channel.send("Illegal command usage - judge cannot also be a coordinator.")
+        let first, second, third, fourth, judge
+        try {
+            [first, second, third, fourth, judge] = await Promise.all([
+                Trainer.findById(args.get("first").id),
+                Trainer.findById(args.get("second").id),
+                Trainer.findById(args.get("third").id),
+                Trainer.findById(args.get("fourth").id),
+                Trainer.findById(args.get("judge").id)
+            ])
+        } catch (e) {
+            message.channel.sendPopup("error", "Error fetching Trainers from database", 0)
+            return message.client.logger.error({ code: e.code, stack: e.stack, key: "judgelog" })
+        }
 
-        if (!await Trainer.discordIdExists(first.id)) return message.channel.send(`Could not find a URPG Trainer for ${first}`)
-        if (!await Trainer.discordIdExists(second.id)) return message.channel.send(`Could not find a URPG Trainer for ${second}`)
-        if (!await Trainer.discordIdExists(third.id)) return message.channel.send(`Could not find a URPG Trainer for ${third}`)
-        if (!await Trainer.discordIdExists(fourth.id)) return message.channel.send(`Could not find a URPG Trainer for ${fourth}`)
-        if (!await Trainer.discordIdExists(judge.id)) return message.channel.send(`Could not find a URPG Trainer for ${judge}`)
+        if (!first) return message.channel.send(`Could not find a URPG Trainer for ${args.get("first")}`)
+        if (!second) return message.channel.send(`Could not find a URPG Trainer for ${args.get("second")}`)
+        if (!third) return message.channel.send(`Could not find a URPG Trainer for ${args.get("third")}`)
+        if (!fourth) return message.channel.send(`Could not find a URPG Trainer for ${args.get("fourth")}`)
+        if (!judge) return message.channel.send(`Could not find a URPG Trainer for ${args.get("judge")}`)
 
         let payments
-        switch (args[4].toLowerCase()) {
+        switch (args.get("rank").toLowerCase()) {
             default:
-                return message.channel.send(`\`${args[4]}\` is not a valid contest rank. Rank must be normal, super, hyper or master`)
+                return message.channel.send(`\`${args.get("rank")}\` is not a valid contest rank. Rank must be normal, super, hyper or master`)
             case "n":
             case "normal":
             case "s":
@@ -54,57 +76,61 @@ module.exports = class JudgeLogCommand extends BaseCommand {
         }
 
         flags.filter(f => f.includes("tie")).forEach(f => {
-            let tiedSpots = f.match(/[1-4]/g).map(x => x - 1)
-            let [start, end, length] = [tiedSpots[0], tiedSpots[tiedSpots.length - 1] + 1, tiedSpots.length]
+            const tiedSpots = f.match(/[1-4]/g).map(x => x - 1)
+            const [start, end, length] = [tiedSpots[0], tiedSpots[tiedSpots.length - 1] + 1, tiedSpots.length]
             payments.fill(payments.slice(start, end).reduce((total, num) => total + num) / length, start, end)
         })
 
-        let rank = () => {
-            if(args[4].toLowerCase().startsWith["n"]) return "Normal"
-            if(args[4].toLowerCase().startsWith["s"]) return "Super"
-            if(args[4].toLowerCase().startsWith["h"]) return "Hyper"
-            if(args[4].toLowerCase().startsWith["m"]) return "Master"
-        }
+        const rank = ((r) => {
+            if (r.startsWith("n")) return "Normal"
+            if (r.startsWith("s")) return "Super"
+            if (r.startsWith("h")) return "Hyper"
+            if (r.startsWith("m")) return "Master"
+        })(args.get("rank").toLowerCase())
 
         let embed = new RichEmbed()
-            .setTitle(`${rank} Rank Contest`)
+            .setTitle(`${rank} Rank Contest (Pending)`)
             .setColor(parseInt("9b59b6", 16))
-            .setDescription(`Please react to confirm the payments below:
-            
-**${first.nickname || first.user.username}** : +$${payments[0]}, ${payments[0]} CC (first)
-**${second.nickname || second.user.username}** : +$${payments[1]}, ${payments[1]} CC  (second)
-**${third.nickname || third.user.username}** : +$${payments[2]}, ${payments[2]} CC (third)
-**${fourth.nickname || fourth.user.username}** : +$${payments[3]}, ${payments[3]} CC (fourth)
+            .setDescription(`${args.get("log")}\n\n**Payments**`)
+            .addField(`${args.get("first").displayName} (1)`, `$${payments[0]}, ${payments[0]} CC`, true)
+            .addField(`${args.get("second").displayName} (2)`, `$${payments[1]}, ${payments[1]} CC`, true)
+            .addField(`${args.get("third").displayName} (3)`, `$${payments[2]}, ${payments[2]} CC`, true)
+            .addField(`${args.get("fourth").displayName} (4)`, `$${payments[3]}, ${payments[3]} CC`, true)
+            .addField(`${args.get("judge").displayName} (judge)`, `$${payments[4]}, ${payments[4]} CC`, true)
+            .addBlankField(true)
+            .setFooter("React to confirm that this log is correct")
 
-**${judge.nickname || judge.user.username}** : +$${payments[4]}, ${payments[4]} CC (judge)`)
-
-        let prompt = await message.channel.send(embed)
+        const prompt = await message.channel.send(embed)
 
         if (await prompt.reactConfirm(message.author.id)) {
-            let firstCash = await Trainer.modifyCash(first.id, payments[0])
-            let firstCC = await Trainer.modifyContestCredit(first.id, payments[0])
-            let secondCash = await Trainer.modifyCash(second.id, payments[1])
-            let secondCC = await Trainer.modifyContestCredit(second.id, payments[1])
-            let thirdCash = await Trainer.modifyCash(third.id, payments[2])
-            let thirdCC = await Trainer.modifyContestCredit(third.id, payments[2])
-            let fourthCash = await Trainer.modifyCash(fourth.id, payments[3])
-            let fourthCC = await Trainer.modifyContestCredit(fourth.id, payments[3])
-            let judgeCash = await Trainer.modifyCash(judge.id, payments[4])
-            let judgeCC = await Trainer.modifyContestCredit(judge.id, payments[4])
+            prompt.clearReactions()
 
-            embed.fields = []
-            embed.setTitle("Contest payments confirmed")
-                .setColor(parseInt("9b59b6", 16))
-                .setDescription(`New cash balances:
+            try {
+                await Promise.all([
+                    first.modifyCash(payments[0]),
+                    first.modifyContestCredit(payments[0]),
+                    second.modifyCash(payments[1]),
+                    second.modifyContestCredit(payments[1]),
+                    third.modifyCash(payments[2]),
+                    third.modifyContestCredit(payments[2]),
+                    fourth.modifyCash(payments[3]),
+                    fourth.modifyContestCredit(payments[3]),
+                    judge.modifyCash(payments[4]),
+                    judge.modifyContestCredit(payments[4]),
+                ])
+            } catch (e) {
+                message.channel.sendPopup("error","Error updating balances in database", 0)
+                return message.client.logger.error({ code: e.code, stack: e.stack, key: "judgelog" })
+            }
 
-**${first.nickname || first.user.username}** : $${firstCash}, ${firstCC} CC
-**${second.nickname || second.user.username}** : $${secondCash}, ${secondCC} CC
-**${third.nickname || third.user.username}** : $${thirdCash}, ${thirdCC} CC
-**${fourth.nickname || fourth.user.username}** : $${fourthCash}, ${fourthCC} CC
-**${judge.nickname || judge.user.username}** : $${judgeCash}, ${judgeCC} CC`)
+            embed.setTitle(`${rank(args.get("rank").toLowerCase())} Rank Contest (Pending)`)
+            embed.fields = embed.fields.map(f => {
+                return { name: f.name, value: f.value.split(" ").pop().join(" "), inline: true }
+            })
+            delete embed.footer
+            prompt.edit(embed)
+            return message.client.logger.judgelog(message, prompt)
 
-            return message.channel.send(embed)
-
-        }
+        } else return prompt.delete()
     }
 }

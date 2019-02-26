@@ -37,7 +37,9 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# My files
 ultra-rpg-bot.log
 ultra-rpg-bot-errors.log
 variables.env
-snippets.js
+snippets

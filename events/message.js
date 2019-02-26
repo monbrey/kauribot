@@ -60,7 +60,7 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // Check if the command requires Discord permissions
         let permissions = command.requiresPermission ?
-            message.channel.memberPermissions(message.member).has(command.requiresPermission, true) :
+            command.requiresPermission.some(perm => message.member.hasPermission(perm, true)) :
             true
 
         // Or particular Discord roles

@@ -14,7 +14,7 @@ module.exports = class RefLogCommand extends BaseCommand {
                 "size": "String",
                 "log": "String"
             },
-            description: "Awards cash to battlers and ref",
+            description: "Logs a battle and awards cash to Battlers and Referee",
             usage: "!reflog <@winner> <@loser> <size> [-gym] <description/logURL>",
             enabled: true,
             defaultConfig: false,
@@ -28,26 +28,31 @@ module.exports = class RefLogCommand extends BaseCommand {
         if (args === false) return
 
         args.set("ref", message.member)
-        /*
+
         // Checks that two different users are included
         if (args.get("winner").id === args.get("loser").id)
-            return message.channel.sendPopup("warn","The same user cannot be both the winner and loser of the battle")
+            return message.channel.sendPopup("warn", "The same Battler cannot be both the winner and loser of the battle")
         // Check the the ref isnt paying themselves
         if ([args.get("winner").id, args.get("loser").id].includes(args.get("ref").id))
-            return message.channel.sendPopup("warn", "The referee cannot also be one of the battlers")
-*/
+            return message.channel.sendPopup("warn", "The Referee cannot also be one of the Battlers")
 
         args.set("size", args.get("size").indexOf("v") == 1 ? args.get("size")[0] : args.get("size"))
 
-        const [winnerTrainer, loserTrainer, refTrainer] = await Promise.all([
-            Trainer.findById(args.get("winner").id),
-            Trainer.findById(args.get("loser").id),
-            Trainer.findById(args.get("ref").id)
-        ])
+        let winner, loser, referee
+        try {
+            [winner, loser, referee] = await Promise.all([
+                Trainer.findById(args.get("winner").id),
+                Trainer.findById(args.get("loser").id),
+                Trainer.findById(args.get("ref").id)
+            ])
+        } catch (e) {
+            message.channel.sendPopup("error", "Error fetching Trainers from database", 0)
+            return message.client.logger.error({ code: e.code, stack: e.stack, key: "reflog" })
+        }
 
-        if (!winnerTrainer) return message.channel.send(`Could not find a URPG Trainer for ${args.get("winner")}`)
-        if (!loserTrainer) return message.channel.send(`Could not find a URPG Trainer for ${args.get("loser")}`)
-        if (!refTrainer) return message.channel.send(`Could not find a URPG Trainer for ${args.get("ref")}`)
+        if (!winner) return message.channel.sendPopup("warn", `Could not find a URPG Trainer for ${args.get("winner")}`)
+        if (!loser) return message.channel.sendPopup("warn", `Could not find a URPG Trainer for ${args.get("loser")}`)
+        if (!referee) return message.channel.sendPopup("warn", `Could not find a URPG Trainer for ${args.get("ref")}`)
 
         let payments
         switch (args.get("size")) {
@@ -76,26 +81,31 @@ module.exports = class RefLogCommand extends BaseCommand {
             .addField(`**${args.get("winner").displayName}**`, `$${payments[0]} (win)`, true)
             .addField(`**${args.get("loser").displayName}**`, `$${payments[1]} (lose)`, true)
             .addField(`**${args.get("ref").displayName}**`, `$${payments[2]} (ref)`, true)
-            .setFooter("React to confirm this log is correct")
+            .setFooter("React to confirm that this log is correct")
 
         let prompt = await message.channel.send(embed)
 
         if (await prompt.reactConfirm(message.author.id)) {
             prompt.clearReactions()
 
-            await Promise.all([
-                winnerTrainer.modifyCash(payments[0]),
-                loserTrainer.modifyCash(payments[1]),
-                refTrainer.modifyCash(payments[2])
-            ])
+            try {
+                await Promise.all([
+                    winner.modifyCash(payments[0]),
+                    loser.modifyCash(payments[1]),
+                    referee.modifyCash(payments[2])
+                ])
+            } catch (e) {
+                message.channel.sendPopup("error", "Error updating balances in database", 0)
+                return message.client.logger.error({ code: e.code, stack: e.stack, key: "reflog" })
+            }
 
             embed.setTitle(`${args.get("size")}v${args.get("size")}${flags.includes("gym") ? " Gym" : ""} Battle`)
-            embed.fields = embed.fields.map(f => { 
-                return { name: f.name, value: f.value.split(" ")[0], inline: true } 
+            embed.fields = embed.fields.map(f => {
+                return { name: f.name, value: f.value.split(" ")[0], inline: true }
             })
             delete embed.footer
             prompt.edit(embed)
-            return message.client.logger.reflog(message, prompt, args.get("log"))
+            return message.client.logger.reflog(message, prompt)
         } else return prompt.delete()
     }
 }
