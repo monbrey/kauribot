@@ -1,5 +1,6 @@
 const Discord = require("discord.js")
 const { Collection, MessageMentions, RichEmbed } = Discord
+const CommandStats = require("../models/commandStats")
 
 module.exports = class BaseCommand {
     /**
@@ -43,14 +44,14 @@ module.exports = class BaseCommand {
     }
 
     /**
-     * @param {string} guild - Discord Guild ID
+     * @param {String} guild - Discord Guild ID
      */
     async isEnabledInGuild(guild) {
         return this.config.guilds.includes(guild)
     }
 
     /**
-     * @param {string} channel - Discord Channel ID
+     * @param {String} channel - Discord Channel ID
      */
     async isEnabledInChannel(channel) {
         return this.config.channel.includes(channel)
@@ -77,6 +78,11 @@ module.exports = class BaseCommand {
         return channel.send(embed)
     }
 
+    /**
+     * 
+     * @param {Message} message The Discord message from which the args originated
+     * @param {Array} argArray An array of command arguments
+     */
     async parseArgs(message, argArray) {
         if (!this.args) return argArray
 
@@ -106,7 +112,21 @@ module.exports = class BaseCommand {
             }
         })
 
-        return valid ? resolved : false
+        return valid ? resolved : undefined
+    }
+
+    /**
+     * @param {Guild} guild - The ID for the Discord Guild in which the command was executed
+     */
+    async executed(guild) {
+        return CommandStats.addExecuted(this.name, guild)
+    }
+
+    /**
+     * @param {Guild} guild - The ID for the Discord Guild in which the command was executed
+     */
+    async succeeded(guild) {
+        return CommandStats.addSucceeded(this.name, guild)
     }
 
     /**
@@ -115,6 +135,6 @@ module.exports = class BaseCommand {
      * @param {Array} flags - Array of command flags
      */
     async run(message, args = [], flags = []) {
-        return
+        return 
     }
 }

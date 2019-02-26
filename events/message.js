@@ -1,6 +1,7 @@
 const BaseEvent = require("./base")
 const { oneLineCommaListsAnd } = require("common-tags")
 const { SnowflakeUtil } = require("discord.js")
+const CommandStats = require("../models/commandStats")
 
 module.exports = class MessageEvent extends BaseEvent {
     constructor() {
@@ -38,7 +39,7 @@ module.exports = class MessageEvent extends BaseEvent {
         }
         
         // If its the bot owner, run the command now without further checks
-        if(message.author.id === message.client.applicationInfo.owner.id)
+        if(message.author.id === message.client.applicationInfo.owner.id) 
             return command.run(message, args, flags)
 
         // Check if its an owner-only command, don't run if it is We already ran 
@@ -96,6 +97,8 @@ module.exports = class MessageEvent extends BaseEvent {
         // Get the matching command class
         let command = message.client.commands.get(carg) || message.client.commands.get(message.client.aliases.get(carg))
         if (!command) return
+
+        CommandStats.addReceived(command.name, message.guild.id)
 
         const active = this.checkActiveCommand(message, command.name)
         if(active) {

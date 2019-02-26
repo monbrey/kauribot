@@ -31,11 +31,11 @@ module.exports = class JudgeLogCommand extends BaseCommand {
         args.set("judge", message.member)
         
         // Check that four mentions are included
-        if (args.some(arg => args.filter(a => a.id === arg.id).size > 1))
-            return message.channel.sendPopup("warn", "The same Coordinator cannot be placed twice")
+        // if (args.some(arg => args.filter(a => a.id === arg.id).size > 1))
+        //    return message.channel.sendPopup("warn", "The same Coordinator cannot be placed twice")
         // Check that the judge isnt also one of the coordinators
-        if (args.first(4).map(a => a.id).includes(args.get("judge").id))
-            return message.channel.sendPopup("warn", "The Judge cannot also be one of the Coordinators")
+        // if (args.first(4).map(a => a.id).includes(args.get("judge").id))
+        //    return message.channel.sendPopup("warn", "The Judge cannot also be one of the Coordinators")
 
         let first, second, third, fourth, judge
         try {

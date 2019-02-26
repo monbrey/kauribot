@@ -140,7 +140,12 @@ class Logger {
     }
 
     async judgelog(message, log) {
-        this.info(`${message.author.tag} logged a contest: ${log.url}`, {
+        this.info({
+            message: "Contest logged",
+            author: message.author.id,
+            server: { name: message.guild.name, id: message.guild.id },
+            channel: { name: message.channel.name, id: message.channel.id },
+            log: log.url,
             key: "judgelog"
         })
 
@@ -155,8 +160,13 @@ class Logger {
         return message.guild.logChannel.send(embed)
     }
 
-    async pay(message, target, amount, log) {
-        this.info(`${message.author.tag} paid ${amount} to ${target}: ${log.url}`, {
+    async pay(message, log) {
+        this.info({
+            message: "Payment logged",
+            author: message.author.id,
+            server: { name: message.guild.name, id: message.guild.id },
+            channel: { name: message.channel.name, id: message.channel.id },
+            log: log.url,
             key: "pay"
         })
 
@@ -164,14 +174,19 @@ class Logger {
 
         let embed = new RichEmbed()
             .setFooter("Payment logged")
-            .setDescription(`${message.author.tag} paid ${amount} to ${target}: ${log.url}`)
+            .setDescription(`${message.member.displayName} made a payment in [${log.channel.name}](${log.url})`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)
     }
 
-    async deduct(message, target, amount, log) {
-        this.info(`${message.author.tag} deducted ${amount} from ${target}: ${log.url}`, {
+    async deduct(message, log) {
+        this.info({
+            message: "Deduction logged",
+            author: message.author.id,
+            server: { name: message.guild.name, id: message.guild.id },
+            channel: { name: message.channel.name, id: message.channel.id },
+            log: log.url,
             key: "deduct"
         })
 
@@ -179,7 +194,7 @@ class Logger {
 
         let embed = new RichEmbed()
             .setFooter("Deduction logged")
-            .setDescription(`${message.author.tag} deducted ${amount} from ${target}: ${log.url}`)
+            .setDescription(`${message.member.displayName} made a deduction in [${log.channel.name}](${log.url})`)
             .setTimestamp()
 
         return message.guild.logChannel.send(embed)

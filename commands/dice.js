@@ -19,6 +19,8 @@ All numbers must be positive integers`,
     }
 
     async run(message, args = [], flags = []) {
+        this.executed(message.guild.id)
+
         let rolls = args.filter(arg => /^[1-9]\d*(?:,*[1-9]\d*)?$/.test(arg)).map(arg => {
             if(!arg.includes(",")) return arg
             if(/^[1-9]\d*$/.test(arg.split(",")[0]) && arg.split(",")[1] == "")
@@ -31,6 +33,7 @@ All numbers must be positive integers`,
         let vID = Date.now()
         let verify = flags.includes("v")
         message.channel.send(`${message.author.username} rolled ${rolls.join(", ")}${verify ? ` - verification ID #${vID}` : ""}`)
-        message.client.logger.info(`(${vID}) ${message.author.username} rolled ${rolls.join(", ")} in ${message.location}`, { key: "dice" })
+        this.succeeded(message.guild.id)
+        message.client.logger.info(`(${vID}) ${message.author.username} rolled ${rolls.join(", ")} in ${message.channel.name}`, { key: "dice" })
     }
 }
