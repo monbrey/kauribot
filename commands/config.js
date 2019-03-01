@@ -8,20 +8,23 @@ module.exports = class ConfigCommand extends BaseCommand {
         super({
             name: "config",
             category: "Admin",
-            description: "Administration function for changing bot configuration in this server.",
-            usage: "!config [switch] [command]",
+            description: "Change bot configuration in this server.",
+            syntax: "!config [command] [-switch] [#channel(s)]",
+            usage: `No args : Run config wizard
+command : Get status of command
+-switch : Set server config [-enable|-disable]
+#channel(s) : Set channel config`,
             enabled: true,
             defaultConfig: true,
             lockConfig: true,
             guildOnly: true,
             requiresPermission: ["ADMINISTRATOR", "MANAGE_ROLES"],
             examples: [
-                "!config - Run the config wizard",
-                "!config status <command>",
-                "!config enable <command>",
-                "!config disable <command> <#channel>",
-                "!config set logs <#channel>",
-                "!config clear <configuration>"
+                "!config",
+                "!config dice -enable",
+                "!config reflog -disable",
+                "!config reflog -enable #battle1",
+                "!config reflog -clear"
             ]
         })
     }

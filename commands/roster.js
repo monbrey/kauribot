@@ -55,8 +55,8 @@ module.exports = class RosterCommand extends BaseCommand {
         let trainer = await Trainer.findById(member.id)
         if (!trainer) return message.channel.send(`Unable to find a trainer profile for ${member.displayName}`)
 
-        let red = message.client.myEmojis.find(e => e.name === "red")
-        let backpack = message.client.myEmojis.find(e => e.name === "backpack")
+        let red = message.client.emojis.find(e => e.name === "red" && message.client.emojiServers.includes(e.guild))
+        let backpack = message.client.emojis.find(e => e.name === "backpack" && message.client.emojiServers.includes(e.guild))
 
         let profile = await message.channel.send(await this.roster(member, trainer))
         await profile.react(red)

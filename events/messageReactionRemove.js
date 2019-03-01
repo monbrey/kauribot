@@ -56,7 +56,7 @@ module.exports = class MessageReactionRemoveEvent extends BaseEvent {
                 const star = parseInt(previous.embeds[0].fields[0].value)
                 const starMsg = await starChannel.fetchMessage(previous.id)
                 if (parseInt(star - 1) < minReacts) {
-                    return starMsg.delete()
+                    return await starMsg.delete()
                 }
 
                 const image = message.attachments.size > 0 ? await getImage(message.attachments.array()[0].url) : ""
@@ -69,10 +69,12 @@ module.exports = class MessageReactionRemoveEvent extends BaseEvent {
                     .addField("Link", `[Jump to message](${message.url})`, true)
                     .setFooter(`⭐ | ${message.id}`)
                     .setImage(image)
-                await starMsg.edit({
+                return await starMsg.edit({
                     embed
                 })
             }
         })
+
+        return message.client.logger.messageReactionREmove(reaction, user)
     }
 }

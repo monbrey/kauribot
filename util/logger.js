@@ -1,4 +1,4 @@
-const { RichEmbed } = require("discord.js")
+const { RichEmbed, Util } = require("discord.js")
 const { transports, format, createLogger } = require("winston")
 const { Loggly } = require("winston-loggly-bulk")
 
@@ -28,9 +28,9 @@ const logglyFormat = format.combine(
     format.label({ label: process.env.NODE_ENV }),
     format.json(),
     format(info => {
-        if(info.message.constructor.name === "Object") {
+        if (info.message.constructor.name === "Object") {
             const message = info.message
-            if(message.message) info.message = info.message.message
+            if (message.message) info.message = info.message.message
             else delete info.message
             Object.assign(info, message)
         }
@@ -67,12 +67,95 @@ if (process.env.NODE_ENV === "production") {
         })
     )
 }
+
 class Logger {
     constructor() {
         Object.assign(this, createLogger({
             level: "info",
             transports: _transports
         }))
+    }
+
+    // Error wrapper - extract parameters from errors, adds a real stack to API Errors
+    async parseError(error, key) {
+        error = { ...Util.makePlainError(error), key: key }
+
+        if (error.constructor.name === "DiscordAPIError") {
+            const stacktrace = {}
+            Error.captureStackTrace(stacktrace)
+            error.stack = `${error.constructor.name}: ${error.message}
+${stacktrace.stack.substring(6, stacktrace.stack.lastIndexOf("\n"))}
+${error.stack.substring(error.stack.indexOf("\n") + 1)}`
+        }
+
+        this.error(Object.assign(
+            { ...error }, {
+                stack: error.stack
+            })
+        )
+    }
+
+    /** EVENTS **/
+    async guildMemberAdd(member) {
+        this.info({
+            message: "New member joined",
+            member: member.id,
+            server: { name: member.guild.name, id: member.guild.id },
+            key: "guildMemberAdd"
+        })
+
+        if (!member.guild.logChannel) return
+
+        let embed = new RichEmbed()
+            .setAuthor(`${member.user.tag} (${member.id})`, member.user.displayAvatarURL)
+            .setFooter("New member joined")
+            .setTimestamp()
+
+        return member.guild.logChannel.send(embed)
+    }
+
+    async guildMemberRemove(member, auditLog = null) {
+
+        let embed = new RichEmbed()
+            .setAuthor(`${member.user.tag} (${member.id})`, member.user.displayAvatarURL)
+
+        if (!auditLog) {
+            this.info({
+                message: "Member left",
+                member: member.id,
+                server: { name: member.guild.name, id: member.guild.id },
+                key: "guildMemberRemove"
+            })
+
+            embed.setFooter("Member left")
+                .setTimestamp()
+        } else {
+            const action = auditLog.action === "MEMBER_BAN_ADD" ? "Ban" : "Kick"
+            this.info({
+                message: "Member removed",
+                member: member.id,
+                executor: auditLog.executor.id,
+                action: action,
+                reason: auditLog.reason ? auditLog.reason : "No reason provided",
+                server: { name: member.guild.name, id: member.guild.id },
+                key: "guildMemberRemove"
+            })
+
+            embed.setDescription(`${action} by ${auditLog.executor}:
+${auditLog.reason ? auditLog.reason : "No reason provided"}`)
+                .setFooter(`Member removed (${action})`)
+        }
+
+        if (member.guild.logChannel) return member.guild.logChannel.send(embed)
+    }
+
+    async guildMemberUpdate(oldMember, newMember) {
+        this.info({
+            message: "Member updated",
+            member: newMember.id,
+            server: { name: newMember.guild.name, id: newMember.guild.id },
+            key: "guildMemberUpdate"
+        })
     }
 
     async message(message) {
@@ -86,6 +169,58 @@ class Logger {
         })
     }
 
+    async messageDelete(message) {
+
+    }
+
+    async messageReactionAdd(reaction, user) {
+        this.info({
+            message: "Message reaction added",
+            target: reaction.message.id,
+            reactor: user.id,
+            count: reaction.count,
+            key: "messageReactionAdd"
+        })
+    }
+
+    async messageReactionRemove(reaction, user) {
+        this.info({
+            message: "Message reaction removed",
+            target: reaction.message.id,
+            reactor: user.id,
+            count: reaction.count,
+            key: "messageReactionRemove"
+        })
+    }
+
+    async raw(data) {
+        this.info({
+            message: "Raw event processed",
+            name: data.t,
+            key: "raw"
+        })
+    }
+
+    async ready() {
+        this.info({
+            message: "Client ready",
+            key: "ready"
+        })
+    }
+
+    async roleCreate() {
+
+    }
+
+    async roleDelete() {
+
+    }
+
+    async roleUpdate() {
+
+    }
+
+    /** COMMANDS **/
     async purchase(message, customer, log) {
         this.info({
             "message": `${customer} made a Pokemart purchase`,
@@ -93,7 +228,7 @@ class Logger {
             "key": "buy"
         })
 
-        if(!message.guild.logChannel) return
+        if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
             .setFooter("Pokemart purchase")
@@ -199,7 +334,7 @@ class Logger {
 
         return message.guild.logChannel.send(embed)
     }
-
+    /*
     async messageDelete(message, auditLog) {
         let member = message.member
         let memberTag = message.author.tag
@@ -208,22 +343,22 @@ class Logger {
         let guildName = message.guild.name
         let executor = auditLog ? auditLog.executor : "Author or bot"
         let executorTag = auditLog ? executor.tag : "Author or bot"
-
+    
         this.info(`A message by ${memberTag} in ${guildName}#${channelName} was deleted by ${executorTag}: ${message.cleanContent}`, {
             key: "messageDelete"
         })
-
+    
         if (!message.guild.logChannel) return
-
+    
         let embed = new RichEmbed()
             .setFooter("Message deleted")
             .addField("Author", member, true)
             .addField("Channel", channel, true)
             .addField("Deleted by", executor, true)
-
+    
         if (message.content) embed.addField("Content", message.cleanContent)
         if (message.attachments[0]) embed.addField("Image", message.attachments[0].url)
-
+    
         try {
             if (message.embeds[0]) {
                 embed.addField("Embed", "`See below`")
@@ -234,7 +369,7 @@ class Logger {
             this.error(e.stack)
         }
     }
-
+    */
     async prune(message, numDeleted) {
         this.info(`${message.author.tag} deleted ${numDeleted} messages from ${message.guild.name}#${message.channel.name}`, {
             key: "prune"
@@ -254,7 +389,7 @@ class Logger {
             this.error(e.stack)
         }
     }
-
+    /*
     async guildMemberAdd(member) {
         this.info(`${member.user.tag} joined ${member.guild.name}`, {
             key: "guildMemberAdd"
@@ -292,7 +427,7 @@ class Logger {
         }
 
         if (member.guild.logChannel) return member.guild.logChannel.send(embed)
-    }
+    }*/
 }
 
 module.exports = new Logger()

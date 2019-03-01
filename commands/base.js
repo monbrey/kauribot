@@ -10,7 +10,8 @@ module.exports = class BaseCommand {
      * @param {Object}          options.args - Named arguments and types for string splitting
      * @param {Array}           [options.aliases=[]] - Aliases which can also be used to call the command
      * @param {String}          [options.description=""] - Description of the command for !help
-     * @param {String}          [options.usage=""] - Detailed usage of the command
+     * @param {String}          [options.syntax=""] - Command format guide
+     * @param {String}          [options.usage=""] - Detailed syntax breakdown
      * @param {Boolean}         [options.enabled=false] - Enable the command in the bot
      * @param {Boolean}         [options.defaultConfig=false] - Default enabled state for a guild
      * @param {Boolean}         [options.lockConfig=false] - If the default state can be changed
@@ -25,6 +26,7 @@ module.exports = class BaseCommand {
         this.args = options.args || null
         this.aliases = options.aliases || []
         this.description = options.description || "No description provided"
+        this.syntax = options.syntax || "No syntax specified"
         this.usage = options.usage || "No usage specified"
         this.examples = options.examples || ["None available"]
         this.enabled = options.enabled || false
@@ -64,10 +66,12 @@ module.exports = class BaseCommand {
         if (this.requiresOwner) return
 
         let embed = new RichEmbed()
-            .setDescription(`\`${this.name}\` - ${this.description}`)
+            .setTitle(this.name)
+            .setDescription(this.description)
         if (this.aliases.length > 0)
             embed.addField("Aliases", `\`${this.aliases.join("` `")}\``)
-        embed.addField("Syntax", `\`${this.usage}\``)
+        embed.addField("Syntax", `\`${this.syntax}\``)
+            .addField("Usage", `${this.usage}`)
             .addField("Examples", `\`${this.examples.join("`\n`")}\``)
             .addField("Available in DMs", this.guildOnly ? "No" : "Yes", true)
         if (this.requiresPermission)

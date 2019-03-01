@@ -12,7 +12,7 @@ module.exports = class MessageEvent extends BaseEvent {
     }
 
     checkActiveCommand(message, command) {
-        return message.client.activeCommands.find(ac => 
+        return message.client.activeCommands.find(ac =>
             ac.user === message.author.id && ac.command === command)
     }
 
@@ -25,7 +25,7 @@ module.exports = class MessageEvent extends BaseEvent {
     }
 
     clearActiveCommand(message, command) {
-        message.client.activeCommands.sweep(ac => 
+        message.client.activeCommands.sweep(ac =>
             ac.user === message.author.id && ac.command === command)
     }
 
@@ -34,26 +34,25 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // Intercept help flags as they aren't command-specific
         if (flags.includes("h")) {
-            command.getHelp(message.channel)
-            return
+            return command.getHelp(message.channel)
         }
-        
+
         // If its the bot owner, run the command now without further checks
-        if(message.author.id === message.client.applicationInfo.owner.id) 
+        if (message.author.id === message.client.applicationInfo.owner.id)
             return command.run(message, args, flags)
 
         // Check if its an owner-only command, don't run if it is We already ran 
-        if (command.requiresOwner) return 
+        if (command.requiresOwner) return
 
         // Check that the command is enabled in this channel/server
         if (command.config.channels.get(message.channel.id) === undefined) {
             if (command.config.guilds.get(message.guild.id) === undefined)
-                message.channel.send(`${message.client.prefix}${command.name} has not been configured for use in this server`)
-            if (!command.config.guilds.get(message.guild.id)) 
-                message.channel.send(`${message.client.prefix}${command.name} has been disabled on this server`)
-        } else if (!command.config.channels.get(message.channel.id)) 
-            message.channel.send(`${message.client.prefix}${command.name} has been disabled in this channel`)
-        
+                return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has not been configured for use in this server`)
+            if (!command.config.guilds.get(message.guild.id))
+                return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has been disabled on this server`)
+        } else if (!command.config.channels.get(message.channel.id))
+            return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has been disabled in this channel`)
+
         // If we reach this point, it should be enabled
 
         // Check if a guild-only command is being run in DM
@@ -61,8 +60,9 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // Check if the command requires Discord permissions
         let permissions = command.requiresPermission ?
-            command.requiresPermission.some(perm => message.member.hasPermission(perm, true)) :
-            true
+            command.requiresPermission.some(perm =>
+                message.channel.memberPermissions(message.member).has(perm, true)
+            ) : true
 
         // Or particular Discord roles
         let roles = command.requiresRole ?
@@ -72,9 +72,9 @@ module.exports = class MessageEvent extends BaseEvent {
         if (permissions && roles)
             return command.run(message, args, flags)
         if (!permissions)
-            return message.channel.send("You don't have the required server/channel permissions to use this command.")
+            return message.channel.sendPopup("warn", "You don't have the required server/channel permissions to use this command.")
         if (!roles)
-            return message.channel.send(oneLineCommaListsAnd `This command can only be used by ${command.requiresRole}`)
+            return message.channel.sendPopup("warn", oneLineCommaListsAnd`This command can only be used by ${command.requiresRole}`)
     }
 
     async run(message) {
@@ -98,17 +98,19 @@ module.exports = class MessageEvent extends BaseEvent {
         let command = message.client.commands.get(carg) || message.client.commands.get(message.client.aliases.get(carg))
         if (!command) return
 
-        CommandStats.addReceived(command.name, message.guild.id)
+        try {
+            CommandStats.addReceived(command.name, message.guild.id)
+        } catch (e) { message.client.logger.parseError(e, "commandStats") }
 
         const active = this.checkActiveCommand(message, command.name)
-        if(active) {
-            if(active.timestamp < Date.now() - 5000)
+        if (active) {
+            if (active.timestamp < Date.now() - 5000)
                 message.channel.sendPopup("warn", `You already have an active ${message.client.prefix}${command.name} command.`)
 
             active.timestamp = Date.now()
             return
         }
-        
+
         this.setActiveCommand(message, command.name)
         await this.processCommand(message, command, _args)
         return this.clearActiveCommand(message, command.name)

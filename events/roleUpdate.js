@@ -28,7 +28,7 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
 
         dbRole.roleName = newRole.name
         dbRole.assigners.forEach((item, index, array) => {
-            if(oldRole.guild.roles.get(item).comparePositionTo(newRole) > 0)
+            if (oldRole.guild.roles.get(item).comparePositionTo(newRole) > 0)
                 array.splice(index, 1)
         })
         try {
@@ -78,26 +78,19 @@ module.exports = class RoleUpdateEvent extends BaseEvent {
                 if (r.emoji.name === "✅") {
                     reactions.stop()
                     responses.stop()
-                    dbRole = await Role.update({
-                        "id": newRole.id
-                    }, {
-                        "assigners": [...dbRole.assigners, ...assignIDs],
-                        "configured": true
-                    }, {
-                        upsert: true,
-                        setDefaultsOnInsert: true
-                    })
+                    dbRole = await Role.update(
+                        { "id": newRole.id },
+                        { "assigners": [...dbRole.assigners, ...assignIDs], "configured": true },
+                        { upsert: true, setDefaultsOnInsert: true }
+                    )
                 } else {
                     reactions.stop()
                     responses.stop()
-                    dbRole = await Role.update({
-                        "id": newRole.id
-                    }, {
-                        "configured": true
-                    }, {
-                        upsert: true,
-                        setDefaultsOnInsert: true
-                    })
+                    dbRole = await Role.update(
+                        { "id": newRole.id },
+                        { "configured": true },
+                        { upsert: true, setDefaultsOnInsert: true }
+                    )
                 }
                 newRole.client.logger.info(`Role "${newRole.name}" updated`, {
                     key: "roleUpdate"

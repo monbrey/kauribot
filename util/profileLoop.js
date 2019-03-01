@@ -1,9 +1,9 @@
 module.exports = async (message, profile, member, trainer, lastReaction = null) => {
     if(lastReaction) await profile.clearReactions()
 
-    let pokeball = profile.client.myEmojis.find(e => e.name === "pokeball")
-    let backpack = profile.client.myEmojis.find(e => e.name === "backpack")
-    let red = profile.client.myEmojis.find(e => e.name === "red")
+    let pokeball = profile.client.emoji.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild))
+    let backpack = profile.client.emoji.find(e => e.name === "backpack" && message.client.emojiServers.includes(e.guild))
+    let red = profile.client.emoji.find(e => e.name === "red" && message.client.emojiServers.includes(e.guild))
 
     switch (lastReaction) {
         case "pokeball":

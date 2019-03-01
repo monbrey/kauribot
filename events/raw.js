@@ -47,7 +47,9 @@ module.exports = class RawEvent extends BaseEvent {
         let eventName = data.t
         let eventData = data.d
 
-        if(this[eventName])
+        if(this[eventName]) {
             this[eventName](eventData)
+            this.client.logger.raw(data)
+        }
     }
 }

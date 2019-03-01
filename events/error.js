@@ -1,5 +1,4 @@
 const BaseEvent = require("./base")
-const { Util } = require("discord.js")
 
 module.exports = class ErrorEvent extends BaseEvent {
     constructor() {
@@ -17,7 +16,7 @@ module.exports = class ErrorEvent extends BaseEvent {
         // So APPARENTLY the mere EXISTENCE of this error handler
         // will make the bot auto-reconnect. Might as well log too
         try {
-            this.logger.error({ ...Util.makePlainError(error.error), key: this.name })
+            this.logger.parseError(error, this.name)
         } catch (e) {
             // If the logger fails, default to console for both errors
             console.error(error.stack)

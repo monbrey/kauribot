@@ -45,7 +45,7 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
         // Check for the star emoji
         if (reaction.emoji.toString() !== starEmoji) return
 
-        // Check they arent a narcissistic douchebag
+        // Check they arent a narcissist
         if (message.author.id === user.id) return hideErrors ? null : message.channel.send("You cannot star your own messages")
 
         // Check that the minimum number of reactions has been reached
@@ -94,7 +94,6 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
             if(previous && previous.embeds[0].description) embed.setDescription(previous.embeds[0].description)
             else if(message.cleanContent) embed.setDescription(message.cleanContent)
 
-
             if (previous) {
             // We fetch the ID of the message already on the starboard.
                 const starMsg = await starChannel.fetchMessage(previous.id)
@@ -104,5 +103,7 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
                 })
             } else return await starChannel.send(embed)
         }, { priority: 1 })
+
+        return message.client.logger.messageReactionAdd(reaction, user)
     }
 }

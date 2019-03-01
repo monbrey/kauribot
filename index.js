@@ -1,26 +1,25 @@
 #!/usr/bin/node
 
 require("dotenv").config({ path: "variables.env" })
-
-
 require("./util/discordExtensions") // Custom methods on Discord objects, to be replaced in 12.0 with Structures.extend
 require("./util/mongooseExtensions")
 require("./util/db")
 const logger = require("./util/logger")
 
-const { Client, Collection, Util } = require("discord.js")
+const { Client, Collection } = require("discord.js")
 const path = require("path")
 const { promisify } = require("util")
 const readdir = promisify(require("fs").readdir)
-const config = Object.assign(require("./config")[process.env.NODE_ENV], require("./config")["common"])
+const { prefix, emojiServers } = Object.assign(require("./config")[process.env.NODE_ENV], require("./config")["common"])
 const queue = require("p-queue")
+const CommandConfig = require("./models/commandConfig")
 
 class UltraRpgBot extends Client {
     constructor(options = {}) {
         super(options)
         this.logger = logger
-        this.config = config
-        this.prefix = config.prefix
+        this.prefix = prefix
+        this.emojiServers = emojiServers
         this.commands = new Collection()
         this.aliases = new Collection()
         this.activeCommands = new Collection()
@@ -36,41 +35,37 @@ class UltraRpgBot extends Client {
     }
 
     async loadCommand(cmdFile) {
-        try {
-            const _command = require(path.join(__dirname, `commands/${cmdFile}`))
-            let command = new _command()
-            // Check if the command is enabled globally
-            if (!command.enabled) return
+        const _command = require(path.join(__dirname, `commands/${cmdFile}`))
+        let command = new _command()
+        // Check if the command is enabled globally
+        if (!command.enabled) return
 
-            this.commands.set(command.name, command)
-            if (command.aliases) {
-                command.aliases.forEach(alias => this.aliases.set(alias, command.name))
-            }
-            return
-        } catch (e) {
-            return this.logger.error({ code: e.code, stack: e.stack, key: "loadCommand" })
+        command.config = await CommandConfig.getConfigForCommand(this, command)
 
-        } finally {
-            delete require.cache[require.resolve(path.join(__dirname, `commands/${cmdFile}`))]
+        if (command.init)
+            await command.init(this)
+
+        this.commands.set(command.name, command)
+        if (command.aliases) {
+            command.aliases.forEach(alias => this.aliases.set(alias, command.name))
         }
+
+        delete require.cache[require.resolve(path.join(__dirname, `commands/${cmdFile}`))]
+        return
     }
 
     async loadEvent(eventFile) {
-        try {
-            const _event = require(path.join(__dirname, `events/${eventFile}`))
-            let event = new _event(this)
+        const _event = require(path.join(__dirname, `events/${eventFile}`))
+        let event = new _event(this)
 
-            if (!event.enabled) return
+        if (!event.enabled) return
 
-            if (event.init)
-                await event.init(this)
+        if (event.init)
+            await event.init(this)
 
-            return this.on(event.name, event.run.bind(event))
-        } catch (e) {
-            return this.logger.error({ code: e.code, stack: e.stack, key: "loadEvent" })
-        } finally {
-            delete require.cache[require.resolve(path.join(__dirname, `events/${eventFile}`))]
-        }
+        delete require.cache[require.resolve(path.join(__dirname, `events/${eventFile}`))]
+        return this.on(event.name, event.run.bind(event))
+
     }
 
     async login() {
@@ -82,38 +77,28 @@ class UltraRpgBot extends Client {
 
     async init() {
         // Load all commands
+        let cmds = await readdir(path.join(__dirname, "commands"))
+        let events = await readdir(path.join(__dirname, "events"))
+
         try {
-            let cmds = await readdir(path.join(__dirname, "commands"))
-
-            await cmds.reduce(async (previousPromise, next) => {
-                await previousPromise
-                return this.loadCommand(next)
-            }, Promise.resolve())
-
+            await Promise.all(cmds.map(c => this.loadCommand(c)))
             this.logger.info({ message: "Command loading complete", key: "init" })
         } catch (e) {
-            this.logger.error({ code: e.code, stack: e.stack, key: "init" })
+            this.logger.parseError(e, "loadCommand")
         }
 
-        // Load all events
         try {
-            let events = await readdir(path.join(__dirname, "events"))
-
-            await events.reduce(async (previousPromise, next) => {
-                await previousPromise
-                return this.loadEvent(next)
-            }, Promise.resolve())
-
+            await Promise.all(events.map(e => this.loadEvent(e)))
             this.logger.info({ message: "Event loading complete", key: "init" })
         } catch (e) {
-            this.logger.error({ code: e.code, stack: e.stack, key: "init" })
+            this.logger.parseError(e, "loadEvent")
         }
 
         try {
             await this.login()
             this.logger.info({ message: "Ultra RPG Bot connected to Discord", key: "init" })
         } catch (e) {
-            this.logger.error({ code: e.code, stack: e.stack, key: "login" })
+            this.logger.parseError(e, "login")
         }
 
         return
@@ -122,16 +107,12 @@ class UltraRpgBot extends Client {
 
 const client = new UltraRpgBot({ disableEveryone: true })
 
-try { 
-    client.init() 
-} catch (e) { 
-    this.logger.error({ code: e.code, stack: e.stack, key: "init" }) 
-}
+client.init()
 
 process.on("uncaughtException", (e) => {
-    logger.error({ code: e.code, stack: e.stack, key: "uncaughtException" })
+    logger.parseError(e, "uncaughtException")
 })
 
 process.on("unhandledRejection", (reason, p) => {
-    logger.error({ ...Util.makePlainError(reason), key: "unhandledRejection" })
+    logger.parseError(reason, "unhandledRejection")
 })
