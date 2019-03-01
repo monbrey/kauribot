@@ -20,11 +20,13 @@ command : Get status of command
             guildOnly: true,
             requiresPermission: ["ADMINISTRATOR", "MANAGE_ROLES"],
             examples: [
-                "!config",
-                "!config dice -enable",
-                "!config reflog -disable",
-                "!config reflog -enable #battle1",
-                "!config reflog -clear"
+                "Get command stats: !config dice",
+                "Toggle command config: !config -enable/-disable dice",
+                "Channel-specific config: !config -enable dice #channel",
+                "Clear command config: !config -clear dice",
+                "Set logging: !config -set logs #channel",
+                "Set starboard: !config -set starboard #channel",
+                "Clear configuration: !config -clear dice"
             ]
         })
     }
@@ -218,20 +220,11 @@ command : Get status of command
 
     async run(message, args = [], flags = []) {
         // No args should just run the wizard for full config
-        if (args.length == 0) return await this.runWizard(message)
-        switch (args[0]) {
-            case "status":
-                return await this.getConfig(message, args[1])
-            case "enable":
-                return await this.setCommand(message, args[1], true)
-            case "disable":
-                return await this.setCommand(message, args[1], false)
-            case "set":
-                return await this.setFunction(message, args[1], args[2])
-            case "clear":
-                return await this.clearConfig(message, args[1])
-            default:
-                return await message.channel.send("Invalid command usage")
-        }
+        if (flags.length === 0) return await this.runWizard(message)
+
+        if(flags.includes("enable")) return this.setCommand(message, args[1], true)
+        if(flags.includes("disable")) return this.setCommand(message, args[1], false)
+        if(flags.includes("clear")) return this.clearConfig(message, args[1])
+        if(flags.includes("set")) return await this.setFunction(message, args[1], args[2])
     }
 }

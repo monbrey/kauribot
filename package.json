@@ -1,13 +1,8 @@
 {
-    "name": "mean-monbrey-platform",
+    "name": "ultra-rpg-bot",
     "version": "0.0.0",
     "scripts": {
-        "ng": "ng",
-        "start": "ng serve",
-        "build": "ng build",
-        "test": "ng test",
-        "lint": "ng lint",
-        "e2e": "ng e2e"
+        "start": "node ./index.js"
     },
     "private": true,
     "dependencies": {
