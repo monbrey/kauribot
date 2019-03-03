@@ -1,4 +1,3 @@
-title: URPG Discord Bot
-logo: https://pokemonurpg.com/img/info/general/urpg-logo-large.png
-theme: jekyll-theme-minimal
-repository: Monbrey/urpg-discord
+title: Professor Kauri
+remote_theme: pmarsceill/just-the-docs
+color_scheme: "dark"
