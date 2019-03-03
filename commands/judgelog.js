@@ -9,12 +9,12 @@ module.exports = class JudgeLogCommand extends BaseCommand {
             category: "Game",
             aliases: ["jl"],
             args: {
-                "first": "GuildMember",
-                "second": "GuildMember",
-                "third": "GuildMember",
-                "fourth": "GuildMember",
-                "rank": "String",
-                "log": "String"
+                "first": { type: "GuildMember", required: true },
+                "second": { type: "GuildMember", required: true },
+                "third": { type: "GuildMember", required: true },
+                "fourth": { type: "GuildMember", required: true },
+                "rank": { type: "String", required: true },
+                "log": { type: "String" }
             },
             description: "Logs a contest and awards cash and content credits to Coordinators and Judge",
             usage: "!judgelog @first @second @third @fourth <rank> [-tieMod] <logURL>",
@@ -25,9 +25,6 @@ module.exports = class JudgeLogCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        args = await this.parseArgs(message, args)
-        if (args === false) return
-
         args.set("judge", message.member)
         
         // Check that four mentions are included
@@ -47,7 +44,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
                 Trainer.findById(args.get("judge").id)
             ])
         } catch (e) {
-            message.channel.sendPopup("error", "Error fetching Trainers from database", 0)
+            message.channel.sendPopup("error", "Error fetching Trainers from database")
             return message.client.logger.error({ code: e.code, stack: e.stack, key: "judgelog" })
         }
 
@@ -119,7 +116,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
                     judge.modifyContestCredit(payments[4]),
                 ])
             } catch (e) {
-                message.channel.sendPopup("error","Error updating balances in database", 0)
+                message.channel.sendPopup("error","Error updating balances in database")
                 return message.client.logger.error({ code: e.code, stack: e.stack, key: "judgelog" })
             }
 

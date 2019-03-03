@@ -88,27 +88,58 @@ module.exports = class BaseCommand {
      * @param {Array} argArray An array of command arguments
      */
     async parseArgs(message, argArray) {
+        console.log(argArray)
         if (!this.args) return argArray
 
-        const resolved = new Collection()
-        const argNames = Object.keys(this.args)
-        for(let name of argNames) {
-            const arg = argNames.indexOf(name) === argNames.length - 1 ? argArray.join(" ") : argArray.shift()
-            if (arg.match(MessageMentions.USERS_PATTERN))
-                resolved.set(name, await message.guild.fetchMember(arg.replace(/[<@!>]/g, "")))
-            else if (arg.match(MessageMentions.CHANNELS_PATTERN))
-                resolved.set(name, message.client.channels.get(arg.replace(/[<@#>]/g, "")))
-            else if (arg.match(MessageMentions.CHANNELS_PATTERN))
-                resolved.set(name, message.guild.roles.get(arg.replace(/[<@&>]/g, "")))
-            else resolved.set(name, arg)
-        }
+        const customEmojiRe = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/
 
-        await Promise.all(resolved.values())
+        const resolved = await Promise.all(argArray.map(async arg => {
+            if (arg.match(MessageMentions.USERS_PATTERN))
+                return message.guild.fetchMember(arg.replace(/[<@!>]/g, ""))
+            if (arg.match(MessageMentions.CHANNELS_PATTERN))
+                return message.client.channels.get(arg.replace(/[<@#>]/g, ""))
+            if (arg.match(MessageMentions.CHANNELS_PATTERN))
+                return message.guild.roles.get(arg.replace(/[<@&>]/g, ""))
+            if (arg.match(customEmojiRe)) {
+                return message.guild.emojis.get(arg.match(customEmojiRe)[3])
+            }
+            return arg
+        }))
+
+        const named = new Collection()
+        Object.keys(this.args).forEach((name, index) => {
+            // If we dont have enough args, stop processing
+            if (index >= resolved.length) return
+
+            // Get the arg type
+            const type = this.args[name].type
+
+            console.log(name)
+            console.log(type)
+
+            // If this is a final named arg, being group processing
+            if (index === Object.keys(this.args).length - 1) {
+                const remaining = resolved.slice(index)
+                switch (type) {
+                    case "String": named.set(name, remaining.join(" "))
+                        break
+                    case "Array": named.set(name, remaining)
+                        break
+                    case "Collection": named.set(name, new Collection(
+                        remaining.filter(r => this.args[name].of.includes(r.constructor.name))
+                            .map(r => [r.id, r])
+                    ))
+                        break
+                    default: named.set(name, resolved[index])
+                        break
+                }
+            } else named.set(name, resolved[index])
+        })
 
         let valid = true
-        resolved.forEach((value, key) => {
-            if(value.constructor.name !== this.args[key] && valid) {
-                const position = argNames.indexOf(key)
+        named.forEach((value, key) => {
+            if (value.constructor.name !== this.args[key].type || this.args[key].type === "Any" && valid) {
+                const position = Object.keys(this.args).indexOf(key)
                 valid = false
                 return message.channel.sendPopup("warn", `Invalid argument in position ${position + 1}
 **Received:** ${value.constructor.name}
@@ -116,7 +147,7 @@ module.exports = class BaseCommand {
             }
         })
 
-        return valid ? resolved : undefined
+        return valid ? named : undefined
     }
 
     /**
@@ -139,6 +170,6 @@ module.exports = class BaseCommand {
      * @param {Array} flags - Array of command flags
      */
     async run(message, args = [], flags = []) {
-        return 
+        return
     }
 }

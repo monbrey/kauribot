@@ -9,10 +9,10 @@ module.exports = class RefLogCommand extends BaseCommand {
             category: "Game",
             aliases: ["rl"],
             args: {
-                "winner": "GuildMember",
-                "loser": "GuildMember",
-                "size": "String",
-                "log": "String"
+                "winner": { type: "GuildMember", required: true },
+                "loser": { type: "GuildMember", required: true },
+                "size": { type: "String", required: true },
+                "log": { type: "String" }
             },
             description: "Logs a battle and awards cash to Battlers and Referee",
             usage: "!reflog <@winner> <@loser> <size> [-gym] <description/logURL>",
@@ -24,9 +24,6 @@ module.exports = class RefLogCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        args = await this.parseArgs(message, args)
-        if (args === false) return
-
         args.set("ref", message.member)
 
         // Checks that two different users are included
@@ -46,7 +43,7 @@ module.exports = class RefLogCommand extends BaseCommand {
                 Trainer.findById(args.get("ref").id)
             ])
         } catch (e) {
-            message.channel.sendPopup("error", "Error fetching Trainers from database", 0)
+            message.channel.sendPopup("error", "Error fetching Trainers from database")
             return message.client.logger.error({ code: e.code, stack: e.stack, key: "reflog" })
         }
 
@@ -95,7 +92,7 @@ module.exports = class RefLogCommand extends BaseCommand {
                     referee.modifyCash(payments[2])
                 ])
             } catch (e) {
-                message.channel.sendPopup("error", "Error updating balances in database", 0)
+                message.channel.sendPopup("error", "Error updating balances in database")
                 return message.client.logger.error({ code: e.code, stack: e.stack, key: "reflog" })
             }
 

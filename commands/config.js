@@ -9,6 +9,10 @@ module.exports = class ConfigCommand extends BaseCommand {
             name: "config",
             category: "Admin",
             description: "Change bot configuration in this server.",
+            args: {
+                "command": { type: "String" },
+                "targets": { type: "Collection", of: ["TextChannel", "Role"] }
+            },
             syntax: "!config [command] [-switch] [#channel(s)]",
             usage: `No args : Run config wizard
 command : Get status of command
@@ -24,8 +28,6 @@ command : Get status of command
                 "Toggle command config: !config -enable/-disable dice",
                 "Channel-specific config: !config -enable dice #channel",
                 "Clear command config: !config -clear dice",
-                "Set logging: !config -set logs #channel",
-                "Set starboard: !config -set starboard #channel",
                 "Clear configuration: !config -clear dice"
             ]
         })
@@ -37,28 +39,9 @@ command : Get status of command
 
     /**
      * @param {Message} message - A Discord.Message object 
-     * @param {string} arg - Configuration to retrieve
+     * @param {String} arg - Configuration to retrieve
      */
     async getConfig(message, arg) {
-        switch (arg) {
-            case "logs": 
-                if (message.guild.logChannel) return message.channel.send(`Logs are being output to ${message.guild.logChannel}.`)
-                else return message.channel.send("Logging is not configured for this server.")
-            case "starboard": {
-                let starChannel = message.guild.channels.get(message.guild.starboard.channel)
-                if (starChannel) return message.channel.send(`The Starboard for this server is ${starChannel}.`)
-                else return message.channel.send("The Starboard is not configured for this server, or is missing.")
-            }
-            case "starboard-emoji":
-                if (message.guild.starboard && message.guild.starboard.emoji)
-                    return message.channel.send(`The Starboard emoji for this server is ${message.guild.starboard.emoji}.`)
-                else return message.channel.send("The Starboard is not configured for this server")
-            case "starboard-reacts":
-                if (message.guild.starboard && message.guild.starboard.minReacts)
-                    return message.channel.send(`The Starboard minimum reactions for this server is ${message.guild.starboard.minReacts}.`)
-                else return message.channel.send("The Starboard is not configured for this server")
-        }
-
         let command = message.client.commands.get(arg)
         if (!command) return message.channel.send(`No command matching ${message.client.prefix}${arg} found.`)
 
@@ -96,22 +79,33 @@ command : Get status of command
         })
     }
 
-    async setCommand(message, arg, status) {
-        let command = message.client.commands.get(arg)
-        if (!command) return message.channel.send(`No command matching ${message.client.prefix}${arg} found.`)
-        if (command.lockConfig) return message.channel.send(`${message.client.prefix}${arg} is always enabled and is not a configurable command.`)
+    async setCommand(message, args, status) {
+        const cmd = args.get("command")
+        const command = message.client.commands.get(cmd)
+        if (!command) return message.channel.send(`No command matching ${message.client.prefix}${cmd} found.`)
+        if (command.lockConfig) return message.channel.send(`${message.client.prefix}${cmd} is always enabled and is not a configurable command.`)
 
-        if (message.mentions.channels.size > 0) {
+        const targets = args.get("targets")
+        if (targets) {
             let dbConfig = await CommandConfig.getConfigForCommand(message.client, command)
 
             try {
                 // If no guild config exists, set it to false as a default
                 if (!command.config.guilds.has(message.guild.id)) await dbConfig.setGuild(message.guild.id, false)
-                let update = await dbConfig.setChannels(message.mentions.channels.map(c => c.id), status)
-                command.setConfig(update)
-                return message.channel.send(`${message.client.prefix}${arg} ${status ? "enabled" : "disabled"} in ${message.mentions.channels.array().join(", ")}.`)
+                targets.forEach(t => {
+                    switch (t.constructor.name) {
+                        case "TextChannel": dbConfig.channels.set(t.id, status)
+                            break
+                        case "Role": dbConfig.roles.set(t.id, status)
+                            break
+                        default:
+                            message.channel.sendPopup("warn", `Commands cannot be configured for a ${t.constructor.name}: ${t}`)
+                    }
+                })
+                command.setConfig(dbConfig)
+                return message.channel.sendPopup("success", `${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} in/for ${targets.array().join(", ")}`, 0)
             } catch (e) {
-                message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
+                message.client.logger.parseError(e, "config")
                 return message.channel.send(`Error updating command configuration: ${e.message}`)
             }
         } else {
@@ -121,68 +115,11 @@ command : Get status of command
                 if (!command.config.guilds.has(message.guild.id)) await dbConfig.setGuild(message.guild.id, false)
                 let update = await dbConfig.setGuild(message.guild.id, status)
                 command.setConfig(update)
-                return message.channel.send(`${message.client.prefix}${arg} ${status ? "enabled" : "disabled"} server-wide. Any existing channel overrides will still apply.`)
+                return message.channel.send(`${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} server-wide. Any existing channel overrides will still apply.`)
             } catch (e) {
-                message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
+                message.client.logger.parseError(e, "config")
                 return message.channel.send(`Error updating command configuration: ${e.message}`)
             }
-        }
-    }
-
-    async setFunction(message, arg, param = null) {
-        switch (arg) {
-            case "logs":
-                if (!message.mentions.channels.first()) return message.channel.send("Setting a function requires a channel mention")
-                try {
-                    let logChannel = message.mentions.channels.first()
-                    await LogConfig.setLogChannel(message.guild.id, logChannel.id)
-                    message.guild.logChannel = logChannel
-                    return message.channel.send(`Log channel has been set to ${logChannel}. It is recommended that you prevent other users from sending messages to this channel.`)
-
-                } catch (e) {
-                    message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
-                    return message.channel.send(`Error updating function configuration: ${e.message}`)
-                }
-            case "starboard":
-                if (!message.mentions.channels.first()) return message.channel.send("Setting a function requires a channel mention")
-                try {
-                    let starChannel = message.mentions.channels.first()
-                    let starboard = message.guild.starboard || new StarboardConfig({
-                        guild: message.guild.id,
-                        channel: starChannel.id
-                    })
-                    await starboard.save()
-                    message.guild.starboard = starboard
-                    return message.channel.send(`Starboard channel has been set to ${starChannel}. It is recommended that you prevent other users from sending messages to this channel.`)
-
-                } catch (e) {
-                    message.client.logger.error({ code: e.code, stack: e.stack, key: "config" })
-                    return message.channel.send(`Error updating function configuration: ${e.message}`)
-                }
-            case "starboard-emoji":
-                if (!message.guild.starboard) return message.channel.send("This server has no Starboard")
-                if (!param) return message.channel.send("This setting requires an emoji be provided")
-                try {
-                    message.guild.starboard.emoji = param
-                    await message.guild.starboard.save()
-                    return message.channel.send(`Starboard emoji has been set to ${param}`)
-                } catch (e) {
-                    return message.channel.send({
-                        code: e.stack
-                    })
-                }
-            case "starboard-reacts":
-                if (!message.guild.starboard) return message.channel.send("This server has no Starboard")
-                if (param === null || !/^[1-9][0-9]*$/.test(param)) return message.channel.send("This setting requires a positive whole number")
-                try {
-                    message.guild.starboard.minReacts = param
-                    await message.guild.starboard.save()
-                    return message.channel.send(`Starboard minimum reactions has been set to ${param}`)
-                } catch (e) {
-                    return message.channel.send({
-                        code: e.stack
-                    })
-                }
         }
     }
 
@@ -219,12 +156,15 @@ command : Get status of command
     }
 
     async run(message, args = [], flags = []) {
-        // No args should just run the wizard for full config
-        if (flags.length === 0) return await this.runWizard(message)
+        args = await this.parseArgs(message, args)
 
-        if(flags.includes("enable")) return this.setCommand(message, args[1], true)
-        if(flags.includes("disable")) return this.setCommand(message, args[1], false)
-        if(flags.includes("clear")) return this.clearConfig(message, args[1])
-        if(flags.includes("set")) return await this.setFunction(message, args[1], args[2])
+        // No args should just run the wizard for full config
+        if (flags.length === 0)
+            if (args.size === 0) return await this.runWizard(message)
+            else return this.getConfig(message, args.get("command"))
+
+        if (flags.includes("enable")) return this.setCommand(message, args, true)
+        if (flags.includes("disable")) return this.setCommand(message, args, false)
+        if (flags.includes("clear")) return this.clearConfig(message, args.get("command"))
     }
 }

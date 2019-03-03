@@ -2,7 +2,8 @@ const { Message, TextChannel, DMChannel, RichEmbed } = require("discord.js")
 const EMBED_COLORS = {
     "ERROR": 0xE50000,
     "WARN": 0xFFC107,
-    "CANCEL": 0x004A7F
+    "CANCEL": 0x004A7F,
+    "SUCCESS": 0x267F00
 }
 
 Object.defineProperties(Message.prototype, {
@@ -90,7 +91,7 @@ Object.defineProperties(TextChannel.prototype, {
                 timer = options
                 options = undefined
             } else if (!timer) {
-                timer = 5000
+                timer = 10000
             }
 
             const m = await this.send(content, options)
@@ -108,7 +109,7 @@ Object.defineProperties(TextChannel.prototype, {
             let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
                 .setDescription(description)
 
-            if (timeout === 0) return this.send(embed)
+            if (timeout === 0 || type === "error") return this.send(embed)
             else return this.sendAndDelete(embed, timeout)
         }
     }
@@ -144,7 +145,7 @@ Object.defineProperties(DMChannel.prototype, {
             let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
                 .setDescription(description)
 
-            if (timeout === 0) return this.send(embed)
+            if (timeout === 0 || type === "error") return this.send(embed)
             return this.sendAndDelete(embed, timeout)
         }
     }

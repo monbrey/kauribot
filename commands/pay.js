@@ -59,7 +59,7 @@ module.exports = class PayCommand extends BaseCommand {
                 if(args.get("type") === "cc") await trainer.modifyContestCredit(args.get("amount"))
                 else await trainer.modifyCash(args.get("amount"))
             } catch (e) {
-                message.channel.sendPopup("error", "Error updating balances in database", 0)
+                message.channel.sendPopup("error", "Error updating balances in database")
                 return message.client.logger.error({ code: e.code, stack: e.stack, key: "pay" })
             }
 

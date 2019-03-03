@@ -15,15 +15,11 @@ var commandConfigSchema = new mongoose.Schema({
         of: Boolean,
         default: {}
     },
-    usage: [{
-        guild: {
-            type: String
-        },
-        count: {
-            type: Number,
-            default: 0
-        }
-    }]
+    roles: {
+        type: Map,
+        of: "Boolean",
+        default: {}
+    }
 })
 
 commandConfigSchema.statics.getConfigForCommand = async function(client, command) {
@@ -52,14 +48,6 @@ commandConfigSchema.statics.getConfigForCommand = async function(client, command
 
 commandConfigSchema.methods.setGuild = async function(_guild, status) {
     this.guilds.set(_guild, status)
-    return await this.save()
-}
-
-commandConfigSchema.methods.setChannels = async function(_channels, status) {
-    _channels.forEach(channel => {
-        this.channels.set(channel, status)
-    })
-
     return await this.save()
 }
 

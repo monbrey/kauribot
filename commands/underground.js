@@ -193,7 +193,7 @@ module.exports = class UndergroundCommand extends BaseCommand {
                 .setDescription(`Your Underground dig item selection has timed out
 You can resume your selection at a later time with the command below
 
-\`!ug claim ${result.url}\``, 0)
+\`!ug claim ${result.url}\``)
             try { return await message.author.send(embed) } catch (e) { return await message.channel.send(embed) }
         }
     }

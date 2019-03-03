@@ -30,7 +30,10 @@ module.exports = class MessageEvent extends BaseEvent {
     }
 
     async processCommand(message, command, _args) {
+        // Split the args and the flags, then parse args into named arguments
         let [flags, args] = super.argsplit(_args)
+        args = await command.parseArgs(message, _args)
+        if (args === false) return
 
         // Intercept help flags as they aren't command-specific
         if (flags.includes("h")) {
