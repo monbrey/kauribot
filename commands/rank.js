@@ -1,6 +1,7 @@
 const BaseCommand = require("./base")
 const { RichEmbed } = require("discord.js")
 const Pokemon = require("../models/pokemon")
+const strsim = require("string-similarity")
 
 module.exports = class RankCommand extends BaseCommand {
     constructor() {
@@ -47,7 +48,7 @@ module.exports = class RankCommand extends BaseCommand {
         }, [])
 
         const embed = new RichEmbed()
-        embed.title = `${rankedPokemon[0].rank.story} Story / Art rank Pokemon`
+        embed.title = `${rankedPokemon[0].rank.park} Park rank Pokemon`
 
         Object.keys(grouped).forEach(key => {
             if (grouped[key].length > 0)
@@ -64,16 +65,14 @@ module.exports = class RankCommand extends BaseCommand {
             return rankArray
         }, [])
 
-        console.log(grouped)
-
         const embed = new RichEmbed()
-        embed.title = `${rankedPokemon[0].parkLocation} Park Pokemon`
+        embed.title = `Park Pokemon found in ${rankedPokemon[0].parkLocation}`
 
         if(grouped["Common"].length > 0) embed.addField("Common", grouped["Common"].join(", "))
         if(grouped["Uncommon"].length > 0) embed.addField("Uncommon", grouped["Uncommon"].join(", "))
         if(grouped["Rare"].length > 0) embed.addField("Rare", grouped["Rare"].join(", "))
+        if(grouped["Legendary"].length > 0) embed.addField("Legendary", grouped["Legendary"].join(", "))
 
-        console.log(embed)
 
         return embed
     }
@@ -81,7 +80,7 @@ module.exports = class RankCommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         if (args.length == 0) return super.getHelp(message.channel)
 
-        const rankQ = new RegExp(args[0], "i")
+        const rankQ = new RegExp(args.join(" "), "i")
         try {
             const rankedPokemon = await Pokemon.find({
                 $or: [
@@ -112,8 +111,11 @@ module.exports = class RankCommand extends BaseCommand {
             return message.channel.sendPopup("error", "Error searching the database")
         }
 
+        // Search by location
         try {
-            const rankedPokemon = await Pokemon.find({ "parkLocation": rankQ })
+            const locations = await Pokemon.find({}).distinct("parkLocation")
+            const match = strsim.findBestMatch(args.join(" "), locations).bestMatch.target
+            const rankedPokemon = await Pokemon.find({ "parkLocation": match })
                 .select("uniqueName dexNumber parkLocation rank.park -_id").cache(0)
 
             if (rankedPokemon.length !== 0) {
