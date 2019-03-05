@@ -18,7 +18,7 @@ db.on("connected", async () => {
 })
 
 db.on("error", async (err) => {
-    logger.error({ message: err.message, code: err.code, stack: err.stack, key: "db" })
+    logger.parseError(err, "db")
 })
 
 db.on("disconnected", async () => {

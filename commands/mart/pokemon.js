@@ -24,7 +24,8 @@ Use \`!buy pokemon [<Pokemon>, <Pokemon>...]\` to make a purchase`)
         if (next === true) return await browsePokemon(message, page + 1, sentMessage)
         if (next === false) return await browsePokemon(message, page - 1, sentMessage)
     } catch (e) {
-        return message.client.logger.error({ code: e.code, stack: e.stack, key: "mart" })
+        message.client.logger.parseError(e, "mart")
+        return message.channel.sendPopup("error", "Error encountered while displaying Pokemart catalogue")
     }
 }
 
