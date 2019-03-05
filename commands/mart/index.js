@@ -32,11 +32,16 @@ Pokemon:  !buy pokemon [<Pokemon>, <Pokemon>...]
 Items:    !buy items [<Item>, <Item>...]
 Moves:    !buy moves <roster-index>${tb}`)
 
-        return await message.channel.send(embed)
+        return message.channel.send(embed)
     }
 
     async run(message, args = [], flags = []) {
-        message.trainer = await Trainer.findById(message.author.id)
+        try {
+            message.trainer = await Trainer.findById(message.author.id)
+        } catch (e) {
+            message.client.logger.parseError(e, this.name)
+            return message.channel.sendPopup("error", "Error fetching Trainer from dataase")
+        }
 
         switch (args[0]) {
             case "pokemon":
@@ -50,7 +55,7 @@ Moves:    !buy moves <roster-index>${tb}`)
                 // case "hm":
                 //    return await this.hmInterface(message)
             default:
-                await this.welcome(message)
+                return this.welcome(message)
         }
     }
 }

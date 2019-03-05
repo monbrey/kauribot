@@ -8,6 +8,9 @@ module.exports = class TrainerCommand extends BaseCommand {
             name: "trainer",
             category: "Game",
             description: "View the profile of a URPG Trainer",
+            args: {
+                "member": { type: "GuildMember" }
+            },
             usage: `
 !trainer                View your profile
 !trainer <trainer>      View <trainers>'s profile.
@@ -28,7 +31,7 @@ module.exports = class TrainerCommand extends BaseCommand {
         let embed = new RichEmbed()
             .setTitle(`Public profile for ${trainer.username}`)
             .setThumbnail(member.user.avatarURL)
-            .addField("Joined on", `${joined.toLocaleDateString("en-AU",{day: "numeric", month:"short", year:"numeric"})}`, true)
+            .addField("Joined on", `${joined.toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}`, true)
             .addField("Starter", starter.nickname || starter.basePokemon.uniqueName, true)
             .addField("Cash", `$${trainer.cash}`, true)
             .addField("Contest Credit", `${trainer.contestCredit} CC`, true)
@@ -47,29 +50,35 @@ module.exports = class TrainerCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        let member = args.length === 0 ? message.member : message.mentions.members.first()
+        const member = args.get("member") || message.member
 
-        if (!member) member = message.guild.members.find(m => (
-            m.displayName.localeCompare(args[0], "en", {
+        if (member.constructor.name !== "GuildMember") message.guild.members.find(m => (
+            m.displayName.localeCompare(member, "en", {
                 sensitivity: "base"
             }) === 0 ||
-            m.user.username.localeCompare(args[0], "en", {
+            m.user.username.localeCompare(member, "en", {
                 sensitivity: "base"
             }) === 0
         ))
-        if (!member) return message.channel.send(`Could not find a Discord user matching ${args[0]}`)
+        if (!member) return message.channel.sendPopup("warn", `Could not find a Discord user matching ${member}`)
 
-        let trainer = await Trainer.findById(member.id)
-        if (!trainer) return message.channel.send(`Unable to find a trainer profile for ${member.displayName}`)
+        try {
+            let trainer = await Trainer.findById(member.id)
+            if (!trainer) return message.channel.sendPopup("warn", `Unable to find a trainer profile for ${member.displayName}`)     
 
-        let pokeball = message.client.emojis.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild))
-        let backpack = message.client.emojis.find(e => e.name === "backpack" && message.client.emojiServers.includes(e.guild))
+            let pokeball = message.client.emojis.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild))
+            let backpack = message.client.emojis.find(e => e.name === "backpack" && message.client.emojiServers.includes(e.guild))
 
-        let profile = await message.channel.send(await this.profile(member, trainer))
-        await profile.react(pokeball)
-        await profile.react(backpack)
-        if(message.member === member) await profile.react("📝")
+            let profile = await message.channel.send(await this.profile(member, trainer))
+            await profile.react(pokeball)
+            await profile.react(backpack)
+            if (message.member === member) await profile.react("📝")
 
-        return require("../util/profileLoop")(message, profile, member, trainer)
+            require("../util/profileLoop")(message, profile, member, trainer)
+            return
+        } catch (e) {
+            message.client.logger.parseError(e, "inventory")
+            return message.channel.sendPopup("error", "Error retrieving Trainer inventory")
+        }
     }
 }

@@ -88,10 +88,7 @@ module.exports = class BaseCommand {
      * @param {Array} argArray An array of command arguments
      */
     async parseArgs(message, argArray) {
-        console.log(argArray)
         if (!this.args) return argArray
-
-        const customEmojiRe = /<?(a)?:?(\w{2,32}):(\d{17,19})>?/
 
         const resolved = await Promise.all(argArray.map(async arg => {
             if (arg.match(MessageMentions.USERS_PATTERN))
@@ -100,9 +97,6 @@ module.exports = class BaseCommand {
                 return message.client.channels.get(arg.replace(/[<@#>]/g, ""))
             if (arg.match(MessageMentions.CHANNELS_PATTERN))
                 return message.guild.roles.get(arg.replace(/[<@&>]/g, ""))
-            if (arg.match(customEmojiRe)) {
-                return message.guild.emojis.get(arg.match(customEmojiRe)[3])
-            }
             return arg
         }))
 
@@ -113,9 +107,6 @@ module.exports = class BaseCommand {
 
             // Get the arg type
             const type = this.args[name].type
-
-            console.log(name)
-            console.log(type)
 
             // If this is a final named arg, being group processing
             if (index === Object.keys(this.args).length - 1) {
@@ -138,12 +129,12 @@ module.exports = class BaseCommand {
 
         let valid = true
         named.forEach((value, key) => {
-            if (value.constructor.name !== this.args[key].type || this.args[key].type === "Any" && valid) {
+            if (value.constructor.name !== this.args[key].type && this.args[key].type !== "Any" && valid) {
                 const position = Object.keys(this.args).indexOf(key)
                 valid = false
                 return message.channel.sendPopup("warn", `Invalid argument in position ${position + 1}
 **Received:** ${value.constructor.name}
-**Expected:** ${this.args[key]}`, 10000)
+**Expected:** ${this.args[key].type}`, 10000)
             }
         })
 

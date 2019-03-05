@@ -20,14 +20,18 @@ module.exports = class HelpCommand extends BaseCommand {
         if (!args[0]) {
             // Remove commands that the user doesn't have access too
             let commands = message.client.commands.filter(cmd => {
-                let enabled = cmd.config.channels.has(message.channel.id) ? // If channel config
+                const enabled = cmd.config.channels.has(message.channel.id) ? // If channel config
                     cmd.config.channels.get(message.channel.id) : // Get channel config
                     cmd.config.guilds.get(message.guild.id)
-                let permission = cmd.requiresPermission ?
-                    message.channel.memberPermissions(message.member).has(cmd.requiresPermission, true) :
+                const permission = cmd.requiresPermission ?
+                    cmd.requiresPermission.some(perm =>
+                        message.channel.memberPermissions(message.member).has(perm, true)
+                    ) : true
+                const role = cmd.requiresRole ?
+                    message.member.roles.some(role => cmd.requiresRole.includes(role.name)) :
                     true
 
-                return (enabled && permission && !this.requiresOwner)
+                return (enabled && permission && role && !this.requiresOwner)
             })
 
             let game = commands.filter(cmd => cmd.category === "Game")
@@ -46,9 +50,11 @@ module.exports = class HelpCommand extends BaseCommand {
                 
                 The source code is available on (Github)[https://github.com/Monbrey/ultra-rpg-bot]
                 Any issues or feature requests, (log an issue)[https://github.com/Monbrey/ultra-rpg-bot/issues]
+
+                Full documentation will be written soon (TM)
                 
                 **Available Commands**`)
-                .setFooter("Most commands have detailed help available via !help [command] or !command -h")
+                .setFooter("Most commands have more help available via !help [command] or !command -h")
 
             if (game.length) embed.addField("Gameplay Interaction", `\`${game.join("` `")}\``)
             if (info.length) embed.addField("Information and Lookups", `\`${info.join("` `")}\``)

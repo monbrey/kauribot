@@ -32,8 +32,14 @@ module.exports = class MessageEvent extends BaseEvent {
     async processCommand(message, command, _args) {
         // Split the args and the flags, then parse args into named arguments
         let [flags, args] = super.argsplit(_args)
-        args = await command.parseArgs(message, _args)
-        if (args === false) return
+        try {
+            args = await command.parseArgs(message, args)
+            if (args === false) return
+        } catch (e) {
+            message.client.logger.parseError(e, "parseArgs")
+            return message.channel.sendPopup("error", "Unhandled exception thrown while parsing arguments")
+        }
+
 
         // Intercept help flags as they aren't command-specific
         if (flags.includes("h")) {
@@ -42,7 +48,10 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // If its the bot owner, run the command now without further checks
         if (message.author.id === message.client.applicationInfo.owner.id)
-            return command.run(message, args, flags)
+            try { return command.run(message, args, flags) } catch (e) {
+                message.client.logger.parseError(e, "runCommand")
+                return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
+            }
 
         // Check if its an owner-only command, don't run if it is We already ran 
         if (command.requiresOwner) return
@@ -62,18 +71,34 @@ module.exports = class MessageEvent extends BaseEvent {
         if (command.guildOnly && message.channel.type == "dm") return
 
         // Check if the command requires Discord permissions
-        let permissions = command.requiresPermission ?
-            command.requiresPermission.some(perm =>
-                message.channel.memberPermissions(message.member).has(perm, true)
-            ) : true
+        let permissions, roles
+        try {
+            permissions = command.requiresPermission ?
+                command.requiresPermission.some(perm =>
+                    message.channel.memberPermissions(message.member).has(perm, true)
+                ) : true
+        } catch (e) {
+            message.client.logger.parseError(e, "dterminePermissions")
+            return message.channel.sendPopup("error", "Unhandled exception thrown while calculating Discord permissions")
+        }
 
         // Or particular Discord roles
-        let roles = command.requiresRole ?
-            message.member.roles.some(role => command.requiresRole.includes(role.name)) :
-            true
+        try {
+            roles = command.requiresRole ?
+                message.member.roles.some(role => command.requiresRole.includes(role.name)) :
+                true
+        } catch (e) {
+            message.client.logger.parseError(e, "detrmineRoles")
+            return message.channel.sendPopup("error", "Unhandled exception thrown while calculating Role permissions")
+        }
 
         if (permissions && roles)
-            return command.run(message, args, flags)
+            try {
+                return command.run(message, args, flags)
+            } catch (e) {
+                message.client.logger.parseError(e, "runCommand")
+                return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
+            }
         if (!permissions)
             return message.channel.sendPopup("warn", "You don't have the required server/channel permissions to use this command.")
         if (!roles)
@@ -115,7 +140,9 @@ module.exports = class MessageEvent extends BaseEvent {
         }
 
         this.setActiveCommand(message, command.name)
+        command.executed(message.guild.id)
         await this.processCommand(message, command, _args)
+        command.succeeded(message.guild.id)
         return this.clearActiveCommand(message, command.name)
     }
 }

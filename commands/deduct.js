@@ -9,9 +9,9 @@ module.exports = class DeductCommand extends BaseCommand {
             category: "Game",
             description: "Removes money from a mentioned user's account",
             args: {
-                "target": "GuildMember",
-                "amount": "String",
-                "reason": "String"
+                "target": { type: "GuildMember" },
+                "amount": { type: "String" },
+                "reason": { type: "String" }
             },
             usage: "!deduct @User <amount> [reason]",
             enabled: true,
@@ -28,8 +28,6 @@ module.exports = class DeductCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        args = await this.parseArgs(message, args)
-        if (!args) return
         let trainer = await Trainer.findById(args.get("target").id)
         if (!trainer) return message.channel.sendPopup("warn", `Could not find a URPG trainer for ${args.get("target")}`)
 
@@ -56,7 +54,7 @@ module.exports = class DeductCommand extends BaseCommand {
                 else await trainer.modifyCash(-args.get("amount"))
             } catch (e) {
                 message.channel.sendPopup("error", "Error updating balances in database")
-                return message.client.logger.error({ code: e.code, stack: e.stack, key: "deduct" })
+                return message.client.logger.parseError(e, "deduct")
             }
 
             embed.setTitle(`Deduction from ${args.get("target").displayName}`)

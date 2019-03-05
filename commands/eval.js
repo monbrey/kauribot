@@ -1,4 +1,5 @@
 const BaseCommand = require("./base")
+const request = require("request-promise-native")
 
 const clean = text => {
     if (typeof (text) === "string")
@@ -29,11 +30,16 @@ module.exports = class EvalCommand extends BaseCommand {
                 if (typeof evaled !== "string")
                     evaled = require("util").inspect(evaled)
 
-                if(evaled.length >= 2000) message.channel.send("Response too long", { code: "xl" })
-                else message.channel.send(clean(evaled), { code: "xl" })
+                if(evaled.length >= 2000) {
+                    const { key } = await request.post("https://hastebin.com/documents", {
+                        body: evaled,
+                        json: true
+                    })
+                    message.channel.send(`Response too long: uploaded to https://hastebin.com/${key}.js`)
+                } else message.channel.send(clean(evaled), { code: "xl" })
             }
         } catch (e) {
-            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
+            message.client.logger.parseError(e, this.name)
         }
     }
 }

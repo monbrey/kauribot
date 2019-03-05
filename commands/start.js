@@ -105,6 +105,8 @@ module.exports = class StartCommand extends BaseCommand {
             }
 
             let username = response.first().content
+
+            if(username.toLowerCase() === "cancel") return null
             response.first().delete()
 
             if (await Trainer.usernameExists(username)) {
@@ -121,8 +123,7 @@ module.exports = class StartCommand extends BaseCommand {
                 return await this.getUsername(message, sentMessage, embed)
             } else return username
         } catch (e) {
-            message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
+            message.client.logger.parseError(e, this.name)
         }
     }
 
@@ -141,7 +142,7 @@ module.exports = class StartCommand extends BaseCommand {
             return await sentMessage.reactConfirm(message.author.id) ? username : await this.confirmUsername(message, sentMessage, embed)
         } catch (e) {
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
+            message.client.logger.parseError(e, this.name)
 
         }
     }
@@ -166,6 +167,7 @@ module.exports = class StartCommand extends BaseCommand {
 
             let query = response.first().content
             response.first().delete()
+            if(response.toLowerCase() === "cancel") return
 
             let exactMatch = await Pokemon.findOneExact(query)
             if (exactMatch) {
@@ -203,7 +205,7 @@ module.exports = class StartCommand extends BaseCommand {
             }
         } catch (e) {
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
+            message.client.logger.parseError(e, this.name)
 
         }
     }
@@ -227,13 +229,13 @@ module.exports = class StartCommand extends BaseCommand {
             return await sentMessage.reactConfirm(message.author.id) ? starter : await this.confirmStarter(message, sentMessage, embed)
         } catch (e) {
             message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
-            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
+            message.client.logger.parseError(e, this.name)
 
         }
     }
 
     async run(message, args = [], flags = []) {
-        // Check if the user already has a Trainer in the database. Removed for testing
+        // Check if the user already has a Trainer in the database
         let trainer = await Trainer.findById(message.author.id)
         if (trainer) {
             message.channel.send("You have previously signed up for the URPG. To request a restart, please contact a Moderator.")
@@ -243,7 +245,7 @@ module.exports = class StartCommand extends BaseCommand {
         })
 
         let embed = new RichEmbed()
-            .setDescription("Reply with `cancel` at any time to exit your Starter Request")
+            .setDescription("Reply with `cancel` to exit your Starter Request")
             .addField("Welcome to the Pokemon Ultra Role Playing Game!", "To begin with, lets get some information about you, new Pokemon Trainer!")
 
         let sentMessage = await message.channel.send(embed)
@@ -251,25 +253,30 @@ module.exports = class StartCommand extends BaseCommand {
         let username = await this.confirmUsername(message, sentMessage, embed)
         if (username) {
             trainer.username = username
-        } else return
+        } else return message.channel.sendPopup("info", "Starter request cancelled.")
 
         embed.fields[2].name = `Okay ${username}, it's time to select your starter Pokemon!`
         embed.fields[2].value = "Remember that in URPG, you can choose any Pokemon that can evolve as your starter **__except__**:\nDratini, Larvitar, Bagon, Kabuto, Omanyte, Scyther, Lileep, Anorith, Beldum, Porygon, Gible, Shieldon, Cranidos, Munchlax, Riolu, Tirtouga, Archem, Deino, Larvesta, Amura, Tyrunt or Goomy."
         await sentMessage.edit(embed)
 
         let starter = await this.confirmStarter(message, sentMessage, embed)
-        if (!starter) return
+        if (!starter) return message.channel.sendPopup("info", "Starter request cancelled.")
 
-        let newTrainer = await trainer.save()
-        if (newTrainer) {
-            await newTrainer.addNewPokemon(starter)
-            message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
+        try {
+            let newTrainer = await trainer.save()
+            if (newTrainer) {
+                await newTrainer.addNewPokemon(starter)
+                message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
 
-            embed.fields[5].value = (`Congratulations! New Trainer ${trainer.username} and ${starter.displayName} registered.`)
-            sentMessage.edit(embed)
-            message.client.logger.newStarter(message, trainer, starter)
+                embed.fields[5].value = (`Congratulations! New Trainer ${trainer.username} and ${starter.displayName} registered.`)
+                sentMessage.edit(embed)
+                message.client.logger.start(message, trainer, starter)
 
             // TODO: Preferred pronoun/role handling
+            }
+        } catch (e) {
+            message.client.logger.parseError(e, this.name)
+            return message.client.sendPopup("error", "Error saving new Trainer to the database")
         }
     }
 }

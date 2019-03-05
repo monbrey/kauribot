@@ -45,7 +45,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
             ])
         } catch (e) {
             message.channel.sendPopup("error", "Error fetching Trainers from database")
-            return message.client.logger.error({ code: e.code, stack: e.stack, key: "judgelog" })
+            return message.client.logger.parseError(e, "judgelog")
         }
 
         if (!first) return message.channel.send(`Could not find a URPG Trainer for ${args.get("first")}`)
@@ -117,7 +117,7 @@ module.exports = class JudgeLogCommand extends BaseCommand {
                 ])
             } catch (e) {
                 message.channel.sendPopup("error","Error updating balances in database")
-                return message.client.logger.error({ code: e.code, stack: e.stack, key: "judgelog" })
+                return message.client.logger.parseError(e, "judgelog")
             }
 
             embed.setTitle(`${rank(args.get("rank").toLowerCase())} Rank Contest (Pending)`)

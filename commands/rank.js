@@ -17,35 +17,56 @@ module.exports = class RankCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        if(args.length == 0) return super.getHelp(message.channel)
+        if (args.length == 0) return super.getHelp(message.channel)
 
         const rankQ = new RegExp(args[0], "i")
-        const rankedSA = await Pokemon.find({
-            $or: [
-                { "rank.story": rankQ },
-                { "rank.art": rankQ }
-            ]
-        }).select("speciesName -_id").cache(0)
+        let rankedPokemon, park
+        try {
+            rankedPokemon = await Pokemon.find({
+                $or: [
+                    { "rank.story": rankQ },
+                    { "rank.art": rankQ }
+                ]
+            }).select("uniqueName dexNumber rank.story -_id").cache(0)
 
-        if(rankedSA.length !== 0) {
-            const names = rankedSA.map(x => x.speciesName).sort((a,b) => a.localeCompare(b))
-            const embed = new RichEmbed()
-                .setTitle(`Pokemon of Story/Art rank "${args[0]}"`)
-                .setDescription(names.join(", "))
-
-            return message.channel.send(embed)
+            if (rankedPokemon.length === 0) {
+                park = true
+                rankedPokemon = await Pokemon.find({ "rank.park": rankQ })
+                    .select("uniqueName dexNumber parkLocation rank.park -_id").cache(0)
+            }
+        } catch (e) {
+            message.client.logger.parseError(e, "rank")
+            message.channel.sendPopup("error", "Error searching the database")
         }
 
-        const rankedP = await Pokemon.find({ "rank.park": rankQ })
-            .select("speciesName parkLocation -_id").cache(0)
+        message.client.logger.rank(message, args[0], rankedPokemon.length)
 
-        if(rankedP.length !== 0) {
-            const names = rankedP.map(x => x.speciesName).sort((a,b) => a.localeCompare(b))
-            const embed = new RichEmbed()
-                .setTitle(`Pokemon of Park rank "${args[0]}"`)
-                .setDescription(names.join(", "))
-    
-            return message.channel.send(embed)
-        }
+        if(rankedPokemon.length === 0)
+            return message.channel.sendPopup("warn", `No Pokemon with the rank "${args[0]}" could be found`)
+
+        const grouped = park ? rankedPokemon.reduce((parkArray, poke) => {
+            if (!parkArray[poke.parkLocation]) parkArray[poke.parkLocation] = []
+            parkArray[poke.parkLocation].push(poke.uniqueName)
+            return parkArray
+        }, []) : rankedPokemon.reduce((genArray, poke) => {
+            if (poke.dexNumber < 152) { genArray[0].push(poke.uniqueName); return genArray }
+            if (poke.dexNumber < 252) { genArray[1].push(poke.uniqueName); return genArray }
+            if (poke.dexNumber < 387) { genArray[2].push(poke.uniqueName); return genArray }
+            if (poke.dexNumber < 494) { genArray[3].push(poke.uniqueName); return genArray }
+            if (poke.dexNumber < 650) { genArray[4].push(poke.uniqueName); return genArray }
+            if (poke.dexNumber < 722) { genArray[5].push(poke.uniqueName); return genArray }
+            genArray[6].push(poke.uniqueName)
+            return genArray
+        }, [[], [], [], [], [], [], []])
+
+        const embed = new RichEmbed()
+        embed.title = park ? `${rankedPokemon[0].rank.park} Park rank Pokemon` : `${rankedPokemon[0].rank.story} Story / Art rank Pokemon`
+
+        Object.keys(grouped).forEach(key => {
+            if(grouped[key].length > 0)
+                embed.addField(`${park ? key : `Gen ${parseInt(key) + 1}`}`, grouped[key].join(", "))
+        })
+
+        return message.channel.send(embed)
     }
 }

@@ -76,18 +76,23 @@ module.exports = class DexCommand extends BaseCommand {
             return
         }
 
-        let query = args.join(" ")
-        let pokemon = await Pokemon.findClosest("uniqueName", query)
-        if (pokemon) {
-            message.client.logger.info({ key: "dex", search: query, result: pokemon.uniqueName })
-            let dex = await message.channel.send(await pokemon.dex(query))
-            dex.pokemon = pokemon
-            dex.orig_author = message.author
+        try {
+            let query = args.join(" ")
+            let pokemon = await Pokemon.findClosest("uniqueName", query)
+            if (pokemon) {
+                message.client.logger.info({ key: "dex", search: query, result: pokemon.uniqueName })
+                let dex = await message.channel.send(await pokemon.dex(query))
+                dex.pokemon = pokemon
+                dex.orig_author = message.author
 
-            return this.prompt(dex)
-        } else {
-            message.client.logger.info({ key: "dex", search: query, result: "none" })
-            return message.channel.send(`No results found for ${query}`)
+                return this.prompt(dex)
+            } else {
+                message.client.logger.info({ key: "dex", search: query, result: "none" })
+                return message.channel.sendPopup("warn", `No results found for ${query}`)
+            }
+        } catch (e) {
+            message.client.logger.parseErrpr(e, this.name)
+            return message.channel.send(`Error searching the dex: ${e.message}`)
         }
     }
 }

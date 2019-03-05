@@ -44,7 +44,7 @@ module.exports = class RefLogCommand extends BaseCommand {
             ])
         } catch (e) {
             message.channel.sendPopup("error", "Error fetching Trainers from database")
-            return message.client.logger.error({ code: e.code, stack: e.stack, key: "reflog" })
+            return message.client.logger.parseError(e, "reflog")
         }
 
         if (!winner) return message.channel.sendPopup("warn", `Could not find a URPG Trainer for ${args.get("winner")}`)
@@ -93,7 +93,7 @@ module.exports = class RefLogCommand extends BaseCommand {
                 ])
             } catch (e) {
                 message.channel.sendPopup("error", "Error updating balances in database")
-                return message.client.logger.error({ code: e.code, stack: e.stack, key: "reflog" })
+                return message.client.logger.parseError(e, "reflog")
             }
 
             embed.setTitle(`${args.get("size")}v${args.get("size")}${flags.includes("gym") ? " Gym" : ""} Battle`)

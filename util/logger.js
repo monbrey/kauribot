@@ -234,6 +234,15 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
     }
 
     /** COMMANDS **/
+    async ability(message, query, result) {
+        this.info({
+            message: "Abilities searched",
+            query: query,
+            result: result,
+            ...this.location(message),
+            key: "ability"
+        })
+    }
     async deduct(message, log) {
         this.info({
             message: "Deduction logged",
@@ -246,7 +255,7 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
-            .setFooter("Deduction logged")
+            .setFooter("deduct")
             .setDescription(`${message.member.displayName} made a deduction in [${log.channel.name}](${log.url})`)
             .setTimestamp()
 
@@ -255,6 +264,16 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         } catch (e) {
             this.parseError(e, "logger")
         }    
+    }
+
+    async item(message, query, result) {
+        this.info({
+            message: "Items searched",
+            query: query,
+            result: result,
+            ...this.location(message),
+            key: "item"
+        })
     }
 
     async judgelog(message, log) {
@@ -269,7 +288,7 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
-            .setFooter("Contest logged")
+            .setFooter("judgelog")
             .setColor("0x9b59b6")
             .setDescription(`${message.member.displayName} logged a contest in [${log.channel.name}](${log.url})`)
             .setTimestamp()
@@ -293,9 +312,8 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
-            .setFooter("Log channel set")
-            .addField("Channel", target, true)
-            .addField("Set by", message.author, true)
+            .setFooter("logs")
+            .setDescription(`${message.member.displayName} set the logging channel to ${target}`)
             .setTimestamp()
 
         try {
@@ -303,6 +321,16 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         } catch (e) {
             this.parseError(e, "logger")
         }
+    }
+
+    async move(message, query, result) {
+        this.info({
+            message: "Moves searched",
+            query: query,
+            result: result,
+            ...this.location(message),
+            key: "move"
+        })
     }
 
     async pay(message, log) {
@@ -317,7 +345,7 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
-            .setFooter("Payment logged")
+            .setFooter("pay")
             .setDescription(`${message.member.displayName} made a payment in [${log.channel.name}](${log.url})`)
             .setTimestamp()
 
@@ -331,7 +359,7 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
     async prune(message, numDeleted) {
         this.info({
             message: "Messages pruned",
-            ...this.location(message.message),
+            ...this.location(message),
             deleted: numDeleted,
             key: "prune"
         })
@@ -339,10 +367,8 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
-            .setFooter("Messages pruned")
-            .addField("Channel", message.channel, true)
-            .addField("Deleted by", message.member, true)
-            .addField("Number Deleted", numDeleted, true)
+            .setFooter("prune")
+            .setDescription(`${message.member.displayName} deleted ${numDeleted} messages from ${numDeleted === "all" ? message.channel.name : message.channel}`)
             .setTimestamp()
 
         try {
@@ -365,7 +391,7 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         if (!message.guild.logChannel) return
 
         let embed = new RichEmbed()
-            .setFooter("Battle logged")
+            .setFooter("reflog")
             .setColor("0x1f8b4c")
             .setDescription(`${message.member.displayName} logged a battle in [${log.channel.name}](${log.url})`)
             .setTimestamp()
@@ -375,6 +401,58 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         } catch (e) {
             this.parseError(e, "logger")
         }
+    }
+
+    async rank(message, query, result) {
+        this.info({
+            message: "Ranks searched",
+            query: query,
+            result: result,
+            ...this.location(message),
+            key: "rank"
+        })
+    }
+
+    async starboard(message, target, param = null) {
+        this.info({
+            message: "Starboard config updated",
+            config: param ? param : "channel",
+            param: target.id,
+            ...this.location(message),
+            key: "starboard"
+        })
+
+        if (!message.guild.logChannel) return
+
+        let embed = new RichEmbed()
+            .setFooter("starboard")
+            .setDescription(`${message.member.displayName} set the starboard-${param ? param : "channel"} to ${target}`)
+            .setTimestamp()
+
+        try {
+            return message.guild.logChannel.send(embed)
+        } catch (e) {
+            this.parseError(e, "logger")
+        }
+    }
+
+    async newStarter(message, trainer, starter) {
+        this.info({
+            message: "New trainer started",
+            ...this.location(message),
+            trainer: { id: trainer.id, username: trainer.username },
+            starter: starter.uniqueName,
+            key: "start"
+        })
+
+        if (!message.guild.logChannel) return
+
+        let embed = new RichEmbed()
+            .setFooter("start")
+            .setTimestamp()
+            .setDescription(`New trainer ${trainer.username} (${message.member} : ${message.member.id}) started with ${starter.uniqueName}`)
+
+        return message.guild.logChannel.send(embed)
     }
     /*
     async purchase(message, customer, log) {

@@ -1,7 +1,5 @@
 const BaseCommand = require("./base")
 const CommandConfig = require("../models/commandConfig")
-const LogConfig = require("../models/logConfig")
-const StarboardConfig = require("../models/starboardConfig")
 
 module.exports = class ConfigCommand extends BaseCommand {
     constructor() {
@@ -106,7 +104,7 @@ command : Get status of command
                 return message.channel.sendPopup("success", `${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} in/for ${targets.array().join(", ")}`, 0)
             } catch (e) {
                 message.client.logger.parseError(e, "config")
-                return message.channel.send(`Error updating command configuration: ${e.message}`)
+                return message.channel.send("Error updating command configuration")
             }
         } else {
             let dbConfig = await CommandConfig.getConfigForCommand(message.client, command)
@@ -118,27 +116,12 @@ command : Get status of command
                 return message.channel.send(`${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} server-wide. Any existing channel overrides will still apply.`)
             } catch (e) {
                 message.client.logger.parseError(e, "config")
-                return message.channel.send(`Error updating command configuration: ${e.message}`)
+                return message.channel.send("Error updating command configuration")
             }
         }
     }
 
     async clearConfig(message, arg) {
-        switch (arg) {
-            case "logs":
-                if (message.guild.logChannel) {
-                    await LogConfig.clearLogChannel(message.guild.id)
-                    delete message.guild.logChannel
-                    return message.channel.send("Logging channel cleared.")
-                } else return message.channel.send("Logging is not configured for this server.")
-            case "starboard":
-                if (message.guild.starChannel) {
-                    await StarboardConfig.clearStarboardChannel(message.guild.id)
-                    delete message.guild.starChannel
-                    return message.channel.send("Starboard channel cleared.")
-                } else return message.channel.send("Starboard is not configured for this server.")
-        }
-
         let command = message.client.commands.get(arg)
         if (!command) return message.channel.send(`No command matching ${message.client.prefix}${arg} found.`)
         if (command.lockConfig) return message.channel.send(`${message.client.prefix}${arg} is always enabled and is not a configurable command.`)
@@ -150,14 +133,12 @@ command : Get status of command
             command.setConfig(update)
             return message.channel.send(`${message.client.prefix}${arg} configuration has been cleared.`)
         } catch (e) {
-            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
-            return message.channel.send(`Error updating command configuration: ${e.message}`)
+            message.client.logger.parseErrpr(e, this.name)
+            return message.channel.send("Error updating command configuration")
         }
     }
 
     async run(message, args = [], flags = []) {
-        args = await this.parseArgs(message, args)
-
         // No args should just run the wizard for full config
         if (flags.length === 0)
             if (args.size === 0) return await this.runWizard(message)

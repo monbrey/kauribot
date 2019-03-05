@@ -177,29 +177,35 @@ module.exports = class UndergroundCommand extends BaseCommand {
     }
 
     async resolve(message, rolls, ug) {
-        let result = await this[ug.function](message, rolls, ug.item)
-        if (result === true) return Digs.addDig(message.trainer.id, result.id)
-        else { // Handle pending choices
-            Pending.create({
-                "message": result.id,
-                "channel": result.channel.id,
-                "item": ug,
-                "trainer": message.author.id,
-                "month": new Date(Date.now()).getMonth(),
-                "rolls": rolls
-            })
-            const embed = new RichEmbed()
-                .setTitle("Underground result pending")
-                .setDescription(`Your Underground dig item selection has timed out
+        try {
+            let result = await this[ug.function](message, rolls, ug.item)
+            if (result === true) return Digs.addDig(message.trainer.id, result.id)
+            else { // Handle pending choices
+                Pending.create({
+                    "message": result.id,
+                    "channel": result.channel.id,
+                    "item": ug,
+                    "trainer": message.author.id,
+                    "month": new Date(Date.now()).getMonth(),
+                    "rolls": rolls
+                })
+                const embed = new RichEmbed()
+                    .setTitle("Underground result pending")
+                    .setDescription(`Your Underground dig item selection has timed out
 You can resume your selection at a later time with the command below
 
 \`!ug claim ${result.url}\``)
-            try { return await message.author.send(embed) } catch (e) { return await message.channel.send(embed) }
+                try { return await message.author.send(embed) } catch (e) { return await message.channel.send(embed) }
+            }
+        } catch (e) {
+            message.client.logger.parseError(e, this.name)
+            return message.channel.sendPopup("error", "Error fetching and adding item in database")
         }
     }
 
     async run(message, args = [], flags = []) {
-        message.trainer = await Trainer.findById(message.author.id)
+        const { client: { logger } } = message
+        message.trainer = await Trainer.findById(message.author.id).catch(e => logger.parseError(e, this.name))
         if (!message.trainer) return message.channel.sendPopup("error",
             "You must have a URPG Trainer profile to run this command.")
 
@@ -208,32 +214,22 @@ You can resume your selection at a later time with the command below
         if (args[0] === "claim" && args[1]) {
             let [channel, ugMsg] = args[1].split(/\//g).slice(5)
             try {
-                if (!channel || !ugMsg) {
-                    message.channel.sendPopup("error", "Unable to parse Underground Message URL")
-                    throw new Error("Unable to parse Underground Message URL")
-                }
+                if (!channel || !ugMsg) return message.channel.sendPopup("warn", "Unable to parse Underground Message URL")
 
                 const pendingUg = await Pending.findOne({
                     "channel": channel,
                     "message": ugMsg
                 })
 
-                if (!pendingUg) {
-                    message.channel.sendPopup("warn", "No pending Underground item pickup matches that URL")
-                    throw new Error(`No pickup found for ${channel}/${ugMsg}`)
-                }
-
-                if (pendingUg.trainer !== message.author.id) {
-                    message.channel.sendPopup("warn", "That pending Underground item pickup is not yours to claim!")
-                    throw new Error("Unauthorised claim attempt")
-                }
+                if (!pendingUg) return message.channel.sendPopup("warn", "No pending Underground item pickup matches that URL")
+                if (pendingUg.trainer !== message.author.id) return message.channel.sendPopup("warn", "That pending Underground item pickup is not yours to claim!")
 
                 const rolls = pendingUg.rolls
                 const ug = pendingUg.item
                 pendingUg.remove()
                 return this.resolve(message, rolls, ug)
             } catch (e) {
-                return message.client.logger.error({ code: e.code, stack: e.stack, key: "underground" })
+                return logger.parseError(e, this.name)
             }
         }
 

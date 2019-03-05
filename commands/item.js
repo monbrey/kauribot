@@ -1,5 +1,5 @@
 const BaseCommand = require("./base")
-const Item  = require("../models/item")
+const Item = require("../models/item")
 
 module.exports = class ItemCommand extends BaseCommand {
     constructor() {
@@ -18,15 +18,20 @@ module.exports = class ItemCommand extends BaseCommand {
             // Usage
             return
         }
-        
+
         let query = args.join(" ")
-        let item = await Item.findClosest("itemName", query)
-        if (item) {
-            message.client.logger.info({ key: "ability", search: query, result: item.abilityName })
-            return message.channel.send(item.info())
-        } else {
-            message.client.logger.info({ key: "ability", search: query, result: "none" })
-            return message.channel.send(`No results found for ${query}`)
+        try {
+            let item = await Item.findClosest("itemName", query)
+            if (item) {
+                message.client.logger.item(message, query, item.itemName)
+                return message.channel.send(item.info())
+            } else {
+                message.client.logger.item(message, query, "none")
+                return message.channel.send(`No results found for ${query}`)
+            }
+        } catch (e) {
+            message.client.logger.parseError(e, "item")
+            return message.channel.sendPopup("error", "Error retrieving Item information")
         }
     }
 }

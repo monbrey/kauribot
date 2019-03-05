@@ -1,5 +1,4 @@
 const BaseCommand = require("./base")
-const config = require("../config")
 
 module.exports = class RebootCommand extends BaseCommand {
     constructor() {
@@ -14,12 +13,13 @@ module.exports = class RebootCommand extends BaseCommand {
 
     async run(message, args = [], flags = []) {
         try {
-            await message.client.destroy()
-            await message.client.login(process.env.DISCORD_TOKEN || config.discord_token)
-            
-            message.client.init()
+            const goingDown = await message.channel.sendPopup("error", "**Rebooting and reintialising now!**", 0)
+            await message.client.destroy()            
+            await message.client.init()
+            goingDown.delete()
+            message.channel.sendPopup("success", "Rebooted successfully!")
         } catch (e) {
-            message.client.logger.error({ code: e.code, stack: e.stack, key: this.name })
+            message.client.logger.parseError(e, this.name)
         }
     }
 }

@@ -13,7 +13,7 @@ module.exports = class StarboardCommand extends BaseCommand {
             syntax: "!logs #channel",
             usage: `No args : Display the current logging channel
 #channel : Send logs to #channel`,
-            enabled: false,
+            enabled: true,
             defaultConfig: true,
             lockConfig: true,
             guildOnly: true,
@@ -23,8 +23,8 @@ module.exports = class StarboardCommand extends BaseCommand {
 
     async getStarboard(message) {
         let starChannel = message.guild.channels.get(message.guild.starboard.channel)
-        if (starChannel) return message.channel.send(`The Starboard for this server is ${starChannel}.`)
-        else return message.channel.send("The Starboard is not configured for this server, or is missing.")
+        if (starChannel) return message.channel.sendPopup("info", `The Starboard for this server is ${starChannel}.`)
+        else return message.channel.sendPopup("warn", "The Starboard is not configured for this server, or is missing.")
     }
 
     async setStarboard(message, target) {
@@ -36,8 +36,10 @@ module.exports = class StarboardCommand extends BaseCommand {
                 guild: target.guild.id,
                 channel: target.id
             })
+            starboard.channel = target.id
             await starboard.save()
             message.guild.starboard = starboard
+            message.client.logger.starboard(message, target)
             return message.channel.sendPopup("success", `Starboard channel has been set to ${target}. It is recommended that you prevent other users from sending messages to this channel.`)
         } catch (e) {
             message.client.logger.parseError(e, "starboard")
@@ -49,13 +51,14 @@ module.exports = class StarboardCommand extends BaseCommand {
         if (!message.guild.starboard) return message.channel.sendPopup("warn", "This server has no Starboard")
         if (!arg) {
             if (message.guild.starboard.emoji)
-                return message.channel.sendPopup("success", `The Starboard emoji for this server is ${message.guild.starboard.emoji}.`)
-            else return message.channel.send("This setting requires an emoji to be provided")
+                return message.channel.sendPopup("info", `The Starboard emoji for this server is ${message.guild.starboard.emoji}.`)
+            else return message.channel.sendPopup("warn", "This setting requires an emoji to be provided")
         }
 
         try {
             message.guild.starboard.emoji = arg
             await message.guild.starboard.save()
+            message.client.logger.starboard(message, arg, "emoji")
             return message.channel.sendPopup("success", `Starboard emoji has been set to ${arg}`)
         } catch (e) {
             message.client.logger.parseError(e, "starboard")
@@ -64,17 +67,18 @@ module.exports = class StarboardCommand extends BaseCommand {
     }
 
     async reacts(message, arg) {
-        if (!message.guild.starboard) return message.channel.send("This server has no Starboard")
+        if (!message.guild.starboard) return message.channel.sendPopup("warn", "This server has no Starboard")
         if (!arg) {
             if (message.guild.starboard.minReacts)
-                return message.channel.sendPopup("success", `The Starboard minimum reactions for this server is ${message.guild.starboard.minReacts}.`)
-            else return message.channel.send("warn", "The Starboard is not configured for this server")
+                return message.channel.sendPopup("info", `The Starboard minimum reactions for this server is ${message.guild.starboard.minReacts}.`)
+            else return message.channel.sendPopup("warn", "The Starboard is not configured for this server")
         }
-        if(!/^[1-9][0-9]*$/.test(arg)) return message.channel.send("This setting requires a positive integer to be provided")
+        if(!/^[1-9][0-9]*$/.test(arg)) return message.channel.sendPopup("warn", "This setting requires a positive integer to be provided")
 
         try {
             message.guild.starboard.minReacts = parseInt(arg)
             await message.guild.starboard.save()
+            message.client.logger.starboard(message, arg, "reacts")
             return message.channel.sendPopup("success", `Starboard minimum reactions has been set to ${arg}`)
         } catch (e) {
             message.client.logger.parseError(e, "starboard")

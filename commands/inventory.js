@@ -7,6 +7,9 @@ module.exports = class TrainerCommand extends BaseCommand {
             name: "inventory",
             category: "Game",
             description: "View the inventory of a URPG Trainer",
+            args: {
+                "member": { type: "GuildMember" }
+            },
             usage: `
 !trainer                View your inventory
 !trainer <trainer>      View <trainer>'s inventory.
@@ -27,28 +30,34 @@ module.exports = class TrainerCommand extends BaseCommand {
     }
 
     async run(message, args = [], flags = []) {
-        let member = args.length === 0 ? message.member : (message.mentions.members.first() ? message.mentions.members.first() : null)
+        const member = args.get("member") || message.member
 
-        if (!member) member = message.guild.members.find(m => (
-            m.displayName.localeCompare(args[0], "en", {
+        if (member.constructor.name !== "GuildMember") message.guild.members.find(m => (
+            m.displayName.localeCompare(member, "en", {
                 sensitivity: "base"
             }) === 0 ||
-            m.user.username.localeCompare(args[0], "en", {
+            m.user.username.localeCompare(member, "en", {
                 sensitivity: "base"
             }) === 0
         ))
-        if (!member) return message.channel.send(`Could not find a Discord user matching ${args[0]}`)
+        if (!member) return message.channel.sendPopup("warn", `Could not find a Discord user matching ${member}`)
 
-        let trainer = await Trainer.findById(member.id)
-        if (!trainer) return message.channel.send(`Unable to find a trainer profile for ${member.displayName}`)
+        try {
+            let trainer = await Trainer.findById(member.id)
+            if (!trainer) return message.channel.send(`Unable to find a trainer profile for ${member.displayName}`)
 
-        let red = message.client.emojis.find(e => e.name === "red" && message.client.emojiServers.includes(e.guild))
-        let pokeball = message.client.emojis.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild))
+            let red = message.client.emojis.find(e => e.name === "red" && message.client.emojiServers.includes(e.guild))
+            let pokeball = message.client.emojis.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild))
 
-        let profile = await message.channel.send(await this.inventory(member, trainer))
-        await profile.react(red)
-        await profile.react(pokeball)
+            let profile = await message.channel.send(await this.inventory(member, trainer))
+            await profile.react(red)
+            await profile.react(pokeball)
 
-        return require("../util/profileLoop")(message, profile, member, trainer)
+            return require("../util/profileLoop")(message, profile, member, trainer)
+        } catch (e) { 
+            message.client.logger.parseError(e, "inventory")
+            return message.channel.sendPopup("error", "Error retrieving Trainer inventory")
+        }
+
     }
 }

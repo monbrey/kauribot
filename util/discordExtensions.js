@@ -1,9 +1,17 @@
 const { Message, TextChannel, DMChannel, RichEmbed } = require("discord.js")
 const EMBED_COLORS = {
-    "ERROR": 0xE50000,
-    "WARN": 0xFFC107,
-    "CANCEL": 0x004A7F,
-    "SUCCESS": 0x267F00
+    "error": 0xE50000,
+    "warn": 0xFFC107,
+    "cancel": 0x004A7F,
+    "success": 0x267F00,
+    "info": 0xFFFFFF
+}
+const EMBED_TIMEOUTS = {
+    "error": 0,
+    "success": 0,
+    "warn": 10000,
+    "cancel": 10000,
+    "info": 10000
 }
 
 Object.defineProperties(Message.prototype, {
@@ -106,11 +114,13 @@ Object.defineProperties(TextChannel.prototype, {
                 description = null
             }
 
-            let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
+            let embed = new RichEmbed({ color: EMBED_COLORS[type] })
                 .setDescription(description)
 
-            if (timeout === 0 || type === "error") return this.send(embed)
-            else return this.sendAndDelete(embed, timeout)
+            timeout = timeout === null ? EMBED_TIMEOUTS[type] : timeout
+            if (timeout === 0) this.send(embed)
+            else this.sendAndDelete(embed, timeout)
+            return
         }
     }
 })
@@ -142,10 +152,12 @@ Object.defineProperties(DMChannel.prototype, {
                 description = null
             }
 
-            let embed = new RichEmbed({ color: EMBED_COLORS[type.toUpperCase()] })
+            let embed = new RichEmbed({ color: EMBED_COLORS[type] })
                 .setDescription(description)
 
-            if (timeout === 0 || type === "error") return this.send(embed)
+            timeout = timeout === null ? EMBED_TIMEOUTS[type] : timeout
+
+            if (timeout === 0) return this.send(embed)
             return this.sendAndDelete(embed, timeout)
         }
     }
