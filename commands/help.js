@@ -48,10 +48,10 @@ module.exports = class HelpCommand extends BaseCommand {
                 .setDescription(stripIndent`${oneLine`Pokemon URPG's Discord game and information bot.
                 Developed by Monbrey with the help and support of the community.`}
                 
-                The source code is available on (Github)[https://github.com/Monbrey/ultra-rpg-bot]
-                Any issues or feature requests, (log an issue)[https://github.com/Monbrey/ultra-rpg-bot/issues]
+                The source code is available on [Github](https://github.com/Monbrey/ultra-rpg-bot)
+                Any issues or feature requests, [log an issue](https://github.com/Monbrey/ultra-rpg-bot/issues)
 
-                Full documentation will be written soon (TM)
+                Full documentation will be written soon™
                 
                 **Available Commands**`)
                 .setFooter("Most commands have more help available via !help [command] or !command -h")
