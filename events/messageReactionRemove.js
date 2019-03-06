@@ -48,7 +48,7 @@ module.exports = class MessageReactionRemoveEvent extends BaseEvent {
                 limit: 100
             })
 
-            fetch = fetch.filter(m => m.embeds.length > 0)
+            fetch = fetch.filter(m => m.embeds.length > 0 && m.embeds[0].footer)
             // Check if it was previously starred
             const previous = fetch.find(m => m.embeds[0].footer.text.startsWith("⭐") && m.embeds[0].footer.text.endsWith(message.id))
 
@@ -75,6 +75,6 @@ module.exports = class MessageReactionRemoveEvent extends BaseEvent {
             }
         })
 
-        return message.client.logger.messageReactionREmove(reaction, user)
+        return message.client.logger.messageReactionRemove(reaction, user)
     }
 }
