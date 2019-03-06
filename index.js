@@ -100,6 +100,16 @@ class UltraRpgBot extends Client {
             this.logger.parseError(e, "login")
         }
 
+        try {
+            // eslint-disable-next-line no-unused-vars
+            for(const [name, cmd] of this.commands)
+                cmd.config = await CommandConfig.setMissingDefaultsForCommand(this, cmd)
+
+            this.logger.info({ message: "Per-guild command defaults checked", key: "init" })
+        } catch (e) {
+            this.logger.parseError(e, "setMissingDefaults")
+        }
+
         return
     }
 }

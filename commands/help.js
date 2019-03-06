@@ -35,13 +35,13 @@ module.exports = class HelpCommand extends BaseCommand {
             })
 
             let game = commands.filter(cmd => cmd.category === "Game")
-                .map(cmd => cmd.name)
+                .map(cmd => cmd.name).sort((a,b)=>a.localeComare(b))
             let info = commands.filter(cmd => cmd.category === "Info")
-                .map(cmd => cmd.name)
+                .map(cmd => cmd.name).sort((a,b)=>a.localeComare(b))
             let admin = commands.filter(cmd => cmd.category === "Admin")
-                .map(cmd => cmd.name)
+                .map(cmd => cmd.name).sort((a,b)=>a.localeComare(b))
             let misc = commands.filter(cmd => cmd.category === "Miscellaneous")
-                .map(cmd => cmd.name)
+                .map(cmd => cmd.name).sort((a,b)=>a.localeComare(b))
 
             let embed = new RichEmbed()
                 .setTitle("Pokemon URPG Discord Bot")

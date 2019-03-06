@@ -25,25 +25,27 @@ const commandConfigSchema = new mongoose.Schema({
 commandConfigSchema.statics.getConfigForCommand = async function(client, command) {
     const configs = await this.find({}).cache(30)
 
-    let config = configs.find(cfg => cfg.commandName === command.name) ||
-        await this.create({
-            "commandName": command.name,
-            "guilds": client.guilds.reduce((array, value) => {
-                array[value.id] = command.defaultConfig
-                return array
-            }, {}),
-            "usage": [...client.guilds.map(g => { return { "guild": g.id } })]
-        })
-
-    for(let g of client.guilds.keyArray()) {
-        if(!config.guilds.has(g)) {
-            config.guilds.set(g, command.defaultConfig)
-        }
-    }   
-
-    if(config.isModified()) await config.save()
+    let config = configs.find(cfg => cfg.commandName === command.name)
 
     return config
+}
+
+commandConfigSchema.statics.setMissingDefaultsForCommand = async function(client, command) {
+    if(!command.config) {
+        command.config = await this.create({
+            "commandName": command.name
+        })
+    }
+    
+    for (let g of client.guilds.keyArray()) {
+        if (!command.config.guilds.has(g)) {
+            command.config.guilds.set(g, command.defaultConfig)
+        }
+    }
+
+    if (command.config.isModified()) await command.config.save()
+
+    return command.config
 }
 
 commandConfigSchema.methods.setGuild = async function(_guild, status) {
