@@ -71,6 +71,8 @@ const trainerSchema = new mongoose.Schema({
     }]
 })
 
+trainerSchema.plugin(require("mongoose-timestamp"))
+
 trainerSchema.virtual("balance").get(function() {
     return { cash: this.cash, contestCredit: this.contestCredit }
 })

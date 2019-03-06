@@ -7,11 +7,13 @@
         "doc": "docs"
     },
     "dependencies": {
+        "@discordjs/uws": "^10.149.0",
         "common-tags": "^1.8.0",
         "core-js": "^2.6.3",
-        "discord.js": "^11.4.2",
+        "discord.js": "github:discordjs/discord.js#11.4-dev",
         "mongoose": "^5.4.6",
         "mongoose-paginate-v2": "^1.0.18",
+        "mongoose-timestamp": "^0.6.0",
         "request-promise-native": "^1.0.5",
         "string-similarity": "^3.0.0",
         "validator": "^10.11.0",

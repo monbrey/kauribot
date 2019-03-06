@@ -66,8 +66,8 @@ module.exports = class TrainerCommand extends BaseCommand {
             let trainer = await Trainer.findById(member.id)
             if (!trainer) return message.channel.sendPopup("warn", `Unable to find a trainer profile for ${member.displayName}`)     
 
-            let pokeball = message.client.emojis.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild))
-            let backpack = message.client.emojis.find(e => e.name === "backpack" && message.client.emojiServers.includes(e.guild))
+            let pokeball = message.client.emojis.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild.id))
+            let backpack = message.client.emojis.find(e => e.name === "backpack" && message.client.emojiServers.includes(e.guild.id))
 
             let profile = await message.channel.send(await this.profile(member, trainer))
             await profile.react(pokeball)
