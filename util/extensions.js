@@ -5,6 +5,7 @@ const strsim = require("string-similarity")
 const EMBED_COLORS = {
     "error": 0xE50000,
     "warn": 0xFFC107,
+    "longwarn": 0xFFC107,
     "cancel": 0x004A7F,
     "success": 0x267F00,
     "info": 0xFFFFFF
@@ -13,6 +14,7 @@ const EMBED_TIMEOUTS = {
     "error": 0,
     "success": 0,
     "warn": 10000,
+    "longwarn": 20000,
     "cancel": 10000,
     "info": 10000
 }

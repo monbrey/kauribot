@@ -16,79 +16,22 @@ module.exports = class StartCommand extends BaseCommand {
             defaultConfig: false,
             guildOnly: true
         })
+    }
 
-        this.scripts = {
-            valid: (p) => {
-                return {
-                    "name": `You've selected ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""}!`,
-                    "value": `In URPG, we have no four-move limit, so ${p.displayName} will start with all of the moves that it can learn level up. You can see a full list of ${p.displayName}’s moves here, on its [URPG Dex page](https://pokemonurpg.com/pokemon/${p.speciesName}).`
-                }
-            },
-            valid_filtered: (p) => {
-                return {
-                    "embed": {
-                        "title": `You've selected ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""}!`,
-                        "description": `In URPG, we have no four-move limit, so ${p.displayName} will start with all of the moves that it can learn level up. You can see a full list of ${p.displayName}’s moves here, on its [URPG Dex page](https://pokemonurpg.com/pokemon/${p.speciesName}).\n\nIs this the Pokemon that you want to start with?\nClick :white_check_mark: to confirm your choice, or :x: to cancel and choose something else`,
-                        "thumbnail": {
-                            "url": `https://pokemonurpg.com/img/models/${p.dexNumber}${p.speciesName.indexOf("Alola") > 0 ? "-alola" : ""}.gif`
-                        },
-                        "footer": {
-                            "text": "Note: Some invalid starter results were filtered.\nIf this is not the starter you want, please click X and try again with the full name of the basic Pokemon."
-                        }
-                    }
-                }
-            },
-            valid_multi: (list, query) => {
-                let newList = list.map(p => p.speciesName)
-                return {
-                    "embed": {
-                        "title": "Too many results",
-                        "description": `Multiple starter Pokemon matching "${query}" were found - the list of matching Pokemon is below.\nPlease try again using the Pokemon's full name.\n\n${newList.join("\n")}`
-                    }
-                }
-            },
-            valid_multi_filtered: (list, query) => {
-                let newList = list.map(p => p.speciesName)
-                return {
-                    "embed": {
-                        "title": "Too many results",
-                        "description": `Multiple starter Pokemon matching "${query}" were found - the list of matching Pokemon is below.\nPlease try again using the Pokemon's full name.\n\n${newList.join("\n")}`,
-                        "footer": {
-                            "text": "Note: Some invalid starter results were filtered.\nIf you do not see the starter you want listed, please try again with the full name of the basic Pokemon form."
-                        }
-                    }
-                }
-            },
-            invalid: (p) => {
-                return {
-                    "embed": {
-                        "title": `Oops! ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""} is an invalid selection.`,
-                        "description": "It looks like you’ve chosen a starter that either doesn’t evolve, is already an evolved form, or is on our exception list:\n\nDratini, Larvitar, Bagon, Kabuto, Omanyte, Scyther, Lileep, Anorith, Beldum, Porygon, Gible, Shieldon, Cranidos, Munchlax, Riolu, Tirtouga, Archen, Deino, Larvesta, Amaura, Tyrunt, Goomy.\n\nRemember that the Pokemon must be able to evolve, must be the lowest form in that evolution line, and must not be on the above list to be chosen as a starter."
-                    }
-                }
-            },
-            invalid_multi: (query) => {
-                return {
-                    "embed": {
-                        "title": "No valid results found",
-                        "description": `Your request for ${query} matched multiple Pokemon, but none were eligible to be selected as a Starter Pokemon.\nPlease try again using the full name of the basic Pokemon.`
-                    }
-                }
-            },
-            no_match: (query) => {
-                return {
-                    "embed": {
-                        "title": "No results found",
-                        "description": `Your request for ${query} did not match any Pokemon.\nPlease check your spelling and try again using the full name of the basic Pokemon.`
-                    }
-                }
-            }
+    valid(p) {
+        return {
+            "name": `You've selected ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""}!`,
+            "value": `In URPG, we have no four-move limit, so ${p.displayName} will start with all of the moves that it can learn level up. You can see a full list of ${p.displayName}’s moves here, on its [URPG Dex page](https://pokemonurpg.com/pokemon/${p.speciesName}).`
         }
+    }
+
+    invalid(p) {
+        return `The starter you've chosen, ${p.displayName}${p.formName ? " (" + p.formName + ")" : ""}, either doesn’t evolve, is an evolved form, or is on our exception list:\n\nDratini, Larvitar, Bagon, Kabuto, Omanyte, Scyther, Lileep, Anorith, Beldum, Porygon, Gible, Shieldon, Cranidos, Munchlax, Riolu, Tirtouga, Archen, Deino, Larvesta, Amaura, Tyrunt, Goomy.\n\nRemember that the Pokemon must be able to evolve, must be the lowest form in that evolution line, and must not be on the above list to be chosen as a starter.`
     }
 
     async getUsername(message, sentMessage, embed) {
         try {
-            if(!embed.fields[1]) embed.addField("What name would you like your Trainer to be known as?", "\u200B")
+            if (!embed.fields[1]) embed.addField("What name would you like your Trainer to be known as?", "\u200B")
             else embed.fields[1].value = "\u200B"
             sentMessage.edit(embed)
 
@@ -106,7 +49,7 @@ module.exports = class StartCommand extends BaseCommand {
 
             let username = response.first().content
 
-            if(username.toLowerCase() === "cancel") return null
+            if (username.toLowerCase() === "cancel") return null
             response.first().delete()
 
             if (await Trainer.usernameExists(username)) {
@@ -130,7 +73,7 @@ module.exports = class StartCommand extends BaseCommand {
     async confirmUsername(message, sentMessage, embed) {
         try {
             sentMessage.clearReactions()
-            if(embed.fields.length == 3) embed.fields.splice(2)
+            if (embed.fields.length == 3) embed.fields.splice(2)
             sentMessage.edit(embed)
 
             let username = await this.getUsername(message, sentMessage, embed)
@@ -149,7 +92,7 @@ module.exports = class StartCommand extends BaseCommand {
 
     async getStarter(message, sentMessage, embed) {
         try {
-            if(!embed.fields[3]) embed.addField("What Pokemon would you like to be your partner as you begin your URPG journey?", "\u200B")
+            if (!embed.fields[3]) embed.addField("What Pokemon would you like to be your partner as you begin your URPG journey?", "\u200B")
             else embed.fields[3].value = "\u200B"
             sentMessage.edit(embed)
 
@@ -166,26 +109,26 @@ module.exports = class StartCommand extends BaseCommand {
             }
 
             let query = response.first().content
-            if(query.toLowerCase() === "cancel") return
+            if (query.toLowerCase() === "cancel") return
             response.first().delete()
 
             let exactMatch = await Pokemon.findOneExact(query)
             if (exactMatch) {
                 if (exactMatch.starterEligible) return exactMatch
                 else {
-                    message.channel.send(this.scripts.invalid(exactMatch))
+                    message.channel.sendPopup("longwarn", this.invalid(exactMatch))
                     return await this.getStarter(message, sentMessage, embed)
                 }
             }
 
             let partialMatch = await Pokemon.findPartial(query)
             if (!partialMatch || partialMatch.length == 0) {
-                message.channel.send(this.scripts.no_match(query))
+                message.channel.sendPopup("warn", `Your request for ${query} did not match any Pokemon.\nPlease check your spelling and try again using the full name of the basic Pokemon.`)
                 return await this.getStarter(message, sentMessage, embed)
             } else if (partialMatch.length == 1) {
                 if (partialMatch[0].starterEligible) return partialMatch[0]
                 else {
-                    message.channel.send(this.scripts.invalid(partialMatch[0]))
+                    message.channel.sendPopup("longwarn", this.invalid(partialMatch[0]))
                     return await this.getStarter(message, sentMessage, embed)
                 }
             } else {
@@ -193,13 +136,14 @@ module.exports = class StartCommand extends BaseCommand {
 
                 if (!validResults || validResults.length == 0) {
                     // No valid starters
-                    message.channel.send(this.scripts.invalid_multi(query))
+                    message.channel.sendPopup("warn", `Your request for ${query} matched multiple Pokemon, but none were eligible to be selected as a Starter Pokemon.\nPlease try again using the full name of the basic Pokemon.`)
                     return await this.getStarter(message, sentMessage, embed)
                 } else if (validResults.length == 1) {
                     // One valid starter
                     return validResults[0]
                 } else {
-                    message.channel.send(this.scripts.valid_multi(validResults, query))
+                    let newList = validResults.map(p => p.uniqueName)
+                    message.channel.sendPopup("warn", `Multiple starter Pokemon matching "${query}" were found - the list of matching Pokemon is below.\nPlease try again using the Pokemon's full name.\n\n${newList.join("\n")}`)
                     return await this.getStarter(message, sentMessage, embed)
                 }
             }
@@ -213,14 +157,14 @@ module.exports = class StartCommand extends BaseCommand {
     async confirmStarter(message, sentMessage, embed) {
         try {
             sentMessage.clearReactions()
-            if(embed.fields.length == 5) embed.fields.splice(4)
+            if (embed.fields.length == 5) embed.fields.splice(4)
             sentMessage.edit(embed)
 
             let starter = await this.getStarter(message, sentMessage, embed)
-            if(!starter) return
+            if (!starter) return
 
             embed.fields[3].value = starter.uniqueName
-            embed.fields.push(this.scripts.valid(starter))
+            embed.fields.push(this.valid(starter))
             embed.setThumbnail(`https://pokemonurpg.com/img/models/${starter.dexNumber}${starter.uniqueName.indexOf("Alola") > 0 ? "-alola" : ""}.gif`)
             embed.addField("Is this the Pokemon you want to start with?", "\u200B")
 
@@ -263,14 +207,16 @@ module.exports = class StartCommand extends BaseCommand {
         if (!starter) return message.channel.sendPopup("info", "Starter request cancelled.")
 
         try {
+            console.log(trainer)
             let newTrainer = await trainer.save()
+            console.log(newTrainer)
             if (newTrainer) {
                 await newTrainer.addNewPokemon(starter)
                 message.client.activeCommands.sweep(x => x.user === message.author.id && x.command === "start")
 
                 embed.fields[5].value = (`Congratulations! New Trainer ${trainer.username} and ${starter.displayName} registered.`)
                 sentMessage.edit(embed)
-            // TODO: Preferred pronoun/role handling
+                // TODO: Preferred pronoun/role handling
             }
         } catch (e) {
             message.client.logger.parseError(e, this.name)

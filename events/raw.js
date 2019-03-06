@@ -16,6 +16,8 @@ module.exports = class RawEvent extends BaseEvent {
         const channel = this.client.channels.get(data.channel_id)
         if(channel.messages.has(data.message_id)) return
 
+        this.client.logger.raw(data)
+
         // Fetch it so it will be cached
         let message = await channel.fetchMessage(data.message_id)
         let emoji = data.emoji.id ? `${data.emoji.name}:${data.emoji.id}` : data.emoji.name
@@ -31,6 +33,8 @@ module.exports = class RawEvent extends BaseEvent {
         // Check if the message is cached, we dont want to process the event twice
         const channel = this.client.channels.get(data.channel_id)
         if(channel.messages.has(data.message_id)) return
+
+        this.client.logger.raw(data)
 
         // Fetch it so it will be cached
         let message = await channel.fetchMessage(data.message_id)
@@ -49,7 +53,6 @@ module.exports = class RawEvent extends BaseEvent {
 
         if(this[eventName]) {
             this[eventName](eventData)
-            this.client.logger.raw(data)
         }
     }
 }
