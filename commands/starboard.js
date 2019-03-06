@@ -1,5 +1,5 @@
 const BaseCommand = require("./base")
-const StarboardConfig = require("../models/logConfig")
+const StarboardConfig = require("../models/starboardConfig")
 
 module.exports = class StarboardCommand extends BaseCommand {
     constructor() {
@@ -32,12 +32,7 @@ module.exports = class StarboardCommand extends BaseCommand {
             return message.channel.sendPopup("warn", `Cannot send messages to ${target} - please change the bot permissions for that channel, or select a different channel`)
 
         try {
-            let starboard = message.guild.starboard || new StarboardConfig({
-                guild: target.guild.id,
-                channel: target.id
-            })
-            starboard.channel = target.id
-            await starboard.save()
+            let starboard = await StarboardConfig.setStarboardChannel(message.guild.id, target.id)
             message.guild.starboard = starboard
             message.client.logger.starboard(message, target)
             return message.channel.sendPopup("success", `Starboard channel has been set to ${target}. It is recommended that you prevent other users from sending messages to this channel.`)
