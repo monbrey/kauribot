@@ -52,19 +52,19 @@ module.exports = class FFACommand extends BaseCommand {
             const channel = ["136222872371855360", "269634154101080065"].includes(message.channel.id)  // #ffa1, #ffa2
             const role = ["358431855743336448", "243949285438259201"].some(r => message.member.roles.has(r)) // senior-referee, referee
 
-            // if (channel && role) {
-            const pings = await Trainer.find({ ffaPing: true }).select("_id")
-            const pingList = pings.map(p => `<@${p.id}>`).join("\n")
+            if (channel && role) {
+                const pings = await Trainer.find({ ffaPing: true }).select("_id")
+                const pingList = pings.map(p => `<@${p.id}>`).join("\n")
 
-            return message.channel.send(stripIndents`**FFA Ping List called by ${message.member}**
+                return message.channel.send(stripIndents`**FFA Ping List called by ${message.member}**
                 
                 Use \`ffa -add\` to add yourself to this list
                 Use \`ffa -remove\` to be removed.
 
                 ${pingList}`)
-            // } 
-            // if(!role) return message.channel.sendPopup("warn", "The FFA list can only be pinged by referees")
-            // if(!channel) return message.channel.sendPopup("warn", "The FFA list can only be pinged in an FFA channel")
+            } 
+            if(!role) return message.channel.sendPopup("warn", "The FFA list can only be pinged by referees")
+            if(!channel) return message.channel.sendPopup("warn", "The FFA list can only be pinged in an FFA channel")
         }
     }
 }
