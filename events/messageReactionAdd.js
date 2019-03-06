@@ -71,7 +71,7 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
                 limit: 100
             })
             // Check if it was previously starred
-            fetch = fetch.filter(m => m.embeds.length > 0)
+            fetch = fetch.filter(m => m.embeds.length > 0 && m.embeds[0].footer)
             const previous = fetch.find(m => m.embeds[0].footer.text.startsWith("⭐") && m.embeds[0].footer.text.endsWith(message.id))
 
             // Regex to check how many stars the embed has.
@@ -79,7 +79,7 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
             // We use the this.extension function to see if there is anything attached to the message.
             const image = await getImage(message)
             // If the message is empty, we don't allow the user to star the message.
-            if (image === null && message.cleanContent.length < 1 && message.embed.length < 1)
+            if (image === null && message.cleanContent.length < 1 && message.embeds.length < 1)
                 return message.channel.send("You cannot star an empty message.")
 
             const embed = new RichEmbed()
