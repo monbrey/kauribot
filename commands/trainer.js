@@ -77,8 +77,8 @@ module.exports = class TrainerCommand extends BaseCommand {
             require("../util/profileLoop")(message, profile, member, trainer)
             return
         } catch (e) {
-            message.client.logger.parseError(e, "inventory")
-            return message.channel.sendPopup("error", "Error retrieving Trainer inventory")
+            message.client.logger.parseError(e, "trainer")
+            return message.channel.sendPopup("error", "Error retrieving Trainer profile")
         }
     }
 }

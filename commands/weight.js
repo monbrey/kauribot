@@ -46,6 +46,7 @@ module.exports = class WeightCommand extends BaseCommand {
 
         try {
             const query = args.join(" ")
+            // eslint-disable-next-line no-unused-vars
             const [one, two, ignore] = query.split(",").map(a => a.trim())
 
             if (one && !two) {
