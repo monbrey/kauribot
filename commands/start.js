@@ -270,13 +270,13 @@ module.exports = class StartCommand extends BaseCommand {
 
                 embed.fields[5].value = (`Congratulations! New Trainer ${trainer.username} and ${starter.displayName} registered.`)
                 sentMessage.edit(embed)
-                message.client.logger.start(message, trainer, starter)
-
             // TODO: Preferred pronoun/role handling
             }
         } catch (e) {
             message.client.logger.parseError(e, this.name)
-            return message.client.sendPopup("error", "Error saving new Trainer to the database")
+            return message.channel.sendPopup("error", "Error saving new Trainer to the database")
         }
+
+        message.client.logger.start(message, trainer, starter)
     }
 }

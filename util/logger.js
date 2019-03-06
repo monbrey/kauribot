@@ -436,7 +436,7 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
         }
     }
 
-    async newStarter(message, trainer, starter) {
+    async start(message, trainer, starter) {
         this.info({
             message: "New trainer started",
             ...this.location(message),
