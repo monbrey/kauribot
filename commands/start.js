@@ -159,15 +159,15 @@ module.exports = class StartCommand extends BaseCommand {
                 maxMatches: 1,
                 time: 30000
             })
-            if (response.size == 0) {
+            if (response.size === 0) {
                 embed.fields[4].value = `Starter selection timed out. You can start again at any time with ${message.client.prefix}start`
                 sentMessage.edit(embed)
                 return false
             }
 
             let query = response.first().content
+            if(query.toLowerCase() === "cancel") return
             response.first().delete()
-            if(response.toLowerCase() === "cancel") return
 
             let exactMatch = await Pokemon.findOneExact(query)
             if (exactMatch) {
