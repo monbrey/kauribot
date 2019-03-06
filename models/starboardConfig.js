@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-var starboardConfigSchema = new mongoose.Schema({
+const starboardConfigSchema = new mongoose.Schema({
     guild: {
         type: String,
         required: true

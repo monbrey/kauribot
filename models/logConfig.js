@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-var logConfigSchema = new mongoose.Schema({
+const logConfigSchema = new mongoose.Schema({
     guild: {
         type: String,
         required: true

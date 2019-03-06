@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-var trainerPokemonSchema = new mongoose.Schema({
+const trainerPokemonSchema = new mongoose.Schema({
     basePokemon: {
         type: Number,
         required: true,

@@ -3,7 +3,7 @@ const { RichEmbed } = require("discord.js")
 const Color = require("./color")
 const { oneLine, stripIndent } = require("common-tags")
 
-var megaSchema = new mongoose.Schema({
+const megaSchema = new mongoose.Schema({
     displayName: {
         type: String,
         required: true

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-var commandConfigSchema = new mongoose.Schema({
+const commandConfigSchema = new mongoose.Schema({
     commandName: {
         type: String,
         required: true

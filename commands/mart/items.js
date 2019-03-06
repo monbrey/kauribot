@@ -84,7 +84,7 @@ const browseCategory = async (message, category = 0, sentMessage = null, subCate
         else return items.prev ? browseCategory(message, category, sentMessage, subCategory, _page - 1) :
             browseCategory(message, category, sentMessage, subCategory - 1)
     } catch (e) {
-        message.client.logger.parseErro(e, "mart")
+        message.client.logger.parseError(e, "mart")
         return message.channel.sendPopup("error", "Error encountered while displaying Pokemart catalogue")
     }
 }

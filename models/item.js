@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const {	RichEmbed } = require("discord.js")
 
-var itemSchema = new mongoose.Schema({
+const itemSchema = new mongoose.Schema({
     itemName: {
         type: String,
         required: true

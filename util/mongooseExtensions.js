@@ -10,10 +10,10 @@ Object.defineProperties(Model, {
      * @returns {Promise<Document>}
      */
     findClosest: {
-        value: async function(field, value, query = {}) {
+        value: async function(field, value, query = {}, threshold = 0.33) {
             const allValues = (await this.find({}).select(`${field} -_id`).cache()).map(x => x[field])
             const closest = strsim.findBestMatch(value, allValues).bestMatch
-            if(closest.rating < 0.33) return null
+            if(closest.rating < threshold) return null
             query[field] = closest.target
             const closestObject = await this.findOne(query)
             closestObject.matchRating = closest.rating

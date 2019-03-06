@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const TrainerPokemon = require("./trainerPokemon")
 
-var trainerSchema = new mongoose.Schema({
+const trainerSchema = new mongoose.Schema({
     _id: {
         type: String,
         required: true

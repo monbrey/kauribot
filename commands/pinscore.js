@@ -21,7 +21,7 @@ module.exports = class PinscoreCommand extends BaseCommand {
 
         let placeholder = await message.channel.send(embed)
 
-        var score = {}
+        let score = {}
         let channels = message.mentions.channels.size > 0 ? message.mentions.channels : new Collection().set(message.channel.id, message.channel)
         let messageSets = await Promise.all(channels.map(async channel => {
             return await channel.fetchPinnedMessages()

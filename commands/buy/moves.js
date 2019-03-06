@@ -29,7 +29,7 @@ let getCart = async (pokemon, mValid) => {
             return m.learned ? `~~${m.move.moveName}~~` : (mValid.some(move => m.move.id === move.id) ? `**${m.move.moveName}**` : `${m.move.moveName}`)
         })
 
-        var remainingLearnset = learnset[method].join(", ")
+        let remainingLearnset = learnset[method].join(", ")
         let counter = 1
         let pieces = Math.ceil(remainingLearnset.length / 1024)
 

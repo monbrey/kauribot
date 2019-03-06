@@ -1,6 +1,6 @@
 const BaseCommand = require("./base")
 const { RichEmbed } = require("discord.js")
-const { stripIndent, oneLine } = require("common-tags")
+const { stripIndents, oneLine } = require("common-tags")
 
 module.exports = class HelpCommand extends BaseCommand {
     constructor() {
@@ -45,7 +45,7 @@ module.exports = class HelpCommand extends BaseCommand {
 
             let embed = new RichEmbed()
                 .setTitle("Pokemon URPG Discord Bot")
-                .setDescription(stripIndent`${oneLine`Pokemon URPG's Discord game and information bot.
+                .setDescription(stripIndents`${oneLine`Pokemon URPG's Discord game and information bot.
                 Developed by Monbrey with the help and support of the community.`}
                 
                 The source code is available on [Github](https://github.com/Monbrey/ultra-rpg-bot)
