@@ -9,9 +9,11 @@ module.exports = class FFACommand extends BaseCommand {
             category: "Game",
             description: "Add/remove yourself or ping the FFA list",
             usage: stripIndents`
-            !ffa -a/-add      Add yourself to the FFA ping list
-            !ffa -r/-remove   Remove yourself from the FFA ping list
-            !ffa -p/-ping      Ping all members on the FFA list
+            !ffa -add     Enable FFA tagging for yourself
+            !ffa -remove  Disable FFA tagging for yourself
+            !ffa -ping    Ping all members on the FFA list
+
+            The command also accepts -a/-r/-p respectively
             
             Pinging requires the 'referee' role and to be in an #ffa channel`,
             enabled: true,
@@ -22,7 +24,7 @@ module.exports = class FFACommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         if (flags.length !== 1) {
             message.channel.sendPopup("warn", `The !ffa command must be run with a single flag:
-        \`\`\`${exports.help.usage}\`\`\``)
+        \`\`\`${this.usage}\`\`\``)
             return
         }
 

@@ -127,6 +127,15 @@ module.exports = class BaseCommand {
             } else named.set(name, resolved[index])
         })
 
+        for(const key of Object.keys(this.args)) {
+            const { required } = this.args[key]
+            const arg = named.get(key)
+
+            if(required && !arg) {
+                return message.channel.sendPopup("warn", `Required parameter missing: ${key}`)
+            }
+        }
+
         let valid = true
         named.forEach((value, key) => {
             if (value.constructor.name !== this.args[key].type && this.args[key].type !== "Any" && valid) {

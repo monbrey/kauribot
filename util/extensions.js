@@ -10,14 +10,6 @@ const EMBED_COLORS = {
     "success": 0x267F00,
     "info": 0xFFFFFF
 }
-const EMBED_TIMEOUTS = {
-    "error": 0,
-    "success": 0,
-    "warn": 10000,
-    "longwarn": 20000,
-    "cancel": 10000,
-    "info": 10000
-}
 
 Object.defineProperties(Message.prototype, {
     /**
@@ -112,7 +104,7 @@ Object.defineProperties(TextChannel.prototype, {
         }
     },
     "sendPopup": {
-        value: async function(type, description = null, timeout = null) {
+        value: async function(type, description = null, timeout = 0) {
             if (!type) throw new Error("A popup type must be specified")
             if (timeout === null && typeof (description) === "number") {
                 timeout = description
@@ -122,7 +114,6 @@ Object.defineProperties(TextChannel.prototype, {
             let embed = new RichEmbed({ color: EMBED_COLORS[type] })
                 .setDescription(description)
 
-            timeout = timeout === null ? EMBED_TIMEOUTS[type] : timeout
             if (timeout === 0) this.send(embed)
             else this.sendAndDelete(embed, timeout)
             return
@@ -150,7 +141,7 @@ Object.defineProperties(DMChannel.prototype, {
         }
     },
     "sendPopup": {
-        value: async function(type, description = null, timeout = null) {
+        value: async function(type, description = null, timeout = 0) {
             if (!type) throw new Error("A popup type must be specified")
             if (timeout === null && typeof (description) === "number") {
                 timeout = description
@@ -159,8 +150,6 @@ Object.defineProperties(DMChannel.prototype, {
 
             let embed = new RichEmbed({ color: EMBED_COLORS[type] })
                 .setDescription(description)
-
-            timeout = timeout === null ? EMBED_TIMEOUTS[type] : timeout
 
             if (timeout === 0) return this.send(embed)
             return this.sendAndDelete(embed, timeout)

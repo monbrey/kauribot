@@ -101,6 +101,7 @@ command : Get status of command
                     }
                 })
                 command.setConfig(dbConfig)
+                await dbConfig.save()
                 return message.channel.sendPopup("success", `${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} in/for ${targets.array().join(", ")}`, 0)
             } catch (e) {
                 message.client.logger.parseError(e, "config")
@@ -111,8 +112,9 @@ command : Get status of command
 
             try {
                 if (!command.config.guilds.has(message.guild.id)) await dbConfig.setGuild(message.guild.id, false)
-                let update = await dbConfig.setGuild(message.guild.id, status)
-                command.setConfig(update)
+                dbConfig.guilds.set(message.guild.id, status)
+                command.setConfig(dbConfig)
+                await dbConfig.save()
                 return message.channel.send(`${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} server-wide. Any existing channel overrides will still apply.`)
             } catch (e) {
                 message.client.logger.parseError(e, "config")
