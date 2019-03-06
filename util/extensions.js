@@ -1,4 +1,7 @@
 const { Message, TextChannel, DMChannel, RichEmbed } = require("discord.js")
+const { Model } = require("mongoose")
+const strsim = require("string-similarity")
+
 const EMBED_COLORS = {
     "error": 0xE50000,
     "warn": 0xFFC107,
@@ -49,7 +52,7 @@ Object.defineProperties(Message.prototype, {
         value: async function(listenTo, back, next, timeout = 30000) {
             // If we only have the 'forward' reaction, we want to remove it and put the 'back' in first
             if (back && !this.reactions.has("⬅")) {
-                if(this.reactions.has("➡")) await this.reactions.get("➡").remove()
+                if (this.reactions.has("➡")) await this.reactions.get("➡").remove()
                 await this.react("⬅")
             }
             if (!back && this.reactions.has("⬅")) await this.reactions.get("⬅").remove()
@@ -159,6 +162,36 @@ Object.defineProperties(DMChannel.prototype, {
 
             if (timeout === 0) return this.send(embed)
             return this.sendAndDelete(embed, timeout)
+        }
+    }
+})
+
+Object.defineProperties(Model, {
+    /**
+     * Uses the string-similarity library to find the closest match to a particular field
+     * @param {String} - The field to match 
+     * @param {String} - The value to find similarity to
+     * @param {Object} - Any additional query parameters
+     * @returns {Promise<Document>}
+     */
+    findClosest: {
+        value: async function(field, value, query = {}, threshold = 0.33) {
+            const allValues = (await this.find({}).select(`${field} -_id`).cache()).map(x => x[field])
+            const closest = strsim.findBestMatch(value, allValues).bestMatch
+            if (closest.rating < threshold) return null
+            query[field] = closest.target
+            const closestObject = await this.findOne(query)
+            closestObject.matchRating = closest.rating
+            return closestObject
+        }
+    }
+})
+
+Object.defineProperties(Number.prototype, {
+    between: {
+        value: function(a, b) {
+            const min = Math.min.apply(Math, [a, b]), max = Math.max.apply(Math, [a, b])
+            return this >= min && this <= max
         }
     }
 })

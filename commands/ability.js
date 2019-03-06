@@ -33,7 +33,9 @@ module.exports = class AbilityCommand extends BaseCommand {
                 message.client.logger.ability(message, query, "none")
                 return message.channel.sendPopup("warn", `No results found for ${query}`)
             }
-        } catch (e) { message.client.logger.parseError(e, "ability") }
-
+        } catch (e) {
+            message.client.logger.parseError(e, "ability")
+            return message.channel.sendPopup("error", "Error searching the database")
+        }
     }
 }

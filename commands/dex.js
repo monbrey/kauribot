@@ -91,8 +91,8 @@ module.exports = class DexCommand extends BaseCommand {
                 return message.channel.sendPopup("warn", `No results found for ${query}`)
             }
         } catch (e) {
-            message.client.logger.parseErrpr(e, this.name)
-            return message.channel.send(`Error searching the dex: ${e.message}`)
+            message.client.logger.parseError(e, this.name)
+            return message.channel.sendPopup("erorr", "Error searching the database")
         }
     }
 }

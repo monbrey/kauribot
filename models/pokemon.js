@@ -5,7 +5,7 @@ const { oneLine, stripIndent } = require("common-tags")
 const getAsset = require("../util/getAsset")
 require("./mega")
 
-let pokemonSchema = new mongoose.Schema({
+const pokemonSchema = new mongoose.Schema({
     dexNumber: {
         type: Number,
         required: true,

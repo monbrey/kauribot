@@ -104,7 +104,7 @@ command : Get status of command
                 return message.channel.sendPopup("success", `${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} in/for ${targets.array().join(", ")}`, 0)
             } catch (e) {
                 message.client.logger.parseError(e, "config")
-                return message.channel.send("Error updating command configuration")
+                return message.channel.sendPopup("error", "Error updating command configuration")
             }
         } else {
             let dbConfig = await CommandConfig.getConfigForCommand(message.client, command)
@@ -116,7 +116,7 @@ command : Get status of command
                 return message.channel.send(`${message.client.prefix}${cmd} ${status ? "enabled" : "disabled"} server-wide. Any existing channel overrides will still apply.`)
             } catch (e) {
                 message.client.logger.parseError(e, "config")
-                return message.channel.send("Error updating command configuration")
+                return message.channel.sendPopup("error", "Error updating command configuration")
             }
         }
     }
@@ -133,8 +133,8 @@ command : Get status of command
             command.setConfig(update)
             return message.channel.send(`${message.client.prefix}${arg} configuration has been cleared.`)
         } catch (e) {
-            message.client.logger.parseErrpr(e, this.name)
-            return message.channel.send("Error updating command configuration")
+            message.client.logger.parseError(e, this.name)
+            return message.channel.sendPopup("error", "Error updating command configuration")
         }
     }
 
