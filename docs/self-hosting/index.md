@@ -1,3 +1,7 @@
+---
+nav_exclude: true
+---
+
 # urpg-discord
 
 Repository hosted by Monbrey, developed by anyone who is interested.
