@@ -454,6 +454,19 @@ ${auditLog.reason ? auditLog.reason : "No reason provided"}`)
 
         return message.guild.logChannel.send(embed)
     }
+    
+    async statusEffect(message, query, result) {
+        this.info({
+            message: "Status Effects searched",
+            query: query,
+            result: result,
+            ...this.location(message),
+            key: "move"
+        })
+    }
+
+
+
     /*
     async purchase(message, customer, log) {
         this.info({

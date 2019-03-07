@@ -1,7 +1,5 @@
 const mongoose = require("mongoose")
-const {
-    RichEmbed
-} = require("discord.js")
+const { RichEmbed } = require("discord.js")
 const Color = require("./color")
 
 let moveSchema = new mongoose.Schema({

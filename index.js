@@ -114,7 +114,10 @@ class UltraRpgBot extends Client {
     }
 }
 
-const client = new UltraRpgBot({ disableEveryone: true })
+const client = new UltraRpgBot({ 
+    disableEveryone: true,
+    disabledEvents: ["TYPING_START","VOICE_STATE_UPDATE","VOICE_SERVER_UPDATE","CHANNEL_PINS_UPDATE"]
+})
 
 client.init()
 
