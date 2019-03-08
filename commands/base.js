@@ -95,7 +95,7 @@ module.exports = class BaseCommand {
                 return message.guild.fetchMember(arg.replace(/[<@!>]/g, ""))
             if (arg.match(MessageMentions.CHANNELS_PATTERN))
                 return message.client.channels.get(arg.replace(/[<@#>]/g, ""))
-            if (arg.match(MessageMentions.CHANNELS_PATTERN))
+            if (arg.match(MessageMentions.ROLES_PATTERN))
                 return message.guild.roles.get(arg.replace(/[<@&>]/g, ""))
             return arg
         }))

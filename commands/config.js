@@ -12,22 +12,10 @@ module.exports = class ConfigCommand extends BaseCommand {
                 "targets": { type: "Collection", of: ["TextChannel", "Role"] }
             },
             syntax: "!config [command] [-switch] [#channel(s)]",
-            usage: `No args : Run config wizard
-command : Get status of command
--switch : Set server config [-enable|-disable]
-#channel(s) : Set channel config`,
             enabled: true,
             defaultConfig: true,
             lockConfig: true,
-            guildOnly: true,
-            requiresPermission: ["ADMINISTRATOR", "MANAGE_ROLES"],
-            examples: [
-                "Get command stats: !config dice",
-                "Toggle command config: !config -enable/-disable dice",
-                "Channel-specific config: !config -enable dice #channel",
-                "Clear command config: !config -clear dice",
-                "Clear configuration: !config -clear dice"
-            ]
+            guildOnly: true
         })
     }
 

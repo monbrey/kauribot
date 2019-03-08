@@ -27,16 +27,21 @@ module.exports = class EvalCommand extends BaseCommand {
             let evaled = await eval(code)
 
             if (!flags.includes("s")) {
-                if (typeof evaled !== "string")
-                    evaled = require("util").inspect(evaled)
-
-                if(evaled.length >= 2000) {
-                    const { key } = await request.post("https://hastebin.com/documents", {
-                        body: evaled,
-                        json: true
-                    })
-                    message.channel.send(`Response too long: uploaded to https://hastebin.com/${key}.js`)
-                } else message.channel.send(clean(evaled), { code: "xl" })
+                if (evaled.length >= 2000) {
+                    try {
+                        const { key } = await request.post("https://hasteb.in/documents", {
+                            body: evaled,
+                            json: true
+                        })
+                        message.channel.sendPopup("info", `Response too long: uploaded to https://hasteb.in/${key}.js`)
+                    } catch (e) {
+                        return message.channel.sendPopup("error", "Response too long, and hasteb.in appears to be down. Unable to post response")
+                    }
+                } else {
+                    if (typeof evaled !== "string")
+                        evaled = require("util").inspect(evaled)
+                    message.channel.send(clean(evaled), { code: "xl" })
+                }
             }
         } catch (e) {
             message.client.logger.parseError(e, this.name)

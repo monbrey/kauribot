@@ -31,12 +31,13 @@ commandConfigSchema.statics.getConfigForCommand = async function(client, command
 }
 
 commandConfigSchema.statics.setMissingDefaultsForCommand = async function(client, command) {
-    if(!command.config) {
+    if (!command.config) {
         command.config = await this.create({
-            "commandName": command.name
+            "commandName": command.name,
+            "roles": [{ "135865553423302657": true }]
         })
     }
-    
+
     for (let g of client.guilds.keyArray()) {
         if (!command.config.guilds.has(g)) {
             command.config.guilds.set(g, command.defaultConfig)

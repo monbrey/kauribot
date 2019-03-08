@@ -9,11 +9,16 @@ nav_order: 3
 # Administration Commands
 {: .no_toc }
 
+1. TOC
 {:toc}
 
 ## Config
 
 Allows specific commands to be enabled or disabled at the server and channel level
+
+**Default Permissions**
+
+`ADMINISTRATOR` only
 
 **Syntax**
 
