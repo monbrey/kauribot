@@ -65,19 +65,20 @@ module.exports = class BaseCommand {
     async getHelp(channel) {
         if (this.requiresOwner) return
 
+        const server = this.config.guilds.get(channel.guild.id)
+        const channels = this.config.channels
+
+        console.log(server)
+        console.log(channels)
+
         let embed = new RichEmbed()
             .setTitle(this.name)
             .setDescription(this.description)
+            .setURL(`https://monbrey.github.com/ultra-rpg-bot/commands/${this.category.toLowerCase()}#${this.name}`)
         if (this.aliases.length > 0)
             embed.addField("Aliases", `\`${this.aliases.join("` `")}\``)
         embed.addField("Syntax", `\`${this.syntax}\``)
-            .addField("Usage", `${this.usage}`)
-            .addField("Examples", `\`${this.examples.join("`\n`")}\``)
-            .addField("Available in DMs", this.guildOnly ? "No" : "Yes", true)
-        if (this.requiresPermission)
-            embed.addField("Requires Permissions", this.requiresPermission.join("\n"), true)
-        if (this.requiresRole)
-            embed.addField("Requires Roles", this.requiresRole.join("\n"), true)
+            .addField("Enabled (Server)", server)
 
         return channel.send(embed)
     }
@@ -127,11 +128,11 @@ module.exports = class BaseCommand {
             } else named.set(name, resolved[index])
         })
 
-        for(const key of Object.keys(this.args)) {
+        for (const key of Object.keys(this.args)) {
             const { required } = this.args[key]
             const arg = named.get(key)
 
-            if(required && !arg) {
+            if (required && !arg) {
                 return message.channel.sendPopup("warn", `Required parameter missing: ${key}`)
             }
         }

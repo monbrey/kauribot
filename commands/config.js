@@ -11,7 +11,7 @@ module.exports = class ConfigCommand extends BaseCommand {
                 "command": { type: "String" },
                 "targets": { type: "Collection", of: ["TextChannel", "Role"] }
             },
-            syntax: "!config [command] [-switch] [#channel(s)]",
+            syntax: "!config <Command> [-switch] [TextChannel|Role]...",
             enabled: true,
             defaultConfig: true,
             lockConfig: true,
