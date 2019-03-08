@@ -14,6 +14,6 @@ Professor Kauri has a number of a command available for playing URPG, retrieving
 
 Commands are documented in the following format: `!command <-flags> [parameter1] [parameter2]`
 
-`<>` indicates a required flag or parameter\
-`[]` indicates an optional flag or parameter\
-`...` indicates that any following parameters of the same type will be collected
+ - `<>` indicates a required flag or parameter
+ - `[]` indicates an optional flag or parameter
+ - `...` indicates that any following parameters of the same type will be collected
