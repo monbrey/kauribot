@@ -1,9 +1,10 @@
 ---
 layout: default
-title: Commands - Admin
+title: Admin
 parent: Commands
-permalink: /docs/commands/administration
+permalink: /commands/administration
 nav_order: 3
 ---
 
 # Administration Commands
+{: .no_toc }

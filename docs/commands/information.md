@@ -1,9 +1,10 @@
 ---
 layout: default
-title: Commands - Information
+title: Information
 parent: Commands
-permalink: /docs/commands/information
+permalink: /commands/information
 nav_order: 2
 ---
 
 # Information Lookup Commands
+{: .no_toc }

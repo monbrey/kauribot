@@ -1,9 +1,10 @@
 ---
 layout: default
-title: Commands - Gameplay
+title: Gameplay
 parent: Commands
-permalink: /docs/commands/gameplay
+permalink: /commands/gameplay
 nav_order: 1
 ---
 
 # Gameplay Commands
+{: .no_toc }
