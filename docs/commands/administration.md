@@ -26,10 +26,10 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 
 **Parameters**
 
-- `Command` - The name of a bot command  
-- `switch`: `[enable|disable|clear]` - If no switch is provided, the current status of the command is returned
-- `TextChannel` - Any number of TextChannel mentions. Toggles the command for use in that channel. If none are provided, server-level configuration will be set.
-- `Role` - Any number of Role mentions, or strings in the format @rolename if the role is not mentionable. Toggles authorisation for a Role to use the command at the server level.
+- `Command` - The name of a bot command
+- `switch` - `[enable|disable|clear]`. If no switch is provided, the current status of the command is returned
+- `TextChannel` - Any number of TextChannel mentions. Toggles the command for use in that channel. If none are provided, server-level configuration will be set
+- `Role` - Any number of Role mentions, or strings in the format @rolename if the role is not mentionable. Toggles authorisation for a Role to use the command at the server level
 
 **Examples**
 
@@ -41,9 +41,9 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 
 **Notes**
 
-- `Role` and `TextChannel` settings cannot be combined, eg you cannot enable one Role in a certain TextChannel, while enabling another Role in a different TextChannel.
+- `Role` and `TextChannel` settings cannot be combined, eg you cannot enable one Role in a certain TextChannel, while enabling another Role in a different TextChannel
 - Known Issue: `-clear` does not remove channel/role configuration
-- Known Issue: `Role` permissions are a work in progress. It is not recommend to add a role to commands that should be available to everyone.
+- Known Issue: `Role` permissions are a work in progress. It is not recommend to add a role to commands that should be available to everyone
 
 ## Logs
 
@@ -68,8 +68,8 @@ The Logs command gets or sets the destination channel for logging output
 
 ## Starboard
 
-The Starboard is an automated quote compilation - Discord messages that receive enough of the set reaction (default one ⭐) will be reposted in the set channel.  
-The Starboard command gets or sets the starboard settings. 
+The Starboard is an automated quote compilation - Discord messages that receive enough of the set reaction (default one ⭐) will be reposted in the set channel. 
+The Starboard command gets or sets the starboard settings
 
 **Default Permissions**
 
