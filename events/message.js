@@ -47,13 +47,13 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // If its the bot owner, run the command now without further checks
         if (message.author.id === message.client.applicationInfo.owner.id)
-        // try { return command.run(message, args, flags) } catch (e) {
-        //    message.client.logger.parseError(e, "runCommand")
-        //    return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
-        // }
+            try { return command.run(message, args, flags) } catch (e) {
+                message.client.logger.parseError(e, "runCommand")
+                return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
+            }
 
-            // Check if its an owner-only command, don't run if it is We already ran 
-            if (command.requiresOwner) return
+        // Check if its an owner-only command, don't run if it is We already ran 
+        if (command.requiresOwner) return
 
         // Check that the command is enabled in this channel/server
         const cStatus = command.getChannelStatus(message.channel), gStatus = command.getGuildStatus(message.guild)

@@ -1,5 +1,7 @@
 const BaseCommand = require("./base")
 const request = require("request-promise-native")
+// eslint-disable-next-line no-unused-vars
+const Discord = require("discord.js")
 
 const clean = text => {
     if (typeof (text) === "string")
@@ -26,6 +28,7 @@ module.exports = class EvalCommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         try {
             const code = args.join(" ")
+            console.log("Code: ", code)
             let evaled = await eval(code)
 
             if(!evaled) return message.channel.sendPopup("info", "No return value")
