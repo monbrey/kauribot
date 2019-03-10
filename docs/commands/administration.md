@@ -26,10 +26,10 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 
 **Parameters**
 
-- `Command`: The name of a bot command  
-- `switch`: [enable|disable|clear]. If no switch is provided, the current status of the command is returned
-- `TextChannel`: Any number of TextChannel mentions. Toggles the command for use in that channel. If none are provided, server-level configuration will be set.
-- `Role`: Any number of Role mentions, or strings in the format @rolename if the role is not mentionable. Toggles authorisation for a Role to use the command at the server level.
+- `Command` - The name of a bot command  
+- `switch`: `[enable|disable|clear]` - If no switch is provided, the current status of the command is returned
+- `TextChannel` - Any number of TextChannel mentions. Toggles the command for use in that channel. If none are provided, server-level configuration will be set.
+- `Role` - Any number of Role mentions, or strings in the format @rolename if the role is not mentionable. Toggles authorisation for a Role to use the command at the server level.
 
 **Examples**
 
@@ -81,7 +81,7 @@ The Starboard command gets or sets the starboard settings.
 
 **Parameters**
 
-- `setting` - [channel|emoji|reacts]. If no setting is specified, the default is `channel`
+- `setting` - `[channel|emoji|reacts]`. If no setting is specified, the default is `channel`
 - `TextChannel` - The text channel to repost quotes to if the `channel` setting is provided
 - `Number` - The number of reactions to require if the `reacts` setting is provided
 - `Emoji` - The emoji to listen for if the `emoji` setting is provided. Accepts custom emoji
