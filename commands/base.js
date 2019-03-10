@@ -60,7 +60,7 @@ module.exports = class BaseCommand {
      * @param {GuildMember} member - Discord.GuildMember
      */
     memberHasRequiredRole(member) {
-        return member.roles.some(r=>this.config.roles.get(r.id))
+        return member.roles.some(r => this.config.roles.get(r.id))
     }
 
     /**
@@ -69,10 +69,13 @@ module.exports = class BaseCommand {
     getHelp(channel) {
         if (this.requiresOwner) return
 
-        const server = this.config.guilds.get(channel.guild.id) ? "Enabled" : "Disabled"
-        const channels = new Collection(this.config.channels).filter(c => c !== server).map(c=>channel.guild.channels.get(c))
-        const roles = new Collection(this.config.roles).map(r=>channel.guild.roles.get(r))
-
+        const server = new Collection(this.config.guilds).get(channel.guild.id) ? "Enabled" : "Disabled"
+        const channels = new Collection(this.config.channels)
+            .filter((c, id) => c !== server && channel.guild.channels.has(id))
+            .map((c, id) => channel.guild.channels.get(id).name)
+        const roles = new Collection(this.config.roles)
+            .filter((r, id) => channel.guild.roles.has(id))
+            .map((r, id) => channel.guild.roles.get(id).name)
 
         let embed = new RichEmbed()
             .setTitle(this.name)
@@ -84,6 +87,7 @@ module.exports = class BaseCommand {
             .addField("Server staus", server, true)
             .addField("Channel overrides", channels.join("\n") || "None", true)
             .addField("Role restrictions", roles.join("\n") || "None", true)
+            .setFooter("Click the title to go to the full documentation")
 
         return channel.send(embed)
     }

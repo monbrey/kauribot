@@ -27,7 +27,7 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 **Parameters**
 
 - `Command`: The name of a bot command  
-- `switch`: [enable | disable | clear]. If no switch is provided, the current status of the command is returned
+- `switch`: [enable|disable|clear]. If no switch is provided, the current status of the command is returned
 - `TextChannel`: Any number of TextChannel mentions. Toggles the command for use in that channel. If none are provided, server-level configuration will be set.
 - `Role`: Any number of Role mentions, or strings in the format @rolename if the role is not mentionable. Toggles authorisation for a Role to use the command at the server level.
 
@@ -47,7 +47,7 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 
 ## Logs
 
-The logs command gets or sets the logging output destination channel
+The Logs command gets or sets the destination channel for logging output
 
 **Default Permissions**
 
@@ -68,8 +68,8 @@ The logs command gets or sets the logging output destination channel
 
 ## Starboard
 
-The starboard is an automated quite compilation - Discord messages that receive enough of the set reaction (default one ⭐) will be reposted in the set channel.
-The starboard command gets or sets the starboard settings. 
+The Starboard is an automated quote compilation - Discord messages that receive enough of the set reaction (default one ⭐) will be reposted in the set channel.  
+The Starboard command gets or sets the starboard settings. 
 
 **Default Permissions**
 
@@ -81,14 +81,15 @@ The starboard command gets or sets the starboard settings.
 
 **Parameters**
 
-- `setting` - [channel | emoji | reacts]. If no setting is specified, the default is `channel`
+- `setting` - [channel|emoji|reacts]. If no setting is specified, the default is `channel`
 - `TextChannel` - The text channel to repost quotes to if the `channel` setting is provided
 - `Number` - The number of reactions to require if the `reacts` setting is provided
 - `Emoji` - The emoji to listen for if the `emoji` setting is provided. Accepts custom emoji
+- If no TextChannel/Number/Emoji is provided with their corresponding setting flag, the current setting will be shown
 
 **Examples**
 
-- `!starboard` - Show the current starboard channel
-- `!starboard -channel #starboard` - Set the starboard channel to #starboard
+- `!starboard` - Show the current Starboard channel
+- `!starboard -channel #starboard` - Set the Starboard channel to #starboard
 - `!starboard -reacts 3` - Require a minimum of three reactions
 - `!starboard -emoji ⭐` - Set the emoji to ⭐

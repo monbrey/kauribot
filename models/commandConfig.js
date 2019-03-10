@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose")
-const { Collection } = require("discord.js")
 
 const commandConfigSchema = new Schema({
     commandName: {
@@ -44,12 +43,6 @@ commandConfigSchema.statics.setMissingDefaultsForCommand = async function(client
     }
 
     return command.config
-}
-
-commandConfigSchema.methods.collectionify = function() {
-    if(this.guilds) this.guilds = new Collection(this.guilds)
-    if(this.channels) this.channels = new Collection(this.channels)
-    if(this.roles) this.roles = new Collection(this.roles)
 }
 
 commandConfigSchema.methods.setGuild = async function(_guild, status) {
