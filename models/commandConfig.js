@@ -1,6 +1,7 @@
-const mongoose = require("mongoose")
+const { Schema, model } = require("mongoose")
+const { Collection } = require("discord.js")
 
-const commandConfigSchema = new mongoose.Schema({
+const commandConfigSchema = new Schema({
     commandName: {
         type: String,
         required: true
@@ -17,36 +18,38 @@ const commandConfigSchema = new mongoose.Schema({
     },
     roles: {
         type: Map,
-        of: "Boolean",
+        of: Boolean,
         default: {}
     }
 })
-
-commandConfigSchema.statics.getConfigForCommand = async function(client, command) {
-    const configs = await this.find({}).cache(30)
-
-    let config = configs.find(cfg => cfg.commandName === command.name)
-
-    return config
-}
 
 commandConfigSchema.statics.setMissingDefaultsForCommand = async function(client, command) {
     if (!command.config) {
         command.config = await this.create({
             "commandName": command.name,
-            "roles": [{ "135865553423302657": true }]
+            "guilds": new Map(),
+            "channels": new Map(),
+            "roles": command.defaultConfig.roles ? new Map(command.defaultConfig.roles.map(r => [r, true])) : new Map()
         })
     }
 
     for (let g of client.guilds.keyArray()) {
         if (!command.config.guilds.has(g)) {
-            command.config.guilds.set(g, command.defaultConfig)
+            command.config.guilds.set(g, command.defaultConfig.guild)
         }
     }
 
-    if (command.config.isModified()) await command.config.save()
+    if (command.config.isModified()) {
+        await command.config.save()
+    }
 
     return command.config
+}
+
+commandConfigSchema.methods.collectionify = function() {
+    if(this.guilds) this.guilds = new Collection(this.guilds)
+    if(this.channels) this.channels = new Collection(this.channels)
+    if(this.roles) this.roles = new Collection(this.roles)
 }
 
 commandConfigSchema.methods.setGuild = async function(_guild, status) {
@@ -68,4 +71,4 @@ commandConfigSchema.methods.updateCount = async function(_guild) {
     this.save()
 }
 
-module.exports = mongoose.model("CommandConfig", commandConfigSchema)
+module.exports = model("CommandConfig", commandConfigSchema)

@@ -1,5 +1,4 @@
 const BaseEvent = require("./base")
-const { oneLineCommaListsAnd } = require("common-tags")
 const { SnowflakeUtil } = require("discord.js")
 const CommandStats = require("../models/commandStats")
 
@@ -48,61 +47,41 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // If its the bot owner, run the command now without further checks
         if (message.author.id === message.client.applicationInfo.owner.id)
-            try { return command.run(message, args, flags) } catch (e) {
-                message.client.logger.parseError(e, "runCommand")
-                return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
-            }
+        // try { return command.run(message, args, flags) } catch (e) {
+        //    message.client.logger.parseError(e, "runCommand")
+        //    return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
+        // }
 
-        // Check if its an owner-only command, don't run if it is We already ran 
-        if (command.requiresOwner) return
+            // Check if its an owner-only command, don't run if it is We already ran 
+            if (command.requiresOwner) return
 
         // Check that the command is enabled in this channel/server
-        if (command.config.channels.get(message.channel.id) === undefined) {
-            if (command.config.guilds.get(message.guild.id) === undefined)
+        const cStatus = command.getChannelStatus(message.channel), gStatus = command.getGuildStatus(message.guild)
+
+        if (cStatus === undefined) {
+            if (gStatus === undefined)
                 return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has not been configured for use in this server`)
-            if (!command.config.guilds.get(message.guild.id))
+            if (!gStatus)
                 return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has been disabled on this server`)
-        } else if (!command.config.channels.get(message.channel.id))
+        } else if (!cStatus)
             return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has been disabled in this channel`)
 
-        // If we reach this point, it should be enabled
-
         // Check if a guild-only command is being run in DM
-        if (command.guildOnly && message.channel.type == "dm") return
+        if (command.guildOnly && message.channel.type == "dm")
+            return message.channel.send("warn", `${message.client.prefix}${command.name} is not available is DMs`)
 
         // Check if the command requires Discord permissions
-        let permissions, roles
+        if (command.requiresRole()) {
+            if (!command.memberHasRequiredRole(message.member))
+                return message.channel.send("warn", `None of your Roles has permissions to run ${message.client.prefix}${command.name}`)
+        }
         try {
-            permissions = command.requiresPermission ?
-                command.requiresPermission.some(perm =>
-                    message.channel.memberPermissions(message.member).has(perm, true)
-                ) : true
+            return command.run(message, args, flags)
         } catch (e) {
-            message.client.logger.parseError(e, "dterminePermissions")
-            return message.channel.sendPopup("error", "Unhandled exception thrown while calculating Discord permissions")
+            message.client.logger.parseError(e, "runCommand")
+            return message.channel.sendPopup("error", `Error encountered while running the command: ${e.message}`)
         }
 
-        // Or particular Discord roles
-        try {
-            roles = command.requiresRole ?
-                message.member.roles.some(role => command.requiresRole.includes(role.name)) :
-                true
-        } catch (e) {
-            message.client.logger.parseError(e, "detrmineRoles")
-            return message.channel.sendPopup("error", "Unhandled exception thrown while calculating Role permissions")
-        }
-
-        if (permissions && roles)
-            try {
-                return command.run(message, args, flags)
-            } catch (e) {
-                message.client.logger.parseError(e, "runCommand")
-                return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
-            }
-        if (!permissions)
-            return message.channel.sendPopup("warn", "You don't have the required server/channel permissions to use this command.")
-        if (!roles)
-            return message.channel.sendPopup("warn", oneLineCommaListsAnd`This command can only be used by ${command.requiresRole}`)
     }
 
     async run(message) {

@@ -9,8 +9,7 @@ module.exports = class PinscoreCommand extends BaseCommand {
             name: "pinscore",
             description: "Tally a scoreboard for pinned messages",
             enabled: false,
-            defaultConfig: false,
-            requiresOwner: true
+            defaultConfig: { "guild": false }
         })
     }
 
@@ -36,13 +35,13 @@ module.exports = class PinscoreCommand extends BaseCommand {
         let newScore = Object
             .entries(score)
             .sort()
-            .reduce((_sortedObj, [k,v]) => ({
-                ..._sortedObj, 
+            .reduce((_sortedObj, [k, v]) => ({
+                ..._sortedObj,
                 [k]: v
             }), {})
 
         let scoreString = JSON.stringify(newScore, null, 2)
         embed.setDescription(scoreString.substring(1, scoreString.length - 1))
-        placeholder.edit({"embed": embed})
+        placeholder.edit({ "embed": embed })
     }
 }

@@ -8,16 +8,13 @@ module.exports = class FFACommand extends BaseCommand {
             name: "ffa",
             category: "Game",
             description: "Add/remove yourself or ping the FFA list",
-            usage: stripIndents`
-            !ffa -add     Enable FFA tagging for yourself
-            !ffa -remove  Disable FFA tagging for yourself
-            !ffa -ping    Ping all members on the FFA list
-
-            The command also accepts -a/-r/-p respectively
-            
-            Pinging requires the 'referee' role and to be in an #ffa channel`,
+            syntax: "!ffa <-a|-r|-p>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true },
+            lockConfig: {
+                "global": true
+            },
+            guildOnly: true
         })
     }
 

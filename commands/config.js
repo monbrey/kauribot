@@ -13,8 +13,13 @@ module.exports = class ConfigCommand extends BaseCommand {
             },
             syntax: "!config <Command> [-switch] [TextChannel|Role]...",
             enabled: true,
-            defaultConfig: true,
-            lockConfig: true,
+            defaultConfig: {
+                "guild": true,
+                "roles": ["135865553423302657"]
+            },
+            lockedConfig: {
+                "guild": true
+            },
             guildOnly: true
         })
     }

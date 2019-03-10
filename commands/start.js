@@ -11,9 +11,9 @@ module.exports = class StartCommand extends BaseCommand {
             category: "Game",
             description: "Start playing URPG!",
             details: "Your entry point into the world of URPG! Follow the prompts to select your starter Pokemon!",
-            usage: "!start",
+            syntax: "!start",
             enabled: true,
-            defaultConfig: false,
+            defaultConfig: { "guild": false },
             guildOnly: true
         })
     }

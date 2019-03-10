@@ -15,11 +15,13 @@ module.exports = class RefLogCommand extends BaseCommand {
                 "log": { type: "String" }
             },
             description: "Logs a battle and awards cash to Battlers and Referee",
-            usage: "!reflog <@winner> <@loser> <size> [-gym] <description/logURL>",
+            syntax: "!reflog <@winner> <@loser> <size> [-gym] <description/logURL>",
             enabled: true,
-            defaultConfig: false,
+            defaultConfig: {
+                "guild": false,
+                "roles": ["135865553423302657"]
+            },
             guildOnly: true,
-            requiresRole: ["referee", "senior-referee"]
         })
     }
 

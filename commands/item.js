@@ -7,9 +7,9 @@ module.exports = class ItemCommand extends BaseCommand {
             name: "item",
             category: "Info",
             description: "Provides Item information",
-            usage: "!item <Item>",
+            syntax: "!item <Item>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true }
         })
     }
 

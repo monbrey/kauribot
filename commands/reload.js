@@ -7,7 +7,8 @@ module.exports = class ReloadCommand extends BaseCommand {
             name: "reload",
             description: "Reloads the provides command or event handler",
             enabled: true,
-            defaultConfig: false,
+            defaultConfig: { "guild": false },
+            lockedConfig: { "global": true },
             requiresOwner: true
         })
     }

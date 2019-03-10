@@ -8,9 +8,9 @@ module.exports = class EotCommand extends BaseCommand {
             name: "eot",
             category: "Info",
             description: "Provides End-of-Turn effect information from the Refpedia",
-            usage: "!eot",
+            syntax: "!eot <effect>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true }
         })
     }
 

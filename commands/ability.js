@@ -7,14 +7,9 @@ module.exports = class AbilityCommand extends BaseCommand {
             name: "ability",
             category: "Info",
             description: "Provides information on Pokemon Abilities",
-            usage: "!ability <Ability>",
+            syntax: "!ability <ability>",
             enabled: true,
-            defaultConfig: true,
-            examples: [
-                "!ability Overgrow",
-                "!ability Blaze",
-                "!ability Torrent"
-            ]
+            defaultConfig: { "guild": true }
         })
     }
 

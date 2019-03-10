@@ -13,18 +13,13 @@ module.exports = class PayCommand extends BaseCommand {
                 "amount": { type: "String" },
                 "reason": { type: "String" }
             },
-            usage: "!pay <@User> <amount> [reason]",
+            syntax: "!pay <@User> <amount> [reason]",
             enabled: true,
-            defaultConfig: false,
-            requiresRole: ["moderator", "official", "chief-judge",
-                "elder-arbiter", "elite-ranger", "expert-curator",
-                "lead-grader", "senior-referee"
-            ],
-            examples: [
-                "!pay @User $10000 Grader Wages",
-                "!pay @User 5000CC Contest bonus event",
-                "Default currency is Cash if none specified"
-            ]
+            defaultConfig: {
+                "guild": false,
+                "roles": ["135865553423302657"]
+            },
+            guildOnly: true
         })
     }
 

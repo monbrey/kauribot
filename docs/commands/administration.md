@@ -24,7 +24,7 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 
 `!config <Command> [-switch] [TextChannel|Role]...`
 
-**Usage**
+**Parameters**
 
 - `Command`: The name of a bot command  
 - `switch`: [enable | disable | clear]. If no switch is provided, the current status of the command is returned
@@ -33,11 +33,62 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 
 **Examples**
 
-`!config -disable mart` - Disable the `mart` command at the server level  
-`!config -enable mart #questions-approvals` - Enable the `mart` command in #questions-approvals only  
-`!config -clear mart` - Reset the configuration for `mart` to the defaults
+- `!config mart` - Show the current configuration of the `mart` command
+- `!config -disable mart` - Disable the `mart` command at the server level  
+- `!config -enable mart #questions-approvals` - Enable the `mart` command in #questions-approvals only
+- `!config -enable pay @official` - Allow officials to use the `pay` command
+- `!config -clear mart` - Reset the configuration for `mart` to the defaults
 
 **Notes**
 
 - `Role` and `TextChannel` settings cannot be combined, eg you cannot enable one Role in a certain TextChannel, while enabling another Role in a different TextChannel.
 - Known Issue: `-clear` does not remove channel/role configuration
+- Known Issue: `Role` permissions are a work in progress. It is not recommend to add a role to commands that should be available to everyone.
+
+## Logs
+
+The logs command gets or sets the logging output destination channel
+
+**Default Permissions**
+
+`@moderator` only
+
+**Syntax**
+
+`!logs [TextChannel]`
+
+**Parameters**
+
+- `TextChannel` - The text channel to output logs to
+
+**Examples**
+
+- `!logs` - Show the current logging channel
+- `!logs #bot-logs` - Set the logging channel to #bot-logs
+
+## Starboard
+
+The starboard is an automated quite compilation - Discord messages that receive enough of the set reaction (default one ⭐) will be reposted in the set channel.
+The starboard command gets or sets the starboard settings. 
+
+**Default Permissions**
+
+`@moderator` only
+
+**Syntax**
+
+`!starboard [-setting] [TextChannel|Number|Emoji]`
+
+**Parameters**
+
+- `setting` - [channel | emoji | reacts]. If no setting is specified, the default is `channel`
+- `TextChannel` - The text channel to repost quotes to if the `channel` setting is provided
+- `Number` - The number of reactions to require if the `reacts` setting is provided
+- `Emoji` - The emoji to listen for if the `emoji` setting is provided. Accepts custom emoji
+
+**Examples**
+
+- `!starboard` - Show the current starboard channel
+- `!starboard -channel #starboard` - Set the starboard channel to #starboard
+- `!starboard -reacts 3` - Require a minimum of three reactions
+- `!starboard -emoji ⭐` - Set the emoji to ⭐

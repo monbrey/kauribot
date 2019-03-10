@@ -8,9 +8,9 @@ module.exports = class MoveCommand extends BaseCommand {
             name: "move",
             category: "Info",
             description: "Provides Move information",
-            usage: "!move <Move>",
+            syntax: "!move <move>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true }
         })
     }
 

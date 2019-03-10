@@ -9,10 +9,9 @@ module.exports = class StatusEffectCommand extends BaseCommand {
             aliases: ["se"],
             category: "Info",
             description: "Provides Status Effect information",
-            usage: `!statuseffect <Status>
-!se <Status>`,
+            syntax: "!statuseffect <Status>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true }
         })
     }
 

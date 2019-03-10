@@ -10,12 +10,9 @@ module.exports = class TrainerCommand extends BaseCommand {
             args: {
                 "member": { type: "GuildMember" }
             },
-            usage: `
-!trainer                View your inventory
-!trainer <trainer>      View <trainer>'s inventory.
-                        Accepts mentions, nicknames and usernames`,
+            syntax: "!trainer [Trainer]",
             enabled: true,
-            defaultConfig: false
+            defaultConfig: { "guild": false }
         })
     }
 

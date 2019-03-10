@@ -10,14 +10,14 @@ module.exports = class StarboardCommand extends BaseCommand {
             args: {
                 "arg": { type: "Any" },
             },
-            syntax: "!logs #channel",
-            usage: `No args : Display the current logging channel
-#channel : Send logs to #channel`,
+            syntax: "!starboard [-param] [TextChannel]",
             enabled: true,
-            defaultConfig: true,
-            lockConfig: true,
+            defaultConfig: {
+                "guild": true,
+                "roles": ["135865553423302657"]
+            },
+            lockConfig: { "guild": true },
             guildOnly: true,
-            requiresPermission: ["ADMINISTRATOR", "MANAGE_ROLES"]
         })
     }
 

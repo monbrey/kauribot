@@ -6,7 +6,8 @@ module.exports = class RebootCommand extends BaseCommand {
             name: "reboot",
             description: "Forces the bot to logout and reinitialise",
             enabled: true,
-            defaultConfig: false,
+            defaultConfig: { "guild": false },
+            lockedConfig: { "global": true },
             requiresOwner: true
         })
     }

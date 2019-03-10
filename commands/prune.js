@@ -8,9 +8,12 @@ module.exports = class PruneCommand extends BaseCommand {
             description: "Bulk deletes messages from the channel",
             usage: "!prune [number]",
             enabled: true,
-            defaultConfig: false,
-            guildOnly: true,
-            requiresPermission: ["MANAGE_MESSAGES","MANAGE_CHANNELS"]})
+            defaultConfig: { 
+                "guild": false,
+                "roles": ["135865553423302657"]
+            },
+            guildOnly: true
+        })
     }
 
     async run(message, args = [], flags = []) {

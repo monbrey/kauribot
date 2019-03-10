@@ -14,11 +14,9 @@ module.exports = class UndergroundCommand extends BaseCommand {
             aliases: ["ug"],
             category: "Game",
             description: "URPG's item lottery - explore the Underground for a chance at rare and valuables items!",
-            usage: stripIndent`
-            !ug          Explore the Underground! ($2,500)
-            !ug list     Show all Underground rewards`,
+            syntax: "!ug [-list] [claimURL]",
             enabled: true,
-            defaultConfig: false,
+            defaultConfig: { "guild": false },
         })
     }
 

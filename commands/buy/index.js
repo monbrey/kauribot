@@ -13,10 +13,14 @@ module.exports = class BuyCommand extends BaseCommand {
             name: "buy",
             category: "Game",
             description: "Make a purchase from the URPG Pokemart or Berry Store",
-            usage: `
-!buy <item>                 Purchase <item> and have the cost deducted from your account`,
+            args: {
+                "itemType": { type: "String" },
+                "items": { type: "Array", of: "String" }
+            },
+            syntax: "!buy <type> [Pokemon...|Item...]|<Roster #>",
             enabled: true,
-            defaultConfig: false
+            defaultConfig: { "guild": false },
+            guildOnly: true
         })
     }
 
@@ -32,7 +36,7 @@ Moves:    Unlocked per-Pokemon, see below${tb}`)
             .addField("Purchases", `${tb}
 Pokemon:  !buy pokemon [<Pokemon>, <Pokemon>...]
 Items:    !buy items [<Item>, <Item>...]
-Moves:    !buy moves <roster-index>${tb}`)
+Moves:    !buy moves <Roster #>${tb}`)
 
         return message.channel.send(embed)
     }
@@ -41,7 +45,7 @@ Moves:    !buy moves <roster-index>${tb}`)
     async run(message, args = [], flags = []) {
         message.trainer = await Trainer.findById(message.author.id)
 
-        if(!args[0]) return this.welcome(message)
+        if (!args[0]) return this.welcome(message)
 
         switch (args[0].toLowerCase()) {
             case "pokemon":
@@ -65,7 +69,7 @@ Moves:    !buy moves <roster-index>${tb}`)
                     else return BuyAbility(message)
                 }
                 return message.channel.send("No index provided (name lookup coming later)")
-            case "items": 
+            case "items":
                 return BuyItem(message)
             default:
                 return this.welcome(message)

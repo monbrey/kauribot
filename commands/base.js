@@ -11,65 +11,68 @@ module.exports = class BaseCommand {
      * @param {Array}           [options.aliases=[]] - Aliases which can also be used to call the command
      * @param {String}          [options.description=""] - Description of the command for !help
      * @param {String}          [options.syntax=""] - Command format guide
-     * @param {String}          [options.usage=""] - Detailed syntax breakdown
-     * @param {Boolean}         [options.enabled=false] - Enable the command in the bot
-     * @param {Boolean}         [options.defaultConfig=false] - Default enabled state for a guild
-     * @param {Boolean}         [options.lockConfig=false] - If the default state can be changed
+     * @param {Boolean}         [options.enabled=false] - If the command is enabled for use at the bot level
+     * @param {Boolean}         [options.defaultConfig={ enabled: false }] - Command configuration defaults
+     * @param {Boolean}         [options.lockedConfig={}] - Default configs which cannot be changed
      * @param {Boolean}         [options.guildOnly=false] - If the command can only be run in server (no DM)
-     * @param {Boolean|Array}   [options.requiresPermission=false] - Discord permissions required to run the command
-     * @param {Boolean|Array}   [options.requiresRole=false] - Any server role which can run the command
      * @param {Boolean}         [options.requiresOwner=false] - Restrict this command to the bot owner
      */
     constructor(options = {}) {
         this.name = options.name || "base"
         this.category = options.category || null
+        this.description = options.description || "No description provided"
         this.args = options.args || null
         this.aliases = options.aliases || []
-        this.description = options.description || "No description provided"
         this.syntax = options.syntax || "No syntax specified"
-        this.usage = options.usage || "No usage specified"
-        this.examples = options.examples || ["None available"]
         this.enabled = options.enabled || false
-        this.defaultConfig = options.defaultConfig || false
+        this.defaultConfig = options.defaultConfig || { enabled: false }
+        this.lockedConfig = options.locked || {}
         this.guildOnly = options.guildOnly || false
-        this.override = options.override || false,
-        this.requiresPermission = options.requiresPermission || false
-        this.requiresRole = options.requiresRole || false
         this.requiresOwner = options.requiresOwner || false
     }
 
     /**
      * @param {CommandConfig} config - A CommandConfig Mongoose document
      */
-    async setConfig(config) {
+    setConfig(config) {
         this.config = config
     }
 
     /**
-     * @param {String} guild - Discord Guild ID
+     * @param {Guild} guild - Discord.Guild
      */
-    async isEnabledInGuild(guild) {
-        return this.config.guilds.includes(guild)
+    getGuildStatus(guild) {
+        return this.config.guilds.get(guild.id)
     }
 
     /**
-     * @param {String} channel - Discord Channel ID
+     * @param {TextChannel} channel - Discord.TextChannel
      */
-    async isEnabledInChannel(channel) {
-        return this.config.channel.includes(channel)
+    getChannelStatus(channel) {
+        return this.config.channels.get(channel.id)
+    }
+
+    requiresRole() {
+        return this.config.roles.size
     }
 
     /**
-     * @param {Channel} channel - A Discord Channel object
+     * @param {GuildMember} member - Discord.GuildMember
      */
-    async getHelp(channel) {
+    memberHasRequiredRole(member) {
+        return member.roles.some(r=>this.config.roles.get(r.id))
+    }
+
+    /**
+     * @param {Channel} channel - Discord.TextChannel
+     */
+    getHelp(channel) {
         if (this.requiresOwner) return
 
-        const server = this.config.guilds.get(channel.guild.id)
-        const channels = this.config.channels
+        const server = this.config.guilds.get(channel.guild.id) ? "Enabled" : "Disabled"
+        const channels = new Collection(this.config.channels).filter(c => c !== server).map(c=>channel.guild.channels.get(c))
+        const roles = new Collection(this.config.roles).map(r=>channel.guild.roles.get(r))
 
-        console.log(server)
-        console.log(channels)
 
         let embed = new RichEmbed()
             .setTitle(this.name)
@@ -78,7 +81,9 @@ module.exports = class BaseCommand {
         if (this.aliases.length > 0)
             embed.addField("Aliases", `\`${this.aliases.join("` `")}\``)
         embed.addField("Syntax", `\`${this.syntax}\``)
-            .addField("Enabled (Server)", server)
+            .addField("Server staus", server, true)
+            .addField("Channel overrides", channels.join("\n") || "None", true)
+            .addField("Role restrictions", roles.join("\n") || "None", true)
 
         return channel.send(embed)
     }

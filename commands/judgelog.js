@@ -19,8 +19,11 @@ module.exports = class JudgeLogCommand extends BaseCommand {
             description: "Logs a contest and awards cash and content credits to Coordinators and Judge",
             usage: "!judgelog @first @second @third @fourth <rank> [-tieMod] <logURL>",
             enabled: true,
-            defaultConfig: false,
-            requiresRole: ["judge", "chief-judge"]
+            defaultConfig: { 
+                "guild": false,
+                "roles": ["135865553423302657"]
+            },
+            guildOnly: true
         })
     }
 

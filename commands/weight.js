@@ -8,10 +8,9 @@ module.exports = class WeightCommand extends BaseCommand {
             name: "weight",
             category: "Info",
             description: "Provides information on weight-based moves for a specific Pokemon, or interaction between two Pokemon",
-            usage: `!weight <Pokemon>
-!weight <User> <Target>`,
+            syntax: "!weight <Pokemon> [Target]",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true }
         })
     }
 

@@ -13,17 +13,13 @@ module.exports = class DeductCommand extends BaseCommand {
                 "amount": { type: "String" },
                 "reason": { type: "String" }
             },
-            usage: "!deduct @User <amount> [reason]",
+            syntax: "!deduct @User <amount> [reason]",
             enabled: true,
-            defaultConfig: false,
-            requiresRole: ["moderator", "official", "chief-judge",
-                "elder-arbiter", "elite-ranger", "expert-curator",
-                "lead-grader", "senior-referee"
-            ],
-            examples: [
-                "!deduct @User 10000 Overpaid by mistake",
-                "!deduct @User 1000CC Error in Contest log"
-            ]
+            defaultConfig: {
+                "guild": false,
+                "roles": ["135865553423302657"]
+            },
+            guildOnly: true
         })
     }
 

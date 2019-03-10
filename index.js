@@ -33,16 +33,18 @@ class UltraRpgBot extends Client {
         })
     }
 
-    async loadCommand(cmdFile) {
+    async loadCommand(cmdFile, configs) {
         const _command = require(path.join(__dirname, `commands/${cmdFile}`))
         let command = new _command()
+
         // Check if the command is enabled globally
         if (!command.enabled) return
 
-        command.config = await CommandConfig.getConfigForCommand(this, command)
+        command.config = configs.find(cfg => cfg.commandName === command.name)
 
-        if (command.init)
+        if (command.init) {
             await command.init(this)
+        }
 
         this.commands.set(command.name, command)
         if (command.aliases) {
@@ -80,7 +82,9 @@ class UltraRpgBot extends Client {
         let events = await readdir(path.join(__dirname, "events"))
 
         try {
-            await Promise.all(cmds.map(c => this.loadCommand(c)))
+            const configs = await CommandConfig.find({}).cache(30)
+
+            await Promise.all(cmds.map(c => this.loadCommand(c, configs)))
             this.logger.info({ message: "Command loading complete", key: "init" })
         } catch (e) {
             this.logger.parseError(e, "loadCommand")
@@ -102,8 +106,10 @@ class UltraRpgBot extends Client {
 
         try {
             // eslint-disable-next-line no-unused-vars
-            for(const [name, cmd] of this.commands)
+            for(const [name, cmd] of this.commands) {
                 cmd.config = await CommandConfig.setMissingDefaultsForCommand(this, cmd)
+                cmd.config.collectionify()
+            }
 
             this.logger.info({ message: "Per-guild command defaults checked", key: "init" })
         } catch (e) {

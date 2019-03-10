@@ -8,9 +8,9 @@ module.exports = class VetoCommand extends BaseCommand {
             name: "veto",
             category: "Info",
             description: "Provides Veto Tier informaion from the Refpedia",
-            usage: "!veto",
+            syntax: "!veto",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true }
         })
     }
 

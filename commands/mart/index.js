@@ -11,10 +11,12 @@ module.exports = class MartCommand extends BaseCommand {
             name: "mart",
             category: "Game",
             description: "Browse with the URPG Pokemart",
-            usage: `
-!mart                   Browse the URPG Pokemart catalogue`,
+            args: {
+                "itemType": "String"
+            },
+            syntax: "!mart <itemType>",
             enabled: true,
-            defaultConfig: false
+            defaultConfig: { "guild": false }
         })
     }
 

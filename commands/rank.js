@@ -9,11 +9,9 @@ module.exports = class RankCommand extends BaseCommand {
             name: "rank",
             category: "Info",
             description: "View all Pokemon of a specified rank",
-            usage: `
-!rank <Rank>        View all Pokemon of <Rank>
-                    Accept Story, Art and Park ranks`,
+            usage: "!rank <rank|location>",
             enabled: true,
-            defaultConfig: false
+            defaultConfig: { "guild": true }
         })
     }
 

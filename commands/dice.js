@@ -7,14 +7,9 @@ module.exports = class DiceCommand extends BaseCommand {
             category: "Game",
             aliases: ["d", "roll-dice"],
             description: "Rolls one or more x-sided dice",
-            usage: `
-!d [x]                          Roll one [sides] sided die
-!d -v [x]                       Roll with verification ID
-!d [x] [y] [z] ...              Roll multiple dice with [x, y ,z] sides
-
-All numbers must be positive integers`,
+            syntax: "!d [-v] <x|x,y>",
             enabled: true,
-            defaultConfig: true
+            defaultConfig: { "guild": true }
         })
     }
 

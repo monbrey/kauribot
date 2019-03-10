@@ -9,10 +9,12 @@ module.exports = class HelpCommand extends BaseCommand {
             category: "Info",
             aliases: ["h"],
             description: "Displays help output",
-            usage: "!help [command]",
+            syntax: "!help [command]",
             enabled: true,
-            defaultConfig: true,
-            lockConfig: true
+            defaultConfig: { "guild": true },
+            lockedConfig: {
+                "global": true
+            }
         })
     }
 

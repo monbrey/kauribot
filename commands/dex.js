@@ -8,14 +8,9 @@ module.exports = class DexCommand extends BaseCommand {
             name: "dex",
             category: "Info",
             description: "Get Ultradex data for a Pokemon",
-            usage: "!dex <Pokemon>",
+            syntax: "!dex <Pokemon>",
             enabled: true,
-            defaultConfig: true,
-            examples: [
-                "!dex Bulbasaur",
-                "!dex Charmander",
-                "!dex Squirtle"
-            ]
+            defaultConfig: { "guild": true }
         })
     }
 

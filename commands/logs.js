@@ -10,14 +10,16 @@ module.exports = class LogsCommand extends BaseCommand {
             args: {
                 "channel": { type: "TextChannel" },
             },
-            syntax: "!logs #channel",
-            usage: `No args : Display the current logging channel
-#channel : Send logs to #channel`,
+            syntax: "!logs [TextChannel]",
             enabled: true,
-            defaultConfig: true,
-            lockConfig: true,
+            defaultConfig: {
+                "guild": true,
+                "roles": ["135865553423302657"]
+            },
+            lockedConfig: {
+                "global": true
+            },
             guildOnly: true,
-            requiresPermission: ["ADMINISTRATOR", "MANAGE_ROLES"]
         })
     }
 

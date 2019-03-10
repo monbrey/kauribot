@@ -11,12 +11,9 @@ module.exports = class RosterCommand extends BaseCommand {
             args: {
                 "member": { type: "GuildMember" }
             },
-            usage: `
-!trainer                View your roster
-!trainer <trainer>      View <trainer>'s roster.
-                        Accepts mentions, nicknames and usernames`,
+            syntax: "!roster [Trainer]",
             enabled: true,
-            defaultConfig: false
+            defaultConfig: { "guild": false }
         })
     }
 

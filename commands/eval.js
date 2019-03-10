@@ -15,8 +15,10 @@ module.exports = class EvalCommand extends BaseCommand {
             aliases: ["e"],
             description: "Runs Javascript and returns the result",
             enabled: true,
-            defaultConfig: false,
-            lockConfig: true,
+            defaultConfig: { "guild": false },
+            lockedConfig:  {
+                "global": true
+            },
             requiresOwner: true
         })
     }
@@ -26,6 +28,8 @@ module.exports = class EvalCommand extends BaseCommand {
             const code = args.join(" ")
             let evaled = await eval(code)
 
+            if(!evaled) return message.channel.sendPopup("info", "No return value")
+
             if (!flags.includes("s")) {
                 if (evaled.length >= 2000) {
                     try {
@@ -33,9 +37,9 @@ module.exports = class EvalCommand extends BaseCommand {
                             body: evaled,
                             json: true
                         })
-                        message.channel.sendPopup("info", `Response too long: uploaded to https://hasteb.in/${key}.js`)
+                        message.channel.sendPopup("info", `Return value too long: uploaded to https://hasteb.in/${key}.js`)
                     } catch (e) {
-                        return message.channel.sendPopup("error", "Response too long, and hasteb.in appears to be down. Unable to post response")
+                        return message.channel.sendPopup("error", "Response too long, and hasteb.in appears to be down. Unable to post return value")
                     }
                 } else {
                     if (typeof evaled !== "string")

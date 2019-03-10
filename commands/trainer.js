@@ -11,12 +11,9 @@ module.exports = class TrainerCommand extends BaseCommand {
             args: {
                 "member": { type: "GuildMember" }
             },
-            usage: `
-!trainer                View your profile
-!trainer <trainer>      View <trainers>'s profile.
-                        Accepts mentions, nicknames and usernames`,
+            syntax: "!trainer <trainer>",
             enabled: true,
-            defaultConfig: false
+            defaultConfig: { "guild": false }
         })
     }
 
@@ -64,7 +61,7 @@ module.exports = class TrainerCommand extends BaseCommand {
 
         try {
             let trainer = await Trainer.findById(member.id)
-            if (!trainer) return message.channel.sendPopup("warn", `Unable to find a trainer profile for ${member.displayName}`)     
+            if (!trainer) return message.channel.sendPopup("warn", `Unable to find a trainer profile for ${member.displayName}`)
 
             let pokeball = message.client.emojis.find(e => e.name === "pokeball" && message.client.emojiServers.includes(e.guild.id))
             let backpack = message.client.emojis.find(e => e.name === "backpack" && message.client.emojiServers.includes(e.guild.id))
