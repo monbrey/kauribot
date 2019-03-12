@@ -52,7 +52,7 @@ module.exports = class MessageEvent extends BaseEvent {
                 return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
             }
 
-        // Check if its an owner-only command, don't run if it is We already ran 
+        // Check if its an owner-only command, don't run if it is 
         if (command.requiresOwner) return
 
         // Check that the command is enabled in this channel/server
@@ -68,20 +68,20 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // Check if a guild-only command is being run in DM
         if (command.guildOnly && message.channel.type == "dm")
-            return message.channel.send("warn", `${message.client.prefix}${command.name} is not available is DMs`)
+            return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} is not available in DMs`)
 
         // Check if the command requires Discord permissions
         if (command.requiresRole()) {
             if (!command.memberHasRequiredRole(message.member))
                 return message.channel.send("warn", `None of your Roles has permissions to run ${message.client.prefix}${command.name}`)
         }
+
         try {
             return command.run(message, args, flags)
         } catch (e) {
             message.client.logger.parseError(e, "runCommand")
             return message.channel.sendPopup("error", `Error encountered while running the command: ${e.message}`)
         }
-
     }
 
     async run(message) {

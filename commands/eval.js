@@ -33,11 +33,14 @@ module.exports = class EvalCommand extends BaseCommand {
 
             if(!evaled) return message.channel.sendPopup("info", "No return value")
 
+            const stringified = require("util").inspect(evaled)
+
+
             if (!flags.includes("s")) {
-                if (evaled.length >= 2000) {
+                if (stringified.length >= 2000) {
                     try {
                         const { key } = await request.post("https://hasteb.in/documents", {
-                            body: evaled,
+                            body: stringified,
                             json: true
                         })
                         message.channel.sendPopup("info", `Return value too long: uploaded to https://hasteb.in/${key}.js`)
@@ -45,9 +48,7 @@ module.exports = class EvalCommand extends BaseCommand {
                         return message.channel.sendPopup("error", "Response too long, and hasteb.in appears to be down. Unable to post return value")
                     }
                 } else {
-                    if (typeof evaled !== "string")
-                        evaled = require("util").inspect(evaled)
-                    message.channel.send(clean(evaled), { code: "xl" })
+                    message.channel.send(clean(stringified), { code: "xl" })
                 }
             }
         } catch (e) {

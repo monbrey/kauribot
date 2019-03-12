@@ -9,6 +9,8 @@ nav_order: 3
 # Administration Commands
 {: .no_toc }
 
+Admin commands provide methods for moderators to configure the bot. These commands are enabled by default and cannot be completely disabled, however the configurations can be cleared/reset to defaults.
+
 1. TOC
 {:toc}
 
@@ -16,9 +18,9 @@ nav_order: 3
 
 Allows specific commands to be enabled or disabled at the server and channel level
 
-**Default Permissions**
+**Default Settings**
 
-`@moderator` only
+Enabled, `@moderator` only.
 
 **Syntax**
 
@@ -45,6 +47,8 @@ Allows specific commands to be enabled or disabled at the server and channel lev
 - Known Issue: `-clear` does not remove channel/role configuration
 - Known Issue: `Role` permissions are a work in progress. It is not recommend to add a role to commands that should be available to everyone
 
+
+
 ## Logs
 
 The Logs command gets or sets the destination channel for logging output
@@ -65,6 +69,35 @@ The Logs command gets or sets the destination channel for logging output
 
 - `!logs` - Show the current logging channel
 - `!logs #bot-logs` - Set the logging channel to #bot-logs
+
+
+
+## Prune
+
+The prune command removes up to 100 messages from a channel at a time, or can be used to completely reset a channel
+Resetting a channel is performed by doing a 1:1 clone of the channel and its permissions, then deleting the original.
+
+**Default Permissions**
+
+`@moderator` only
+
+**Syntax**
+
+`!prune [-a] [Number]`
+
+**Parameters**
+
+- `-a` - Delete all messages (via a channel reset)
+- `Number` - Delete the last [Number] of messages from the channel. Max 100.
+- If neither parameter is provided, `!prune` will default to 100
+
+**Examples**
+
+- `!prune` - Remove the last 100 messages
+- `!prune 15` - Remove the last 15 messages
+- `!prune -a` - Reset the channel
+
+
 
 ## Starboard
 

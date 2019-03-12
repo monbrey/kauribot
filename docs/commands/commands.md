@@ -16,4 +16,5 @@ Commands are documented in the following format: `!command <-flags> [parameter1]
 
  - `<>` indicates a required flag or parameter
  - `[]` indicates an optional flag or parameter
+ - `|` represents an OR, the parameter will accept either type/format listed
  - `...` indicates that any following parameters of the same type will be collected
