@@ -47,7 +47,7 @@ Enabled, `@moderator` only.
 - Known Issue: `-clear` does not remove channel/role configuration
 - Known Issue: `Role` permissions are a work in progress. It is not recommend to add a role to commands that should be available to everyone
 
-
+---
 
 ## Logs
 
@@ -70,7 +70,7 @@ The Logs command gets or sets the destination channel for logging output
 - `!logs` - Show the current logging channel
 - `!logs #bot-logs` - Set the logging channel to #bot-logs
 
-
+---
 
 ## Prune
 
@@ -97,7 +97,7 @@ Resetting a channel is performed by doing a 1:1 clone of the channel and its per
 - `!prune 15` - Remove the last 15 messages
 - `!prune -a` - Reset the channel
 
-
+---
 
 ## Starboard
 
