@@ -45,12 +45,12 @@ Moves:    !buy moves <Roster #>${tb}`)
     async run(message, args = [], flags = []) {
         message.trainer = await Trainer.findById(message.author.id)
 
-        if (!args[0]) return this.welcome(message)
+        const type = args.get("itemType")
+        if (!type) return this.welcome(message)
 
-        switch (args[0].toLowerCase()) {
+        switch (type) {
             case "pokemon":
-                args[1] = args[1] ? args[1].split(/, */g) : []
-                return BuyPokemon(message, args[1])
+                return BuyPokemon(message, args.get("items") || [])
             case "moves":
                 if (args[1]) {
                     if (!validator.isInt(args[1], { min: 1 }))

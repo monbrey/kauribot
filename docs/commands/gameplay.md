@@ -128,9 +128,35 @@ View the inventory page of the Trainer account profile: see `!trainer`
 
 ## Mart
 
+Browse the URPG Pokemart from within Discord via a paginated interface!
+
+**Syntax**
+
+`!mart <category>`
+
+**Parameters**
+
+- `category` - `<pokemon|items>`. Browse stock in the selected category
+
+An embedded Pokemart of displayed 12 items per page will be shown in Discord  
+The pages can be scrolled through using the reactions underneath the Embed  
+The controls will time out after 30 seconds with no activity
+
 ---
 
 ## Buy
+
+Purchase Pokemon and items or unlock moves and abilities on your Pokemon
+
+**Syntax**
+
+`!buy <category>`
+
+**Parameters**
+
+- `category` - `<pokemon|items|moves|ability>` - Select stock to purchase from the selected category
+
+
 
 ---
 

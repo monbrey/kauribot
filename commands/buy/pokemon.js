@@ -75,9 +75,9 @@ const buyPokemon = async (message, args = [], cart = null) => {
     cart = await updateCart(message, pValid, cart)
     showInvalid(message, pInvalid)
 
-    const responses = cart.channel.createMessageCollector(m => m.author.id === message.author.id, {})
+    const responses = cart.channel.createMessageCollector(m => m.author.id === message.author.id, { time: 20000 })
     responses.on("collect", async m => {
-        // Need to set a timeout interval in here
+        responses.options.time = 20000
         let args = [...m.content.split(",")].map(arg => arg.trim())
         let [add, remove] = [
             args.filter(x => !x.startsWith("-")),
@@ -101,6 +101,8 @@ const buyPokemon = async (message, args = [], cart = null) => {
         cart = await updateCart(message, pValid, cart)
         showInvalid(message, pInvalid)
     })
+
+    responses.on("end", (collected, reason) => console.log(reason))
 
     return (await cart.reactConfirm(message.author.id, 0) ? () => {
         responses.stop()

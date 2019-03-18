@@ -245,13 +245,13 @@ pokemonSchema.methods.dex = async function(query) {
         .setImage(assets.image)
         .addField(`${this.type2 ? "Types" : "Type" }`, `${this.type1}${this.type2 ? `\n${this.type2}` : ""}`, true)
         .setFooter("Reactions | [M] View Moves ")
-    
-    if(this.matchRating !== 1) 
+
+    if(this.matchRating !== 1)
         embed.setDescription(`Closest match to your search "${query}" with ${Math.round(this.matchRating * 100)}% similarity`)
 
     embed.addField("Ability", `${this.ability.map(a => a.abilityName).join("\n")}`, true)
 
-    if (this.hiddenAbility.length > 0) { 
+    if (this.hiddenAbility.length > 0) {
         embed.addField("Hidden Ability", `${this.hiddenAbility.map(a => a.abilityName).join("\n")}`, true)
     } else {
         embed.addBlankField(true)
