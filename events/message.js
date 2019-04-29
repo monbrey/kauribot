@@ -1,86 +1,77 @@
-const BaseEvent = require("./base")
-const { SnowflakeUtil } = require("discord.js")
-const CommandStats = require("../models/commandStats")
+const BaseEvent = require('./base')
+const { SnowflakeUtil } = require('discord.js')
 
 module.exports = class MessageEvent extends BaseEvent {
     constructor() {
         super({
-            name: "message",
+            name: 'message',
             enabled: true
         })
     }
 
     checkActiveCommand(message, command) {
-        return message.client.activeCommands.find(ac =>
-            ac.user === message.author.id && ac.command === command)
+        return message.client.activeCommands.find(
+            ac => ac.user === message.author.id && ac.command === command
+        )
     }
 
     setActiveCommand(message, command) {
         message.client.activeCommands.set(SnowflakeUtil.generate(Date.now()), {
-            "user": message.author.id,
-            "command": command,
-            "timestamp": Date.now()
+            user: message.author.id,
+            command: command,
+            timestamp: Date.now()
         })
     }
 
     clearActiveCommand(message, command) {
-        message.client.activeCommands.sweep(ac =>
-            ac.user === message.author.id && ac.command === command)
+        message.client.activeCommands.sweep(
+            ac => ac.user === message.author.id && ac.command === command
+        )
     }
 
-    async processCommand(message, command, _args) {
-        // Split the args and the flags, then parse args into named arguments
-        let [flags, args] = super.argsplit(_args)
+    /**
+     * Parses <Message>.content for commands and following args
+     * @param {Message} message
+     */
+    splitArgs(message) {
+        let args = message.content
+            .slice(message.client.prefix.length)
+            .trim()
+            .split(/ +/g)
+        let command = args.shift().toLowerCase()
+
+        return [command, args]
+    }
+
+    /**
+     * Splits the args array to separate flags
+     * @param {Array} args
+     */
+    splitFlags(args) {
+        let filterFunc = x => x.startsWith('-')
+        return [
+            args.filter(x => !filterFunc(x)),
+            args.filter(filterFunc).map(x => x.substring(1).toLowerCase())
+        ]
+    }
+
+    /**
+     * Runs commands, updates stats and releases anti-spam
+     * @param {BaseCommand} command
+     * @param {Message} message
+     * @param {Array} args
+     * @param {Array} flags
+     */
+    async runCommand(command, message, args, flags) {
         try {
-            args = await command.parseArgs(message, args)
-            if (args === false) return
+            await command.executed(message.guild.id)
+            await command.run(message, args, flags)
+            await command.succeeded(message.guild.id)
         } catch (e) {
-            message.client.logger.parseError(e, "parseArgs")
-            return message.channel.sendPopup("error", "Unhandled exception thrown while parsing arguments")
-        }
-
-
-        // Intercept help flags as they aren't command-specific
-        if (flags.includes("h")) {
-            return command.getHelp(message.channel)
-        }
-
-        // If its the bot owner, run the command now without further checks
-        if (message.author.id === message.client.applicationInfo.owner.id)
-            try { return command.run(message, args, flags) } catch (e) {
-                message.client.logger.parseError(e, "runCommand")
-                return message.channel.sendPopup("error", "Unhandled exception thrown while running command")
-            }
-
-        // Check if its an owner-only command, don't run if it is 
-        if (command.requiresOwner) return
-
-        // Check that the command is enabled in this channel/server
-        const cStatus = command.getChannelStatus(message.channel), gStatus = command.getGuildStatus(message.guild)
-
-        if (cStatus === undefined) {
-            if (gStatus === undefined)
-                return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has not been configured for use in this server`)
-            if (!gStatus)
-                return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has been disabled on this server`)
-        } else if (!cStatus)
-            return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} has been disabled in this channel`)
-
-        // Check if a guild-only command is being run in DM
-        if (command.guildOnly && message.channel.type == "dm")
-            return message.channel.sendPopup("warn", `${message.client.prefix}${command.name} is not available in DMs`)
-
-        // Check if the command requires Discord permissions
-        if (command.requiresRole()) {
-            if (!command.memberHasRequiredRole(message.member))
-                return message.channel.send("warn", `None of your Roles has permissions to run ${message.client.prefix}${command.name}`)
-        }
-
-        try {
-            return command.run(message, args, flags)
-        } catch (e) {
-            message.client.logger.parseError(e, "runCommand")
-            return message.channel.sendPopup("error", `Error encountered while running the command: ${e.message}`)
+            message.client.logger.parseError(e, 'runCommand')
+            message.channel.sendPopup('error', 'Exception thrown while running command')
+        } finally {
+            this.clearActiveCommand(message, command.name)
         }
     }
 
@@ -94,34 +85,103 @@ module.exports = class MessageEvent extends BaseEvent {
         // Log the message - refer to util/logger.js to see what is logged
         message.client.logger.message(message)
 
-        // Parse CSV's with spaces as a single argument
-        // let content = message.content.replace(/, +/g, ",")
-        // Split the args on spaces
-        let _args = message.content.slice(message.client.prefix.length).trim().split(/ +/g)
-        // Pull the command from the array
-        let carg = _args.shift().toLowerCase()
+        // Split the arguments
+        let [carg, argArray] = this.splitArgs(message)
 
         // Get the matching command class
-        let command = message.client.commands.get(carg) || message.client.commands.get(message.client.aliases.get(carg))
+        const command =
+            message.client.commands.get(carg) ||
+            message.client.commands.get(message.client.aliases.get(carg))
         if (!command) return
 
+        // Add a usage count to the command
         try {
-            CommandStats.addReceived(command.name, message.guild.id)
-        } catch (e) { message.client.logger.parseError(e, "commandStats") }
+            await command.received(message.guild.id)
+        } catch (e) {
+            message.client.logger.parseError(e, 'commandStats')
+        }
 
+        // Anti-spam protection
         const active = this.checkActiveCommand(message, command.name)
         if (active) {
             if (active.timestamp < Date.now() - 5000)
-                message.channel.sendPopup("warn", `You already have an active ${message.client.prefix}${command.name} command.`)
+                message.channel.sendPopup(
+                    'warn',
+                    `You already have an active ${message.client.prefix}${command.name} command.`
+                )
 
             active.timestamp = Date.now()
             return
         }
 
-        this.setActiveCommand(message, command.name)
-        command.executed(message.guild.id)
-        await this.processCommand(message, command, _args)
-        command.succeeded(message.guild.id)
-        return this.clearActiveCommand(message, command.name)
+        // Split the flags out of the args
+        let [args, flags] = this.splitFlags(argArray)
+
+        // Intercept help flags and stop execution, as they aren't command-specific
+        if (flags.includes('h')) {
+            return command.getHelp(message.channel)
+        }
+
+        // Type-strict, positional argument parsing - still needs some work
+        try {
+            args = await command.parseArgTypes(message, args)
+            if (args === false) return
+        } catch (e) {
+            message.client.logger.parseError(e, 'parseArgs')
+            return message.channel.sendPopup('error', 'Exception thrown while parsing arguments')
+        }
+
+        // Override if owner, otherwise ignore command if it requires owner
+        if (message.isFromOwner) {
+            return this.runCommand(command, message, args, flags)
+        }
+        if (command.config.ownerOnly) return
+
+        // Check if a guild-only command is being run in DM
+        if (command.guildOnly && message.channel.type == 'dm')
+            return message.channel.sendPopup(
+                'warn',
+                `${message.client.prefix}${command.name} is not available in DMs`
+            )
+
+        // Get the settings at the channel, guild and default levels
+        const enabled = command.enabledIn(message.channel)
+
+        // Check possible levels for the command to be disabled
+        // No overrides, default off
+        if (enabled.c === undefined && enabled.g === undefined && enabled.d === false)
+            return message.channel.sendPopup(
+                'warn',
+                `${message.client.prefix}${
+                    command.name
+                } has not been configured for use in this server, and is off by default`
+            )
+        // Turned off in the guild with no channel override
+        else if (enabled.c === undefined && enabled.g === false)
+            return message.channel.sendPopup(
+                'warn',
+                `${message.client.prefix}${command.name} has been disabled on this server`
+            )
+        // Turned off in the channel
+        else if (enabled.c === false)
+            return message.channel.sendPopup(
+                'warn',
+                `${message.client.prefix}${command.name} has been disabled in this channel`
+            )
+
+        // Check if the command requires Discord Permissions or Roles, if it's being run in a Guild
+        const authorised =
+            message.guild === undefined ||
+            command.permissionsFor(await message.guild.fetchMember(message.author), message.channel)
+
+        if (!authorised)
+            return message.channel.sendPopup(
+                'warn',
+                `You do not have the required permissions to use ${message.client.prefix}${
+                    command.name
+                } here`
+            )
+
+        return this.runCommand(command, message, args, flags)
     }
 }

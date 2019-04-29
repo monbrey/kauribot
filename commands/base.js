@@ -1,6 +1,6 @@
-const Discord = require("discord.js")
+const Discord = require('discord.js')
 const { Collection, MessageMentions, RichEmbed } = Discord
-const CommandStats = require("../models/commandStats")
+const CommandStats = require('../models/commandStats')
 
 module.exports = class BaseCommand {
     /**
@@ -12,30 +12,51 @@ module.exports = class BaseCommand {
      * @param {String}          [options.description=""] - Description of the command for !help
      * @param {String}          [options.syntax=""] - Command format guide
      * @param {Boolean}         [options.enabled=false] - If the command is enabled for use at the bot level
-     * @param {Boolean}         [options.defaultConfig={ enabled: false }] - Command configuration defaults
-     * @param {Boolean}         [options.lockedConfig={}] - Default configs which cannot be changed
      * @param {Boolean}         [options.guildOnly=false] - If the command can only be run in server (no DM)
-     * @param {Boolean}         [options.requiresOwner=false] - Restrict this command to the bot owner
      */
     constructor(options = {}) {
-        this.name = options.name || "base"
+        this.name = options.name || 'base'
         this.category = options.category || null
-        this.description = options.description || "No description provided"
+        this.description = options.description || 'No description provided'
         this.args = options.args || null
         this.aliases = options.aliases || []
-        this.syntax = options.syntax || "No syntax specified"
+        this.syntax = options.syntax || 'No syntax specified'
         this.enabled = options.enabled || false
-        this.defaultConfig = options.defaultConfig || { enabled: false }
-        this.lockedConfig = options.locked || {}
         this.guildOnly = options.guildOnly || false
-        this.requiresOwner = options.requiresOwner || false
     }
 
     /**
-     * @param {CommandConfig} config - A CommandConfig Mongoose document
+     * Returns an array of Boolean/undefined indicating if this command can be used in its current location
+     * @param {Channel} channel
      */
-    setConfig(config) {
-        this.config = config
+    enabledIn(channel) {
+        return {
+            c: this.config.channels.get(channel.id),
+            g: this.config.guilds.get(channel.guild.id),
+            d: this.config.defaults.guild
+        }
+    }
+
+    /**
+     * Checks if the GuildMember has permission to run this command
+     * @param {GuildMember} member
+     * @param {TextChannel} channel
+     */
+    permissionsFor(member, channel) {
+        // If this command has a roles configured for the guild, check if the member has one of them
+        const roles = channel.guild.roles.filter(r => this.config.roles.has(r.id))
+        const rolePerms = roles.size
+            ? roles.some(r => this.config.roles.get(r.id) && member.roles.has(r.id))
+            : undefined
+
+        if (rolePerms !== undefined) return rolePerms
+
+        // If the command has default permissions required, check if the member has one of the permissions in the channel
+        return this.config.defaults.permissions.length
+            ? this.config.defaults.permissions.some(p =>
+                channel.permissionsFor(member).hasPermission(p, true)
+            )
+            : true
     }
 
     /**
@@ -51,25 +72,15 @@ module.exports = class BaseCommand {
     getChannelStatus(channel) {
         return this.config.channels.get(channel.id)
     }
-
-    requiresRole() {
-        return this.config.roles.size
-    }
-
-    /**
-     * @param {GuildMember} member - Discord.GuildMember
-     */
-    memberHasRequiredRole(member) {
-        return member.roles.some(r => this.config.roles.get(r.id))
-    }
-
     /**
      * @param {Channel} channel - Discord.TextChannel
      */
     getHelp(channel) {
         if (this.requiresOwner) return
 
-        const server = new Collection(this.config.guilds).get(channel.guild.id) ? "Enabled" : "Disabled"
+        const server = new Collection(this.config.guilds).get(channel.guild.id)
+            ? 'Enabled'
+            : 'Disabled'
         const channels = new Collection(this.config.channels)
             .filter((c, id) => c !== server && channel.guild.channels.has(id))
             .map((c, id) => channel.guild.channels.get(id).name)
@@ -80,35 +91,41 @@ module.exports = class BaseCommand {
         let embed = new RichEmbed()
             .setTitle(this.name)
             .setDescription(this.description)
-            .setURL(`https://monbrey.github.com/ultra-rpg-bot/commands/${this.category.toLowerCase()}#${this.name}`)
-        if (this.aliases.length > 0)
-            embed.addField("Aliases", `\`${this.aliases.join("` `")}\``)
-        embed.addField("Syntax", `\`${this.syntax}\``)
-            .addField("Server staus", server, true)
-            .addField("Channel overrides", channels.join("\n") || "None", true)
-            .addField("Role restrictions", roles.join("\n") || "None", true)
-            .setFooter("Click the title to go to the full documentation")
+            .setURL(
+                `https://monbrey.github.com/ultra-rpg-bot/commands/${this.category.toLowerCase()}#${
+                    this.name
+                }`
+            )
+        if (this.aliases.length > 0) embed.addField('Aliases', `\`${this.aliases.join('` `')}\``)
+        embed
+            .addField('Syntax', `\`${this.syntax}\``)
+            .addField('Server staus', server, true)
+            .addField('Channel overrides', channels.join('\n') || 'None', true)
+            .addField('Role restrictions', roles.join('\n') || 'None', true)
+            .setFooter('Click the title to go to the full documentation')
 
         return channel.send(embed)
     }
 
     /**
-     * 
+     *
      * @param {Message} message The Discord message from which the args originated
      * @param {Array} argArray An array of command arguments
      */
-    async parseArgs(message, argArray) {
+    async parseArgTypes(message, argArray) {
         if (!this.args) return argArray
 
-        const resolved = await Promise.all(argArray.map(async arg => {
-            if (arg.match(MessageMentions.USERS_PATTERN))
-                return message.guild.fetchMember(arg.replace(/[<@!>]/g, ""))
-            if (arg.match(MessageMentions.CHANNELS_PATTERN))
-                return message.client.channels.get(arg.replace(/[<@#>]/g, ""))
-            if (arg.match(MessageMentions.ROLES_PATTERN))
-                return message.guild.roles.get(arg.replace(/[<@&>]/g, ""))
-            return arg
-        }))
+        const resolved = await Promise.all(
+            argArray.map(async arg => {
+                if (arg.match(MessageMentions.USERS_PATTERN))
+                    return message.guild.fetchMember(arg.replace(/[<@!>]/g, ''))
+                if (arg.match(MessageMentions.CHANNELS_PATTERN))
+                    return message.client.channels.get(arg.replace(/[<@#>]/g, ''))
+                if (arg.match(MessageMentions.ROLES_PATTERN))
+                    return message.guild.roles.get(arg.replace(/[<@&>]/g, ''))
+                return arg
+            })
+        )
 
         const named = new Collection()
         Object.keys(this.args).forEach((name, index) => {
@@ -122,16 +139,24 @@ module.exports = class BaseCommand {
             if (index === Object.keys(this.args).length - 1) {
                 const remaining = resolved.slice(index)
                 switch (type) {
-                    case "String": named.set(name, remaining.join(" "))
+                    case 'String':
+                        named.set(name, remaining.join(' '))
                         break
-                    case "Array": named.set(name, remaining)
+                    case 'Array':
+                        named.set(name, remaining)
                         break
-                    case "Collection": named.set(name, new Collection(
-                        remaining.filter(r => this.args[name].of.includes(r.constructor.name))
-                            .map(r => [r.id, r])
-                    ))
+                    case 'Collection':
+                        named.set(
+                            name,
+                            new Collection(
+                                remaining
+                                    .filter(r => this.args[name].of.includes(r.constructor.name))
+                                    .map(r => [r.id, r])
+                            )
+                        )
                         break
-                    default: named.set(name, resolved[index])
+                    default:
+                        named.set(name, resolved[index])
                         break
                 }
             } else named.set(name, resolved[index])
@@ -142,22 +167,37 @@ module.exports = class BaseCommand {
             const arg = named.get(key)
 
             if (required && !arg) {
-                return message.channel.sendPopup("warn", `Required parameter missing: ${key}`)
+                return message.channel.sendPopup('warn', `Required parameter missing: ${key}`)
             }
         }
 
         let valid = true
         named.forEach((value, key) => {
-            if (value.constructor.name !== this.args[key].type && this.args[key].type !== "Any" && valid) {
+            if (
+                value.constructor.name !== this.args[key].type &&
+                this.args[key].type !== 'Any' &&
+                valid
+            ) {
                 const position = Object.keys(this.args).indexOf(key)
                 valid = false
-                return message.channel.sendPopup("warn", `Invalid argument in position ${position + 1}
+                return message.channel.sendPopup(
+                    'warn',
+                    `Invalid argument in position ${position + 1}
 **Received:** ${value.constructor.name}
-**Expected:** ${this.args[key].type}`, 10000)
+**Expected:** ${this.args[key].type}`,
+                    10000
+                )
             }
         })
 
         return valid ? named : undefined
+    }
+
+    /**
+     * @param {Guild} guild - The ID for the Discord Guild in which the command was executed
+     */
+    async received(guild) {
+        return CommandStats.addReceived(this.name, guild)
     }
 
     /**
