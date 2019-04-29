@@ -7,7 +7,7 @@ const logger = require('./util/logger')
 
 const { Client, Collection } = require('discord.js')
 const { join } = require('path')
-const { readdir } = require('fs').promises.readdir
+const { readdir } = require('fs').promises
 const { prefix } = Object.assign(require('./config')[process.env.NODE_ENV], require('./config')['common'])
 const queue = require('p-queue')
 const CommandConfig = require('./models/commandConfig')
@@ -37,7 +37,9 @@ class UltraRpgBot extends Client {
         // Check if the command is enabled globally
         if (!command.enabled) return
 
-        command.config = configs.find(cfg => cfg.commandName === command.name)
+        command.config =
+            configs.find(cfg => cfg.commandName === command.name) ||
+            (await CommandConfig.create({ commandName: command.name }))
 
         if (command.init) {
             await command.init(this)
@@ -64,13 +66,6 @@ class UltraRpgBot extends Client {
         return this.on(event.name, event.run.bind(event))
     }
 
-    async login() {
-        await super.login(process.env.DISCORD_TOKEN)
-        this.applicationInfo = await this.fetchApplication()
-        this.applicationInfo.owner.send('URPG Discord Bot started')
-        return
-    }
-
     async init() {
         // Load all commands
         let cmds = await readdir(join(__dirname, 'commands'))
@@ -93,20 +88,10 @@ class UltraRpgBot extends Client {
         }
 
         try {
-            await this.login()
+            await this.login(process.env.DISCORD_TOKEN)
             this.logger.info({ message: 'Ultra RPG Bot connected to Discord', key: 'init' })
         } catch (e) {
             this.logger.parseError(e, 'login')
-        }
-
-        try {
-            // eslint-disable-next-line no-unused-vars
-            for (const [, cmd] of this.commands)
-                cmd.config = await CommandConfig.setMissingDefaultsForCommand(this, cmd)
-
-            this.logger.info({ message: 'Per-guild command defaults checked', key: 'init' })
-        } catch (e) {
-            this.logger.parseError(e, 'setMissingDefaults')
         }
 
         return
@@ -121,10 +106,10 @@ const client = new UltraRpgBot({
 
 client.init()
 
-process.on('uncaughtException', e => {
-    logger.parseError(e, 'uncaughtException')
-})
+// process.on('uncaughtException', e => {
+//     logger.parseError(e, 'uncaughtException')
+// })
 
-process.on('unhandledRejection', reason => {
-    logger.parseError(reason, 'unhandledRejection')
-})
+// process.on('unhandledRejection', reason => {
+//     logger.parseError(reason, 'unhandledRejection')
+// })
