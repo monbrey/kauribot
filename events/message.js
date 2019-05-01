@@ -64,9 +64,10 @@ module.exports = class MessageEvent extends BaseEvent {
      */
     async runCommand(command, message, args, flags) {
         try {
-            await command.executed(message.guild.id)
+            command.addStat(message.guild.id, 'executed').catch(e => console.error('DB Error'))
             await command.run(message, args, flags)
-            await command.succeeded(message.guild.id)
+
+            command.addStat(message.guild.id, 'succeeded').catch(e => console.error('DB Error'))
         } catch (e) {
             message.client.logger.parseError(e, 'runCommand')
             message.channel.sendPopup('error', 'Exception thrown while running command')
@@ -96,7 +97,7 @@ module.exports = class MessageEvent extends BaseEvent {
 
         // Add a usage count to the command
         try {
-            await command.received(message.guild.id)
+            await command.addStat(message.guild.id, 'received')
         } catch (e) {
             message.client.logger.parseError(e, 'commandStats')
         }

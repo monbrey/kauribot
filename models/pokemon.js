@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose')
 const { RichEmbed, Collection } = require('discord.js')
 const Color = require('./color')
-const { oneLine, stripIndent } = require('common-tags')
+const { stripIndents } = require('common-tags')
 const getAsset = require('../util/getAsset')
 
 const PokemonMove = require('./schemas/pokemonMove')
@@ -11,9 +11,9 @@ require('./mega')
 
 const pokemonSchema = new Schema(
     {
-        dexNumber: { type: Number, required: true },
+        dexNumber: { type: Number, required: true, index: true },
         speciesName: { type: String, required: true },
-        uniqueName: { type: String, required: true },
+        uniqueName: { type: String, required: true, index: true },
         displayName: { type: String, required: true },
         spriteCode: { type: String },
         type1: { type: String, required: true },
@@ -48,7 +48,8 @@ const pokemonSchema = new Schema(
             defence: { type: Number, required: true },
             specialAttack: { type: Number, required: true },
             specialDefence: { type: Number, required: true },
-            speed: { type: Number, required: true }
+            speed: { type: Number, required: true },
+            _id: false
         },
         height: { type: Number },
         weight: { type: Number },
@@ -106,99 +107,71 @@ pokemonSchema.statics.findPartial = function(uniqueName, query = {}) {
 }
 
 pokemonSchema.methods.dex = async function(query) {
-    const dexResources = [
-        getAsset(this),
-        Color.getColorForType(this.type1.toLowerCase()),
-        this.populate('ability').execPopulate(),
-        this.populate('hiddenAbility').execPopulate()
-    ]
+    const dexResources = [getAsset(this), Color.getColorForType(this.type1.toLowerCase())]
 
     const [assets, color] = await Promise.all(dexResources)
 
     const embed = new RichEmbed()
-        .setAuthor(`URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3, '0')})`, assets.icon)
+        .setAuthor(
+            `URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3, '0')})`,
+            assets.icon
+        )
         .setColor(color)
         .setImage(assets.image)
-        .addField(`${this.type2 ? 'Types' : 'Type'}`, `${this.type1}${this.type2 ? `\n${this.type2}` : ''}`, true)
+        .addField(
+            `${this.type2 ? 'Types' : 'Type'}`,
+            `${this.type1}${this.type2 ? `\n${this.type2}` : ''}`
+        )
         .setFooter('Reactions | [M] View Moves ')
 
     if (this.matchRating !== 1)
         embed.setDescription(
-            `Closest match to your search "${query}" with ${Math.round(this.matchRating * 100)}% similarity`
+            `Closest match to your search "${query}" with ${Math.round(
+                this.matchRating * 100
+            )}% similarity`
         )
 
     embed.addField(
-        'Ability',
+        'Abilities',
         `${this.abilities
-            .filter(a => !a.hidden)
-            .map(a => a.abilityName)
-            .join('\n')}`,
-        true
+            .map(a => (a.hidden ? `${a.abilityName} (HA)` : a.abilityName))
+            .join(' | ')}`
     )
-
-    if (this.abilities.filter(a => a.hidden).length > 0) {
-        embed.addField(
-            'Hidden Ability',
-            `${this.abilities
-                .filter(a => a.hidden)
-                .map(a => a.abilityName)
-                .join('\n')}`,
-            true
-        )
-    } else {
-        embed.addBlankField(true)
-    }
 
     embed
         .addField(
-            `Gender${this.gender.male && this.gender.female ? 's' : ''}`,
+            `Legal Gender${this.gender.male && this.gender.female ? 's' : ''}`,
             this.gender.male
                 ? this.gender.female
-                    ? 'Male\nFemale'
+                    ? 'Male | Female'
                     : 'Male'
                 : this.gender.female
                     ? 'Female'
-                    : 'Genderless',
-            true
+                    : 'Genderless'
         )
-        .addField('Height', `${this.height}m`, true)
-        .addField('Weight', `${this.weight}kg`, true)
+        .addField('Height and Weight', `${this.height}m, ${this.weight}kg`)
 
-    let ranks = 0
-    if (this.rank.story) {
-        embed.addField('Story Rank', this.rank.story, true)
-        ranks++
-    }
-    if (this.rank.art) {
-        embed.addField('Art Rank', this.rank.art, true)
-        ranks++
-    }
-    if (this.rank.park && this.parkLocation) {
-        embed.addField('Park Rank', `${this.rank.park}\n(${this.parkLocation})`, true)
-        ranks++
-    }
+    const ranks = []
+    if (this.rank.story) ranks.push(`Story - ${this.rank.story}`)
+    if (this.rank.art) ranks.push(`Art - ${this.rank.art}`)
+    if (this.rank.park && this.parkLocation)
+        ranks.push(`**Park**: ${this.rank.park} (${this.parkLocation})`)
 
-    for (ranks; ranks > 0 && ranks < 3; ranks++) {
-        embed.addBlankField(true)
-    }
+    if (ranks.length) embed.addField('Creative Ranks', ranks.join(' | '))
 
-    if (this.martPrice.pokemart) {
-        embed.addField('Pokemart', `$${this.martPrice.pokemart.toLocaleString()}`, true)
-    }
-    if (this.martPrice.berryStore) {
-        embed.addField('Berry Store', `${this.martPrice.berryStore.toLocaleString()} CC`, true)
-    }
+    const prices = []
+    if (this.martPrice.pokemart)
+        prices.push(this.martPrice.pokemart.toLocaleString({ currency: 'AUD' }))
+    if (this.martPrice.berryStore) prices.push(`${this.martPrice.berryStore.toLocaleString()} CC`)
+
+    if (prices.length) embed.addField('Price', `${prices.join(' | ')}`)
+
+    let statsStrings = Object.values(this.stats.toObject()).map(s => s.toString().padEnd(4, ' '))
 
     embed.addField(
         'Stats',
-        `\`\`\`${stripIndent`
-        HP  | ATT | DEF | SP.A | SP.D | SPE
-        ${oneLine`
-            ${new String(this.stats.hp).padEnd(3, ' ')} | ${new String(this.stats.attack).padEnd(3, ' ')} |
-            ${new String(this.stats.defence).padEnd(3, ' ')} | ${new String(this.stats.specialAttack).padEnd(4, ' ')} |
-            ${new String(this.stats.specialDefence).padEnd(4, ' ')} | ${this.stats.speed}
-        `}
-    `}\`\`\``
+        `\`\`\`${stripIndents`HP   | ATT  | DEF  | SP.A | SP.D | SPE
+        ${statsStrings.join(' | ')}`}\`\`\``
     )
 
     if (this.mega.length == 1) embed.footer.text += '| [X] View Mega form'
@@ -234,8 +207,13 @@ pokemonSchema.methods.learnset = async function() {
         let pieces = Math.ceil(remainingLearnset.length / 1024)
 
         while (remainingLearnset.length > 1024) {
-            const splitPoint = remainingLearnset.lastIndexOf(', ', Math.floor(remainingLearnset.length / pieces--))
-            learnset[`${method}${counter++}`] = remainingLearnset.substring(0, splitPoint).split(', ')
+            const splitPoint = remainingLearnset.lastIndexOf(
+                ', ',
+                Math.floor(remainingLearnset.length / pieces--)
+            )
+            learnset[`${method}${counter++}`] = remainingLearnset
+                .substring(0, splitPoint)
+                .split(', ')
             remainingLearnset = remainingLearnset.substring(splitPoint + 2)
             delete learnset[method]
             if (remainingLearnset.length < 1024) {

@@ -26,7 +26,7 @@ module.exports = class BaseCommand {
     }
 
     /**
-     * Returns an array of Boolean/undefined indicating if this command can be used in its current location
+     * Returns an object of Boolean/undefined indicating if this command can be used in the current guild/channel/default
      * @param {Channel} channel
      */
     enabledIn(channel) {
@@ -38,7 +38,7 @@ module.exports = class BaseCommand {
     }
 
     /**
-     * Checks if the GuildMember has permission to run this command
+     * Checks if the GuildMember has permission to run this command in this location
      * @param {GuildMember} member
      * @param {TextChannel} channel
      */
@@ -61,17 +61,46 @@ module.exports = class BaseCommand {
 
     /**
      * @param {Guild} guild - Discord.Guild
+     * @returns {Boolean}
      */
-    getGuildStatus(guild) {
-        return this.config.guilds.get(guild.id)
+    enabledInGuild(guild) {
+        // Always exclude ownerOnly
+        if (this.config.ownerOnly) return false
+
+        const g = this.config.guilds.get(guild.id)
+        return g !== undefined ? g : this.config.defaults.guild
     }
 
     /**
-     * @param {TextChannel} channel - Discord.TextChannel
+     * @param {Guild} guild - Discord.Guild
+     * @returns {Boolean}
      */
-    getChannelStatus(channel) {
-        return this.config.channels.get(channel.id)
+    disabledInGuild(guild) {
+        // Always exclude ownerOnly
+        if (this.config.ownerOnly) return false
+
+        const g = this.config.guilds.get(guild.id)
+        return g !== undefined ? !g : !this.config.defaults.guild
     }
+
+    /**
+     * @param {Guild} guild - Discord.Guild
+     * @returns {Boolean}
+     */
+    hasChannelConfigInGuild(guild) {
+        const c = guild.channels.some(c => this.config.channels.has(c.id))
+        return c
+    }
+
+    /**
+     * @param {Guild} guild - Discord.Guild
+     * @returns {Boolean}
+     */
+    restrictedInGuild(guild) {
+        const g = Boolean(guild.roles.filter(r => this.config.roles.has(r.id)).size)
+        return g ? true : Boolean(this.config.defaults.permissions.length)
+    }
+
     /**
      * @param {Channel} channel - Discord.TextChannel
      */
@@ -194,24 +223,19 @@ module.exports = class BaseCommand {
     }
 
     /**
-     * @param {Guild} guild - The ID for the Discord Guild in which the command was executed
+     * @param {Snowflake} guild - The ID for the Discord Guild in which the command was run
      */
-    async received(guild) {
-        return CommandStats.addReceived(this.name, guild)
-    }
-
-    /**
-     * @param {Guild} guild - The ID for the Discord Guild in which the command was executed
-     */
-    async executed(guild) {
-        return CommandStats.addExecuted(this.name, guild)
-    }
-
-    /**
-     * @param {Guild} guild - The ID for the Discord Guild in which the command was executed
-     */
-    async succeeded(guild) {
-        return CommandStats.addSucceeded(this.name, guild)
+    async addStat(guild, stat) {
+        switch (stat) {
+            case 'received':
+                return CommandStats.addReceived(this.name, guild)
+            case 'executed':
+                return CommandStats.addExecuted(this.name, guild)
+            case 'succeeded':
+                return CommandStats.addSucceeded(this.name, guild)
+            default:
+                throw new Error('Invalid stat provided')
+        }
     }
 
     /**
@@ -219,7 +243,7 @@ module.exports = class BaseCommand {
      * @param {Array} args - Array of command arguments
      * @param {Array} flags - Array of command flags
      */
-    async run(message, args = [], flags = []) {
+    async run(message, args = []) {
         return
     }
 }

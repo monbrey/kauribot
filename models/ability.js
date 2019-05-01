@@ -1,7 +1,7 @@
-const mongoose = require('mongoose')
+const { Schema, model } = require('mongoose')
 const { RichEmbed } = require('discord.js')
 
-const abilitySchema = new mongoose.Schema({
+const abilitySchema = new Schema({
     abilityName: {
         type: String,
         required: true
@@ -25,18 +25,10 @@ abilitySchema.plugin(require('mongoose-plugin-autoinc').autoIncrement, {
     startAt: 1
 })
 
-abilitySchema.statics.findExact = function(abilityName) {
-    return this.findOne({
-        abilityName: new RegExp(`^${abilityName}$`, 'i')
-    })
-}
-
-abilitySchema.statics.findPartial = function(abilityName) {
-    return this.find({
-        abilityName: new RegExp(abilityName, 'i')
-    })
-}
-
+/**
+ * Generates a informational RichEmbed for the ability
+ * @returns [RichEmbed]
+ */
 abilitySchema.methods.info = function() {
     let embed = {
         title: `${this.abilityName}`,
@@ -74,4 +66,4 @@ abilitySchema.methods.info = function() {
     return new RichEmbed(embed)
 }
 
-module.exports = mongoose.model('Ability', abilitySchema)
+module.exports = model('Ability', abilitySchema)

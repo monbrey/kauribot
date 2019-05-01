@@ -5,7 +5,9 @@ const Discord = require('discord.js')
 
 const clean = text => {
     if (typeof text === 'string')
-        return text.replace(/`/g, '`' + String.fromCharCode(8203)).replace(/@/g, '@' + String.fromCharCode(8203))
+        return text
+            .replace(/`/g, '`' + String.fromCharCode(8203))
+            .replace(/@/g, '@' + String.fromCharCode(8203))
     else return text
 }
 
@@ -15,12 +17,7 @@ module.exports = class EvalCommand extends BaseCommand {
             name: 'eval',
             aliases: ['e'],
             description: 'Runs Javascript and returns the result',
-            enabled: true,
-            defaultConfig: { guild: false },
-            lockedConfig: {
-                global: true
-            },
-            requiresOwner: true
+            enabled: true
         })
     }
 
@@ -29,7 +26,7 @@ module.exports = class EvalCommand extends BaseCommand {
             const code = args.join(' ')
             let evaled = await eval(code)
 
-            if (!evaled) return message.channel.sendPopup('info', 'No return value')
+            if (evaled === undefined) return message.channel.sendPopup('info', 'No return value')
 
             const stringified = require('util').inspect(evaled)
 

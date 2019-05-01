@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
-const cachegoose = require('cachegoose')
+const cachegoose = require('cachegoose-events')
 const logger = require('./logger')
 
 cachegoose(mongoose, {})
+const { cache } = cachegoose
 
 mongoose.Promise = global.Promise
 mongoose.connect(process.env.MONGODB_URI, {
@@ -25,4 +26,16 @@ db.on('disconnected', async () => {
     logger.warn({ message: 'Mongoose default connection disconnected', key: 'db' })
 })
 
-module.exports = db
+cache.on('get', key => {
+    logger.debug(`Fetched ${key} from database cache`)
+})
+
+cache.on('set', key => {
+    logger.debug(`Set ${key} in database cache`)
+})
+
+cache.on('del', key => {
+    logger.debug(`Deleted ${key} from database cache`)
+})
+
+module.exports = { db, cache }

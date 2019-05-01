@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require('mongoose')
 
 const starboardConfigSchema = new mongoose.Schema({
     guild: {
@@ -11,7 +11,7 @@ const starboardConfigSchema = new mongoose.Schema({
     },
     emoji: {
         type: String,
-        default: "⭐"
+        default: '⭐'
     },
     minReacts: {
         type: Number,
@@ -20,19 +20,21 @@ const starboardConfigSchema = new mongoose.Schema({
 })
 
 starboardConfigSchema.statics.getConfigForGuild = async function(_guild) {
-    const configs = await this.find({}).cache(30)
+    const configs = await this.find({}).cache(30, 'starboard-config')
 
     return await configs.find(cfg => cfg.guild === _guild)
 }
 
 starboardConfigSchema.statics.setStarboardChannel = async function(_guild, _channel) {
-    let starboard = await this.findOne({"guild": _guild}) || await this.create({"guild":_guild, "channel": _channel})
+    let starboard =
+        (await this.findOne({ guild: _guild })) ||
+        (await this.create({ guild: _guild, channel: _channel }))
     starboard.channel = _channel
     return starboard.save()
 }
 
 starboardConfigSchema.statics.clearStarboardChannel = async function(_guild) {
-    return this.deleteOne({"guild":_guild})
+    return this.deleteOne({ guild: _guild })
 }
 
-module.exports = mongoose.model("StarboardConfig", starboardConfigSchema)
+module.exports = mongoose.model('StarboardConfig', starboardConfigSchema)

@@ -11,21 +11,23 @@
  * @returns {Promise<Object>}
  */
 let paginate = async function(query = {}, options = {}, sortFunc, page = 1, limit = 12) {
-    let docs = await this.find(query, null, options).lean().cache(0)
+    let docs = await this.find(query, null, options)
+        .lean()
+        .cache(60, 'pagination')
     let count = docs.length
-    let next = (page * limit) < docs.length ? page + 1 : false
+    let next = page * limit < docs.length ? page + 1 : false
     let prev = page > 1 ? page - 1 : false
     let pages = Math.ceil(count / limit)
 
-    if(sortFunc) docs.sort(sortFunc)
+    if (sortFunc) docs.sort(sortFunc)
 
     return {
-        "docs": docs.slice((page - 1) * limit, page * limit),
-        "count": count,
-        "page": page,
-        "next": next,
-        "prev": prev,
-        "pages": pages
+        docs: docs.slice((page - 1) * limit, page * limit),
+        count: count,
+        page: page,
+        next: next,
+        prev: prev,
+        pages: pages
     }
 }
 

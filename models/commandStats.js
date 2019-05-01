@@ -1,9 +1,9 @@
-const { Schema, model } = require("mongoose")
+const { Schema, model } = require('mongoose')
 
 const commandStatsSchema = new Schema({
     command: {
         type: String,
-        required: true,
+        required: true
     },
     guild: {
         type: String,
@@ -17,16 +17,16 @@ const commandStatsSchema = new Schema({
     }
 })
 
-commandStatsSchema.plugin(require("mongoose-plugin-autoinc").autoIncrement, {
-    model: "CommandStats",
+commandStatsSchema.plugin(require('mongoose-plugin-autoinc').autoIncrement, {
+    model: 'CommandStats',
     startAt: 1
 })
 
 commandStatsSchema.statics.addReceived = async function(command, guild) {
     // if (process.env.NODE_ENV !== "production") return
 
-    const query = { "command": command, "guild": guild }
-    const stat = await this.findOne(query) || await this.create(query)
+    const query = { command: command, guild: guild }
+    const stat = (await this.findOne(query)) || (await this.create(query))
     stat.counts.received.push(Date.now())
     stat.save()
 }
@@ -34,8 +34,8 @@ commandStatsSchema.statics.addReceived = async function(command, guild) {
 commandStatsSchema.statics.addExecuted = async function(command, guild) {
     // if (process.env.NODE_ENV !== "production") return
 
-    const query = { "command": command, "guild": guild }
-    const stat = await this.findOne(query) || await this.create(query)
+    const query = { command: command, guild: guild }
+    const stat = (await this.findOne(query)) || (await this.create(query))
     stat.counts.executed.push(Date.now())
     stat.save()
 }
@@ -43,15 +43,15 @@ commandStatsSchema.statics.addExecuted = async function(command, guild) {
 commandStatsSchema.statics.addSucceeded = async function(command, guild) {
     // if (process.env.NODE_ENV !== "production") return
 
-    const query = { "command": command, "guild": guild }
-    const stat = await this.findOne(query) || await this.create(query)
+    const query = { command: command, guild: guild }
+    const stat = (await this.findOne(query)) || (await this.create(query))
     stat.counts.succeeded.push(Date.now())
     stat.save()
 }
 
 commandStatsSchema.statics.getCount = async function(command, guild) {
-    const stat = await this.findOne({ "command": command, "guild": guild })
-    if(!stat) return null
+    const stat = await this.findOne({ command: command, guild: guild })
+    if (!stat) return null
     return {
         received: stat.counts.received.length,
         executed: stat.counts.executed.length,
@@ -59,4 +59,4 @@ commandStatsSchema.statics.getCount = async function(command, guild) {
     }
 }
 
-module.exports = model("CommandStats", commandStatsSchema)
+module.exports = model('CommandStats', commandStatsSchema)

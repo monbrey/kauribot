@@ -8,7 +8,10 @@ const logger = require('./util/logger')
 const { Client, Collection } = require('discord.js')
 const { join } = require('path')
 const { readdir } = require('fs').promises
-const { prefix } = Object.assign(require('./config')[process.env.NODE_ENV], require('./config')['common'])
+const { prefix } = Object.assign(
+    require('./config')[process.env.NODE_ENV],
+    require('./config')['common']
+)
 const queue = require('p-queue')
 const CommandConfig = require('./models/commandConfig')
 
@@ -72,7 +75,7 @@ class UltraRpgBot extends Client {
         let events = await readdir(join(__dirname, 'events'))
 
         try {
-            const configs = await CommandConfig.find({}).cache(30)
+            const configs = await CommandConfig.find({}).cache(30, 'command-config')
 
             await Promise.all(cmds.map(c => this.loadCommand(c, configs)))
             this.logger.info({ message: 'Command loading complete', key: 'init' })
@@ -100,8 +103,13 @@ class UltraRpgBot extends Client {
 
 const client = new UltraRpgBot({
     disableEveryone: true,
-    disabledEvents: ['TYPING_START', 'VOICE_STATE_UPDATE', 'VOICE_SERVER_UPDATE', 'CHANNEL_PINS_UPDATE'],
-    restTimeOffset: 100
+    disabledEvents: [
+        'TYPING_START',
+        'VOICE_STATE_UPDATE',
+        'VOICE_SERVER_UPDATE',
+        'CHANNEL_PINS_UPDATE'
+    ],
+    restTimeOffset: 250
 })
 
 client.init()
