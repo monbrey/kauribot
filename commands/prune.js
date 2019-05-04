@@ -14,7 +14,8 @@ module.exports = class PruneCommand extends BaseCommand {
     }
 
     async run(message, args = []) {
-        const numToDelete = args[0] ? Math.min(parseInt(args[0]), 100) : 100
+        const amount = args.get('amount')
+        const numToDelete = args[0] ? Math.min(parseInt(amount), 100) : 100
 
         try {
             let deleted = await message.channel.bulkDelete(numToDelete, true)
