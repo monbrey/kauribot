@@ -47,7 +47,7 @@ const _transports = [
     new Loggly({
         token: 'd44ad9d7-6adf-43f1-bfa8-deddd4e209b4',
         subdomain: 'monbrey',
-        tags: ['Winston-NodeJS', process.env.NODE_ENV],
+        tags: ['Winston-NodeJS', process.env.NODE_ENV, 'kauribot'],
         format: logglyFormat,
         json: true
     }),
@@ -60,18 +60,6 @@ const _transports = [
         level: 'error'
     })
 ]
-
-if (process.env.NODE_ENV === 'production') {
-    _transports.push(
-        new transports.File({
-            filename: './ultra-rpg-bot.log'
-        }),
-        new transports.File({
-            filename: './ultra-rpg-bot-errors.log',
-            level: 'error'
-        })
-    )
-}
 
 class Logger {
     constructor() {
