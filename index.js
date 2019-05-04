@@ -1,6 +1,6 @@
 #!/usr/bin/node
 
-require('dotenv').config({ path: 'variables.env' })
+require('dotenv').config({ path: `${__dirname}/variables.env` })
 require('./util/extensions') // Custom methods on objects, to be replaced in 12.0 with Structures.extend
 require('./util/db')
 const logger = require('./util/logger')
