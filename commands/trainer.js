@@ -22,7 +22,7 @@ module.exports = class TrainerCommand extends BaseCommand {
      * @param {Trainer} trainer - URPG Trainer object
      */
     async profile(member, trainer) {
-        let starter = await trainer.getPokemon(0)
+        // let starter = await trainer.getPokemon(0)
         let joined = new Date(trainer.createdAt)
         let embed = new RichEmbed()
             .setTitle(`Public profile for ${trainer.username}`)
@@ -36,7 +36,7 @@ module.exports = class TrainerCommand extends BaseCommand {
                 })}`,
                 true
             )
-            .addField('Starter', starter.nickname || starter.basePokemon.uniqueName, true)
+            // .addField('Starter', starter.nickname || starter.basePokemon.uniqueName, true)
             .addField('Cash', `$${trainer.cash}`, true)
             .addField('Contest Credit', `${trainer.contestCredit} CC`, true)
 

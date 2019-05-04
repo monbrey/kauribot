@@ -1,51 +1,52 @@
-module.exports = async (message, profile, member, trainer, lastReaction = null) => {
-    if (lastReaction) await profile.clearReactions()
+module.exports = async (message, profileMsg, member, trainer, lastReaction = null) => {
+    if (lastReaction) await profileMsg.clearReactions()
 
-    let pokeball = profile.client.emojis.find(
-        e => e.name === 'pokeball' && message.client.emojiServers.includes(e.guild.id)
-    )
-    let backpack = profile.client.emojis.find(
-        e => e.name === 'backpack' && message.client.emojiServers.includes(e.guild.id)
-    )
-    let red = profile.client.emojis.find(e => e.name === 'red' && message.client.emojiServers.includes(e.guild.id))
+    const pokeball = profileMsg.client.emojis.get('525071235806396426')
+    const backpack = profileMsg.client.emojis.get('525071260007530518')
+    const red = profileMsg.client.emojis.get('532330377281273862')
+
+    const { roster } = message.client.commands.get('roster')
+    const { inventory } = message.client.commands.get('inventory')
+    const { profile, editProfile } = message.client.commands.get('trainer')
 
     try {
         switch (lastReaction) {
             case 'pokeball':
-                profile = await profile.edit(await message.client.commands.get('roster').roster(member, trainer))
-                await profile.react(red)
-                await profile.react(backpack)
+                profileMsg = await profileMsg.edit(await roster(member, trainer))
+                await profileMsg.react(red)
+                await profileMsg.react(backpack)
                 break
             case 'backpack':
-                profile = await profile.edit(await message.client.commands.get('inventory').inventory(member, trainer))
-                await profile.react(red)
-                await profile.react(pokeball)
+                profileMsg = await profileMsg.edit(await inventory(member, trainer))
+                await profileMsg.react(red)
+                await profileMsg.react(pokeball)
                 break
             case 'red':
-                profile = await profile.edit(await message.client.commands.get('trainer').profile(member, trainer))
-                await profile.react(pokeball)
-                await profile.react(backpack)
-                if (message.member === member) await profile.react('📝')
+                profileMsg = await profileMsg.edit(await profile(member, trainer))
+                await profileMsg.react(pokeball)
+                await profileMsg.react(backpack)
+                if (message.member === member) await profileMsg.react('📝')
                 break
             case '📝':
-                profile = await profile.edit(await message.client.commands.get('trainer').editProfile(member, trainer))
-                await profile.react(red)
+                profileMsg = await profileMsg.edit(await editProfile(member, trainer))
+                await profileMsg.react(red)
                 break
         }
     } catch (e) {
-        message.client.logger.parseError(e, 'profileLoop')
-        return message.channel.sendPopup('error', 'An error occured while displaying profile data')
+        e.key = 'profileLoop'
+        throw e
     }
 
     let filter = (reaction, user) =>
-        user.id === message.author.id && ['red', 'backpack', 'pokeball', '📝'].includes(reaction.emoji.name)
+        user.id === message.author.id &&
+        ['red', 'backpack', 'pokeball', '📝'].includes(reaction.emoji.name)
 
-    let reactions = await profile.awaitReactions(filter, {
+    let reactions = await profileMsg.awaitReactions(filter, {
         max: 1,
         time: 30000
     })
 
-    if (!reactions.first()) return profile.clearReactions()
+    if (!reactions.first()) return profileMsg.clearReactions()
 
-    return module.exports(message, profile, member, trainer, reactions.first().emoji.name)
+    return module.exports(message, profileMsg, member, trainer, reactions.first().emoji.name)
 }

@@ -40,7 +40,7 @@ module.exports = class WeightCommand extends BaseCommand {
     async run(message, args = [], flags = []) {
         if (args.length === 0) {
             // Usage
-            return
+            return this.getHelp(message.channel)
         }
 
         try {
