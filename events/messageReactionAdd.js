@@ -26,7 +26,7 @@ module.exports = class MessageReactionAddEvent extends BaseEvent {
         let minReacts = message.guild.starboard.minReacts
 
         // If this isnt a starboard reaction, we dont need to process it here
-        if (reaction.emoji.name !== starEmoji) return
+        if (reaction.emoji.toString() !== starEmoji) return
 
         // Clear out any messages which were cached over a minute ago
         this.messageCache = this.messageCache.filter(m => m < Date.now() - 60000)
