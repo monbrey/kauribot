@@ -1,12 +1,15 @@
 module.exports = {
-    "development": {
-        "debug": true,
+    development: {
+        debug: true
     },
-    "test": {
-        "debug": false,
+    test: {
+        debug: false
     },
-    "common": {
-        "prefix": "!",
-        "emojiServers": [""]
+    production: {
+        debug: false
+    },
+    common: {
+        prefix: '!',
+        emojiServers: ['']
     }
 }
