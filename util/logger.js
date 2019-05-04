@@ -89,9 +89,10 @@ class Logger {
      * @param {Error} error
      * @param {string} key
      */
-    async parseError(error, key) {
+    async parseError(error, key = null) {
         const errorType = error.constructor.name
-        error = { ...Util.makePlainError(error), key: key }
+        error = { ...Util.makePlainError(error) }
+        if (key) error.key = key
 
         if (errorType === 'DiscordAPIError') {
             Error.captureStackTrace(error)
@@ -238,12 +239,12 @@ ${auditLog.reason ? auditLog.reason : 'No reason provided'}`
     async roleUpdate() {}
 
     /** COMMANDS **/
-    async ability(message, query, result) {
+    async ability(channel, query, result) {
         this.info({
             message: 'Abilities searched',
-            query: query,
-            result: result,
-            ...this.location(message),
+            query,
+            result,
+            ...this.location(channel),
             key: 'ability'
         })
     }

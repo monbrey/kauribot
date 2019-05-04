@@ -1,16 +1,16 @@
-const BaseCommand = require("./base")
-const Pokemon = require("../models/pokemon")
-const { RichEmbed } = require("discord.js")
+const BaseCommand = require('./base')
+const Pokemon = require('../models/pokemon')
+const { RichEmbed } = require('discord.js')
 
 module.exports = class WeightCommand extends BaseCommand {
     constructor() {
         super({
-            name: "weight",
-            category: "Info",
-            description: "Provides information on weight-based moves for a specific Pokemon, or interaction between two Pokemon",
-            syntax: "!weight <Pokemon> [Target]",
-            enabled: true,
-            defaultConfig: { "guild": true }
+            name: 'weight',
+            category: 'Info',
+            description:
+                'Provides information on weight-based moves for a specific Pokemon, or interaction between two Pokemon',
+            syntax: '!weight <Pokemon> [Target]',
+            enabled: true
         })
     }
 
@@ -26,7 +26,7 @@ module.exports = class WeightCommand extends BaseCommand {
     }
 
     calcTwo(user, target) {
-        const ratio = Math.floor((user / target))
+        const ratio = Math.floor(user / target)
 
         if (ratio <= 1) return 40
         if (ratio === 2) return 60
@@ -44,52 +44,60 @@ module.exports = class WeightCommand extends BaseCommand {
         }
 
         try {
-            const query = args.join(" ")
+            const query = args.join(' ')
             // eslint-disable-next-line no-unused-vars
-            const [one, two, ignore] = query.split(",").map(a => a.trim())
+            const [one, two, ignore] = query.split(',').map(a => a.trim())
 
             if (one && !two) {
-                let pokemon = await Pokemon.findClosest("uniqueName", one)
+                let pokemon = await Pokemon.findClosest('uniqueName', one)
                 if (pokemon) {
-                    message.client.logger.info({ key: "weight", search: query, result: pokemon.uniqueName })
+                    message.client.logger.info({
+                        key: 'weight',
+                        search: query,
+                        result: pokemon.uniqueName
+                    })
                     const embed = new RichEmbed()
                         .setTitle(pokemon.uniqueName)
-                        .setDescription("As the target of Grass Knot or Low Kick")
-                        .addField("Weight", `${pokemon.weight}kg`, true)
-                        .addField("Move Power", `${this.calcOne(pokemon.weight)} BP`, true)
+                        .setDescription('As the target of Grass Knot or Low Kick')
+                        .addField('Weight', `${pokemon.weight}kg`, true)
+                        .addField('Move Power', `${this.calcOne(pokemon.weight)} BP`, true)
 
                     return message.channel.send(embed)
                 } else {
-                    message.client.logger.info({ key: "dex", search: one, result: "none" })
-                    message.channel.sendPopup("warn", `No results found for ${one}`)
+                    message.client.logger.info({ key: 'dex', search: one, result: 'none' })
+                    message.channel.sendPopup('warn', `No results found for ${one}`)
                 }
             } else if (one && two) {
-                let p1 = await Pokemon.findClosest("uniqueName", one)
-                let p2 = await Pokemon.findClosest("uniqueName", two)
+                let p1 = await Pokemon.findClosest('uniqueName', one)
+                let p2 = await Pokemon.findClosest('uniqueName', two)
                 if (p1 && p2) {
-                    message.client.logger.info({ key: "weight", search: query, result: `${p1.uniqueName} and ${p2.uniqueName}` })
+                    message.client.logger.info({
+                        key: 'weight',
+                        search: query,
+                        result: `${p1.uniqueName} and ${p2.uniqueName}`
+                    })
                     const embed = new RichEmbed()
                         .setTitle(`${p1.uniqueName} vs ${p2.uniqueName}`)
-                        .setDescription("Using Heat Crash or Heavy Slam")
+                        .setDescription('Using Heat Crash or Heavy Slam')
                         .addField(`${p1.uniqueName}`, `${p1.weight}kg`, true)
                         .addField(`${p2.uniqueName}`, `${p2.weight}kg`, true)
-                        .addField("Move Power", `${this.calcTwo(p1.weight, p2.weight)} BP`, true)
+                        .addField('Move Power', `${this.calcTwo(p1.weight, p2.weight)} BP`, true)
 
                     return message.channel.send(embed)
                 }
                 if (!p1) {
-                    message.client.logger.info({ key: "dex", search: one, result: "none" })
-                    message.channel.sendPopup("warn", `No results found for ${one}`)
+                    message.client.logger.info({ key: 'dex', search: one, result: 'none' })
+                    message.channel.sendPopup('warn', `No results found for ${one}`)
                 }
                 if (!p2) {
-                    message.client.logger.info({ key: "dex", search: two, result: "none" })
-                    message.channel.sendPopup("warn", `No results found for ${two}`)
+                    message.client.logger.info({ key: 'dex', search: two, result: 'none' })
+                    message.channel.sendPopup('warn', `No results found for ${two}`)
                 }
                 return
             }
         } catch (e) {
             message.client.logger.parseError(e, this.name)
-            return message.channel.sendPopup("error", "Error searching the database")
+            return message.channel.sendPopup('error', 'Error searching the database')
         }
     }
 }

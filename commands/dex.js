@@ -46,7 +46,7 @@ module.exports = class DexCommand extends BaseCommand {
             // Otherwise proceed through the workflow
             switch (response.first().emoji.name) {
                 case '🇲':
-                    await dex.edit(await dex.pokemon.learnset())
+                    await dex.edit(dex.pokemon.learnset(dex))
                     break
                 case '🇽':
                     await dex.edit(await dex.pokemon.megaDex(0))
@@ -58,11 +58,12 @@ module.exports = class DexCommand extends BaseCommand {
                     await dex.edit(await dex.pokemon.primalDex(0))
                     break
             }
+        } else {
+            let embed = new RichEmbed(dex.embeds[0])
+            embed.setFooter('')
+            await dex.edit(embed)
         }
 
-        let embed = new RichEmbed(dex.embeds[0])
-        embed.setFooter('')
-        await dex.edit(embed)
         return dex.clearReactions()
     }
 
@@ -72,26 +73,30 @@ module.exports = class DexCommand extends BaseCommand {
         }
 
         try {
-            const query = args.get('query')
-            let pokemon = await Pokemon.findClosest('uniqueName', query)
+            const search = args.get('query')
+            const fields = '-__v -speciesName -uniqueName -starterEligible'
+            const { query, rating } = await Pokemon.findClosest('uniqueName', search)
+            const pokemon = await query.select(fields).cache(300)
+            pokemon.matchRating = rating
+
             if (pokemon) {
                 message.client.logger.info({
                     key: 'dex',
-                    search: query,
+                    search,
                     result: pokemon.uniqueName
                 })
-                let dex = await message.channel.send(await pokemon.dex(query))
+                let dex = await message.channel.send(await pokemon.dex(search))
                 dex.pokemon = pokemon
                 dex.orig_author = message.author
 
                 return this.prompt(dex)
             } else {
-                message.client.logger.info({ key: 'dex', search: query, result: 'none' })
-                return message.channel.sendPopup('warn', `No results found for ${query}`)
+                message.client.logger.info({ key: 'dex', search, result: 'none' })
+                return message.channel.sendPopup('warn', `No results found for ${search}`)
             }
         } catch (e) {
-            message.client.logger.parseError(e, this.name)
-            return message.channel.sendPopup('erorr', 'Error searching the database')
+            e.key = 'dex'
+            throw e
         }
     }
 }

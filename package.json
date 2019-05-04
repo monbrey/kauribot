@@ -7,24 +7,24 @@
         "doc": "docs"
     },
     "dependencies": {
-        "bufferutil": "^4.0.1",
         "cachegoose-events": "github:monbrey/cachegoose-events",
         "common-tags": "^1.8.0",
         "core-js": "^2.6.5",
         "discord.js": "github:discordjs/discord.js#11.4-dev",
         "dotenv": "^6.2.0",
-        "eslint": "^5.16.0",
         "mongoose": "^5.5.5",
         "mongoose-plugin-autoinc": "^1.1.9",
         "mongoose-timestamp": "^0.6.0",
+        "node-fetch": "^2.5.0",
         "p-queue": "^3.2.0",
-        "request-promise-native": "^1.0.7",
         "string-similarity": "^3.0.0",
         "validator": "^10.11.0",
         "winston-loggly-bulk": "^3.0.1",
         "zone.js": "^0.8.29"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "eslint": "^5.16.0"
+    },
     "scripts": {
         "start": "node ./index.js",
         "test": "echo \"Error: no test specified\" && exit 1"

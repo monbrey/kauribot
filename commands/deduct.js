@@ -14,56 +14,62 @@ module.exports = class DeductCommand extends BaseCommand {
                 reason: { type: 'String' }
             },
             syntax: '!deduct @User <amount> [reason]',
-            enabled: true
+            enabled: true,
+            guildOnly: true
         })
     }
 
     async run(message, args = []) {
-        let trainer = await Trainer.findById(args.get('target').id)
+        const target = args.get('target')
+        let trainer = await Trainer.findById(target.id)
         if (!trainer)
             return message.channel.sendPopup(
                 'warn',
-                `Could not find a URPG trainer for ${args.get('target')}`
+                `Could not find a Trainer profile for ${target}`
             )
 
-        if (!/^\$?[1-9][0-9,]* ?(?:CC)?$/gi.test(args.get('amount')))
-            return message.channel.send(
-                `Provided amount "${args.get('amount')}" is not a valid number`
+        let amount = args.get('amount')
+        if (!/^\$?[1-9][0-9,]* ?(?:CC)?$/gi.test(amount))
+            return message.channel.sendPopup(
+                'warn',
+                `Provided amount "${amount}" is not a valid number`
             )
 
-        args.set('type', /^[1-9][0-9,]*(?:CC)$/gi.test(args.get('amount')) ? 'cc' : 'cash')
-        args.set('amount', parseInt(args.get('amount').replace(/\D/g, '')))
+        const type = /^[1-9][0-9,]*(?:CC)$/gi.test(amount) ? 'cc' : 'cash'
+        amount = parseInt(args.get('amount').replace(/\D/g, ''))
         let currency =
-            args.get('type') === 'cc'
-                ? `${args.get('amount').toLocaleString()} CC`
-                : `${args.get('amount').toLocaleString({ currency: 'AUD' })}`
+            type === 'cc' ? `${amount.toLocaleString()} CC` : `$${amount.toLocaleString()}`
 
         let embed = new RichEmbed()
-            .setTitle(`Deduction from ${args.get('target').displayName} (Pending)`)
+            .setTitle(`Deduction from ${target.displayName} (Pending)`)
             .setDescription(`Reason: ${args.get('reason') || 'None provided'}`)
             .addField('Amount', `${currency}`, true)
             .setFooter('React to confirm that this deduction is correct')
 
-        let prompt = await message.channel.send(embed)
+        try {
+            let prompt = await message.channel.send(embed)
 
-        if (await prompt.reactConfirm(message.author.id)) {
-            prompt.clearReactions()
+            if (await prompt.reactConfirm(message.author.id)) {
+                prompt.clearReactions()
 
-            try {
-                if (args.get('type') === 'cc')
-                    await trainer.modifyContestCredit(-args.get('amount'))
-                else await trainer.modifyCash(-args.get('amount'))
-            } catch (e) {
-                message.channel.sendPopup('error', 'Error updating balances in database')
-                return message.client.logger.parseError(e, 'deduct')
+                try {
+                    if (args.get('type') === 'cc') await trainer.modifyContestCredit(-amount)
+                    else await trainer.modifyCash(-amount)
+                } catch (e) {
+                    e.key = 'deduct'
+                    throw e
+                }
+
+                embed
+                    .setTitle(`Deduction from ${target.displayName}`)
+                    .addField('Updated Balance', trainer.balanceString)
+
+                prompt.edit(embed)
+                return message.client.logger.deduct(message, prompt)
             }
-
-            embed
-                .setTitle(`Deduction from ${args.get('target').displayName}`)
-                .addField('Updated Balance', await trainer.balanceString)
-
-            prompt.edit(embed)
-            return message.client.logger.deduct(message, prompt)
+        } catch (e) {
+            e.key = this.name
+            throw e
         }
     }
 }

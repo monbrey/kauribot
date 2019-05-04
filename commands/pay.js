@@ -1,48 +1,50 @@
-const { RichEmbed } = require("discord.js")
-const BaseCommand = require("./base")
-const Trainer = require("../models/trainer")
+const { RichEmbed } = require('discord.js')
+const BaseCommand = require('./base')
+const Trainer = require('../models/trainer')
 
 module.exports = class PayCommand extends BaseCommand {
     constructor() {
         super({
-            name: "pay",
-            category: "Game",
-            description: "Adds money to a mentioned user's account",
+            name: 'pay',
+            category: 'Game',
+            description: 'Adds money to a mentioned user\'s account',
             args: {
-                "target": { type: "GuildMember" },
-                "amount": { type: "String" },
-                "reason": { type: "String" }
+                target: { type: 'GuildMember', required: true },
+                amount: { type: 'String', required: true },
+                reason: { type: 'String' }
             },
-            syntax: "!pay <@User> <amount> [reason]",
+            syntax: '!pay <@User> <amount> [reason]',
             enabled: true,
-            defaultConfig: {
-                "guild": false,
-                "roles": ["135865553423302657"]
-            },
             guildOnly: true
         })
     }
 
     async run(message, args = [], flags = []) {
-        const { client: { logger } } = message
+        const target = args.get('target')
+        const trainer = await Trainer.findById(target.id)
+        if (!trainer)
+            return message.channel.sendPopup(
+                'warn',
+                `Could not find a Trainer profile for ${target}`
+            )
 
-        let trainer = await Trainer.findById(args.get("target").id).catch(e => logger.parseError(e, this.name))
-        if (!trainer) return message.channel.sendPopup("warn", `Could not find a URPG trainer for ${args.get("target")}`)
+        let amount = args.get('amount')
+        if (!/^\$?[1-9][0-9,]* ?(?:CC)?$/gi.test(amount))
+            return message.channel.sendPopup(
+                'warn',
+                `Provided amount "${amount}" is not a valid number`
+            )
 
-        if (!/^\$?[1-9][0-9,]* ?(?:CC)?$/gi.test(args.get("amount")))
-            return message.channel.sendPopup("warn", `Provided amount "${args.get("amount")}" is not valid`)
-
-        args.set("type", /^[1-9][0-9,]*(?:CC)$/gi.test(args.get("amount")) ? "cc" : "cash")
-        args.set("amount", parseInt(args.get("amount").replace(/\D/g, "")))
-        let currency = args.get("type") === "cc" ?
-            `${args.get("amount").toLocaleString()} CC` :
-            `$${args.get("amount").toLocaleString()}`
+        const type = /^[1-9][0-9,]*(?:CC)$/gi.test(amount) ? 'cc' : 'cash'
+        amount = parseInt(args.get('amount').replace(/\D/g, ''))
+        let currency =
+            type === 'cc' ? `${amount.toLocaleString()} CC` : `$${amount.toLocaleString()}`
 
         let embed = new RichEmbed()
-            .setTitle(`Payment to ${args.get("target").displayName} (Pending)`)
-            .setDescription(args.get("reason"))
-            .addField("Amount", `${currency}`, true)
-            .setFooter("React to confirm that this payment is correct")
+            .setTitle(`Payment to ${target.displayName} (Pending)`)
+            .setDescription(args.get('reason'))
+            .addField('Amount', `${currency}`, true)
+            .setFooter('React to confirm that this payment is correct')
 
         try {
             let prompt = await message.channel.send(embed)
@@ -51,19 +53,23 @@ module.exports = class PayCommand extends BaseCommand {
                 prompt.clearReactions()
 
                 try {
-                    if (args.get("type") === "cc") await trainer.modifyContestCredit(args.get("amount"))
-                    else await trainer.modifyCash(args.get("amount"))
+                    if (type === 'cc') await trainer.modifyContestCredit(amount)
+                    else await trainer.modifyCash(amount)
                 } catch (e) {
-                    message.channel.sendPopup("error", "Error updating balances in database")
-                    return message.client.logger.parseError(e, "pay")
+                    e.key = this.name
+                    throw e
                 }
 
-                embed.setTitle(`Payment to ${args.get("target").displayName}`)
-                    .addField("Updated Balance", await trainer.balanceString)
+                embed
+                    .setTitle(`Payment to ${target.displayName}`)
+                    .addField('Updated Balance', trainer.balanceString)
 
                 prompt.edit(embed)
                 return message.client.logger.pay(message, prompt)
             }
-        } catch (e) { logger.parseError(e, this.name) }
+        } catch (e) {
+            e.key = this.name
+            throw e
+        }
     }
 }

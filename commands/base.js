@@ -23,6 +23,8 @@ module.exports = class BaseCommand {
         this.syntax = options.syntax || 'No syntax specified'
         this.enabled = options.enabled || false
         this.guildOnly = options.guildOnly || false
+
+        this.active = require('../util/activeCommand')
     }
 
     /**

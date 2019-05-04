@@ -7,7 +7,8 @@ module.exports = class UncacheCommand extends BaseCommand {
         super({
             name: 'uncache',
             description: 'Clears a query from the database cache',
-            enabled: true
+            enabled: true,
+            args: { key: { type: 'String' } }
         })
     }
 
@@ -16,7 +17,9 @@ module.exports = class UncacheCommand extends BaseCommand {
             .keys()
             .map(k => `\`${k.replace('cacheman:cachegoose-cache:', '')}\``)
 
-        if (args.length === 0) {
+        const key = args.get('key')
+
+        if (!key) {
             const embed = new RichEmbed().setTitle('Database cache')
                 .setDescription(`The following keys currently exist in the database cache:
                 ${cacheKeys.join(' ')}
@@ -26,9 +29,9 @@ module.exports = class UncacheCommand extends BaseCommand {
             return message.channel.send(embed)
         }
 
-        if (cacheKeys.includes(args[0])) {
-            cache.del(`cacheman:cachegoose-cache:${args[0]}`)
-            return message.channel.sendPopup('info', `Cache data for ${args[0]} deleted`, 5000)
-        } else return message.channel.sendPopup('warn', `Cache data for ${args[0]} not found`, 5000)
+        if (cacheKeys.includes(key)) {
+            cache.del(`cacheman:cachegoose-cache:${key}`)
+            return message.channel.sendPopup('info', `Cache data for ${key} deleted`, 5000)
+        } else return message.channel.sendPopup('warn', `Cache data for ${key} not found`, 5000)
     }
 }

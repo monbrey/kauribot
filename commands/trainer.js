@@ -12,8 +12,7 @@ module.exports = class TrainerCommand extends BaseCommand {
                 member: { type: 'GuildMember' }
             },
             syntax: '!trainer <trainer>',
-            enabled: true,
-            defaultConfig: { guild: false }
+            enabled: true
         })
     }
 
@@ -30,7 +29,11 @@ module.exports = class TrainerCommand extends BaseCommand {
             .setThumbnail(member.user.avatarURL)
             .addField(
                 'Joined on',
-                `${joined.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })}`,
+                `${joined.toLocaleDateString('en-AU', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                })}`,
                 true
             )
             .addField('Starter', starter.nickname || starter.basePokemon.uniqueName, true)
@@ -63,12 +66,19 @@ module.exports = class TrainerCommand extends BaseCommand {
                         sensitivity: 'base'
                     }) === 0
             )
-        if (!member) return message.channel.sendPopup('warn', `Could not find a Discord user matching ${member}`)
+        if (!member)
+            return message.channel.sendPopup(
+                'warn',
+                `Could not find a Discord user matching ${member}`
+            )
 
         try {
             let trainer = await Trainer.findById(member.id)
             if (!trainer)
-                return message.channel.sendPopup('warn', `Unable to find a trainer profile for ${member.displayName}`)
+                return message.channel.sendPopup(
+                    'warn',
+                    `Unable to find a trainer profile for ${member.displayName}`
+                )
 
             let pokeball = message.client.emojis.find(
                 e => e.name === 'pokeball' && message.client.emojiServers.includes(e.guild.id)

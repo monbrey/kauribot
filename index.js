@@ -21,7 +21,6 @@ class UltraRpgBot extends Client {
         this.logger = logger
         this.prefix = prefix
         this.commands = new Collection()
-        this.aliases = new Collection()
         this.activeCommands = new Collection()
 
         // Queues for some events
@@ -50,7 +49,7 @@ class UltraRpgBot extends Client {
 
         this.commands.set(command.name, command)
         if (command.aliases) {
-            command.aliases.forEach(alias => this.aliases.set(alias, command.name))
+            for (const a of command.aliases) this.commands.set(a, command)
         }
 
         delete require.cache[require.resolve(join(__dirname, `commands/${cmdFile}`))]

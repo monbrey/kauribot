@@ -2,78 +2,27 @@ const mongoose = require('mongoose')
 const TrainerPokemon = require('./trainerPokemon')
 
 const trainerSchema = new mongoose.Schema({
-    _id: {
-        type: String,
-        required: true
-    },
-    username: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    cash: {
-        type: Number,
-        required: true,
-        default: 10000
-    },
-    contestCredit: {
-        type: Number,
-        required: true,
-        default: 5000
-    },
+    _id: { type: String, required: true },
+    username: { type: String, required: true, unique: true },
+    cash: { type: Number, required: true, default: 10000 },
+    contestCredit: { type: Number, required: true, default: 5000 },
     battleRecord: {
-        wins: {
-            type: Number,
-            default: 0
-        },
-        losses: {
-            type: Number,
-            default: 0
-        },
-        ffas: {
-            type: Number,
-            default: 0
-        },
-        _id: false
+        wins: { type: Number, default: 0 },
+        losses: { type: Number, default: 0 },
+        ffas: { type: Number, default: 0 },
+        elo: { type: Number, default: 1500 }
     },
-    ffaPing: {
-        type: Boolean,
-        default: false
-    },
-    stats: {
-        type: String
-    },
-    canRestart: {
-        type: Boolean,
-        default: false
-    },
-    admin: {
-        type: Boolean,
-        default: false
-    },
-    active: {
-        type: Boolean,
-        required: true,
-        default: false
-    },
+    ffaPing: { type: Boolean, default: false },
+    stats: { type: String },
+    canRestart: { type: Boolean, default: false },
+    admin: { type: Boolean, default: false },
+    active: { type: Boolean, required: true, default: false },
     inventory: [
         {
-            itemId: {
-                type: Number,
-                required: true,
-                refPath: 'ref'
-            },
-            itemName: {
-                type: String
-            },
-            ref: {
-                type: String,
-                enum: ['Item', 'Move']
-            },
-            count: {
-                type: Number,
-                default: 1
-            },
+            itemId: { type: Number, required: true, refPath: 'ref' },
+            itemName: { type: String },
+            ref: { type: String, enum: ['Item', 'Move'] },
+            count: { type: Number, default: 1 },
             _id: false
         }
     ]

@@ -1,63 +1,61 @@
-const BaseCommand = require("./base")
-const CommandConfig = require("../models/commandConfig")
+const BaseCommand = require('./base')
+const CommandConfig = require('../models/commandConfig')
 
 module.exports = class ReloadCommand extends BaseCommand {
     constructor() {
         super({
-            name: "reload",
-            description: "Reloads the provides command or event handler",
+            name: 'reload',
+            description: 'Reloads the provided command or event handler',
             enabled: true,
-            defaultConfig: { "guild": false },
-            lockedConfig: { "global": true },
-            requiresOwner: true
+            args: { commands: { type: 'String' } }
         })
     }
 
     async run(message, args = [], flags = []) {
-        args.forEach(async (arg) => {
-            let command = message.client.commands.get(arg)
-            if(command) {
+        const commands = args.get('commands')
+        for (const c of commands) {
+            let oldCommand = message.client.commands.get(c.toLowerCase())
+            if (oldCommand) {
                 try {
-                    const _command = require(`./${arg.toLowerCase()}`)
-                    if (!_command) throw new Error(`${arg.toLowerCase()}.js does not export a command`)
-                    let command = new _command()
+                    const _cmd = require(`./${oldCommand.name}`)
+                    let command = new _cmd()
                     // Check if the command is enabled globally
-                    if (command.enabled) {
-                        await command.setConfig(await CommandConfig.getConfigForCommand(message.client, command))
-                        // Check if the command has an init method
-                        if (command.init)
-                            await command.init(message.client)
+                    if (!command.enabled) return
 
-                        message.client.commands.set(command.name, command)
-                        if (command.aliases) {
-                            command.aliases.forEach(alias => message.client.aliases.set(alias, command.name))
-                        }
-                        return message.channel.send(`${command.constructor.name} loaded`)
-                    } else {
-                        return message.channel.send(`${command.constructor.name} is disabled`)
+                    command.config =
+                        (await CommandConfig.find({ commandName: command.name })) ||
+                        (await CommandConfig.create({ commandName: command.name }))
+
+                    if (command.init) await command.init(message.client)
+
+                    message.client.commands.set(command.name, command)
+                    if (command.aliases) {
+                        for (const a of command.aliases) message.client.commands.set(a, command)
                     }
+                    return message.channel.send(`${command.constructor.name} reloaded`)
                 } catch (e) {
-                    message.channel.send(`${arg} failed to load`)
+                    message.channel.send(`${c} failed to load`)
                     message.client.logger.parseError(e, this.name)
                 } finally {
-                    delete require.cache[require.resolve(`./${arg.toLowerCase()}`)]
+                    delete require.cache[require.resolve(`./${c.toLowerCase()}`)]
                 }
-            } else if(message.client.listeners(arg).length > 0) {
+            } else if (message.client.listeners(c).length > 0) {
                 try {
-                    const _event = require(`../events/${arg}`)
+                    const _event = require(`../events/${c}`)
                     let event = new _event()
-        
+
                     if (event.enabled) {
-                        message.client.removeAllListeners(arg)
+                        message.client.removeAllListeners(c.toLowerCase())
                         message.client.on(event.name, event.run)
                         return message.client.logger.info(`${event.constructor.name} loaded`)
-                    } else return message.client.logger.info(`${event.constructor.name} is disabled`)
+                    } else
+                        return message.client.logger.info(`${event.constructor.name} is disabled`)
                 } catch (e) {
                     return message.client.logger.parseError(e, this.name)
                 } finally {
-                    delete require.cache[require.resolve(`../events/${arg}`)]
+                    delete require.cache[require.resolve(`../events/${c.toLowerCase()}`)]
                 }
             }
-        })
+        }
     }
 }

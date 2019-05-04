@@ -1,5 +1,4 @@
 const BaseEvent = require('./base')
-const { SnowflakeUtil } = require('discord.js')
 
 module.exports = class MessageEvent extends BaseEvent {
     constructor() {
@@ -9,33 +8,14 @@ module.exports = class MessageEvent extends BaseEvent {
         })
     }
 
-    checkActiveCommand(message, command) {
-        return message.client.activeCommands.find(
-            ac => ac.user === message.author.id && ac.command === command
-        )
-    }
-
-    setActiveCommand(message, command) {
-        message.client.activeCommands.set(SnowflakeUtil.generate(Date.now()), {
-            user: message.author.id,
-            command: command,
-            timestamp: Date.now()
-        })
-    }
-
-    clearActiveCommand(message, command) {
-        message.client.activeCommands.sweep(
-            ac => ac.user === message.author.id && ac.command === command
-        )
-    }
-
     /**
      * Parses <Message>.content for commands and following args
      * @param {Message} message
+     * @returns {String, Array}
      */
-    splitArgs(message) {
-        let args = message.content
-            .slice(message.client.prefix.length)
+    splitArgs({ content, client }) {
+        let args = content
+            .slice(client.prefix.length)
             .trim()
             .split(/ +/g)
         let command = args.shift().toLowerCase()
@@ -46,6 +26,7 @@ module.exports = class MessageEvent extends BaseEvent {
     /**
      * Splits the args array to separate flags
      * @param {Array} args
+     * @returns {Array<Array>}
      */
     splitFlags(args) {
         let filterFunc = x => x.startsWith('-')
@@ -64,15 +45,19 @@ module.exports = class MessageEvent extends BaseEvent {
      */
     async runCommand(command, message, args, flags) {
         try {
+            command.active.set(message.author)
             command.addStat(message.guild.id, 'executed').catch(e => console.error('DB Error'))
             await command.run(message, args, flags)
-
             command.addStat(message.guild.id, 'succeeded').catch(e => console.error('DB Error'))
         } catch (e) {
-            message.client.logger.parseError(e, 'runCommand')
-            message.channel.sendPopup('error', 'Exception thrown while running command')
+            message.client.logger.parseError(e)
+            message.channel.sendPopup(
+                'error',
+                'An error occured while running the command.\nMonbrey has been notified'
+            )
+            message.author.send(e.stack, { code: 'asciidoc' }).catch(e => {})
         } finally {
-            this.clearActiveCommand(message, command.name)
+            command.active.clear(message.author)
         }
     }
 
@@ -90,9 +75,7 @@ module.exports = class MessageEvent extends BaseEvent {
         let [carg, argArray] = this.splitArgs(message)
 
         // Get the matching command class
-        const command =
-            message.client.commands.get(carg) ||
-            message.client.commands.get(message.client.aliases.get(carg))
+        const command = message.client.commands.get(carg)
         if (!command) return
 
         // Add a usage count to the command
@@ -103,7 +86,7 @@ module.exports = class MessageEvent extends BaseEvent {
         }
 
         // Anti-spam protection
-        const active = this.checkActiveCommand(message, command.name)
+        const active = command.active.check(message.author)
         if (active) {
             if (active.timestamp < Date.now() - 5000)
                 message.channel.sendPopup(

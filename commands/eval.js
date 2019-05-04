@@ -1,5 +1,5 @@
 const BaseCommand = require('./base')
-const request = require('request-promise-native')
+const fetch = require('node-fetch')
 // eslint-disable-next-line no-unused-vars
 const Discord = require('discord.js')
 
@@ -11,6 +11,7 @@ const clean = text => {
     else return text
 }
 
+/* OWNER ONLY COMMAND */
 module.exports = class EvalCommand extends BaseCommand {
     constructor() {
         super({
@@ -28,14 +29,15 @@ module.exports = class EvalCommand extends BaseCommand {
 
             if (evaled === undefined) return message.channel.sendPopup('info', 'No return value')
 
-            const stringified = require('util').inspect(evaled)
+            const stringified = require('util').inspect(evaled, { compact: false })
 
             if (!flags.includes('s')) {
                 if (stringified.length >= 2000) {
                     try {
-                        const { key } = await request.post('https://hasteb.in/documents', {
+                        const { key } = await fetch('https://hasteb.in/documents', {
+                            method: 'POST',
                             body: stringified,
-                            json: true
+                            headers: { 'Content-Type': 'application/json' }
                         })
                         message.channel.sendPopup(
                             'info',

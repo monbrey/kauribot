@@ -122,28 +122,38 @@ module.exports = class ConfigCommand extends BaseCommand {
         const reacts = ['✅', '❌', '🔲', '🚫', '🔄'].filter(e =>
             sent.embeds[0].fields[sent.embeds[0].fields.length - 1].value.includes(e)
         )
-        for (const r of reacts) await sent.react(r)
+        try {
+            for (const r of reacts) await sent.react(r)
+        } catch (e) {
+            e.key = 'config'
+            throw e
+        }
 
         const filter = (r, u) => reacts.includes(r.emoji.name) && u.id === message.author.id
-        const response = await sent.awaitReactions(filter, { time: 30000, max: 1 })
-        sent.clearReactions()
+        try {
+            const response = await sent.awaitReactions(filter, { time: 30000, max: 1 })
+            sent.clearReactions()
 
-        if (!response.first()) return
+            if (!response.first()) return
 
-        await (async () => {
-            switch (response.first().emoji.name) {
-                case '✅':
-                    return this.toggleCommand(message, command)
-                case '❌':
-                    return this.toggleCommand(message, command)
-                case '🔲':
-                    return this.manageChannels(message, command)
-                case '🚫':
-                    return this.manageRoles(message, command)
-                case '🔄':
-                    return this.reset(command)
-            }
-        })()
+            await (async () => {
+                switch (response.first().emoji.name) {
+                    case '✅':
+                        return this.toggleCommand(message, command)
+                    case '❌':
+                        return this.toggleCommand(message, command)
+                    case '🔲':
+                        return this.manageChannels(message, command)
+                    case '🚫':
+                        return this.manageRoles(message, command)
+                    case '🔄':
+                        return this.reset(command)
+                }
+            })()
+        } catch (e) {
+            e.key = 'config'
+            throw e
+        }
 
         return sent.edit(this.generateCommandInfo(message, command))
     }
@@ -221,7 +231,7 @@ module.exports = class ConfigCommand extends BaseCommand {
             .setDescription(
                 stripIndents`Reply with Role names to add or remove their authorisation
                 Adding any Role authorisation will replace the default Discord permissions check
-                Removing all roles to allow the command to be used by anyone, or revert it to the default Discord permissions
+                Removing all roles allows the command to be used by anyone, or reverts it to the default Discord permissions requirements
                 Click \\✅ when finished to save changes, or \\❌ to cancel
                 Changes will be automatically cancelled after 5 minutes`
             )
@@ -295,11 +305,14 @@ module.exports = class ConfigCommand extends BaseCommand {
 
         const info = this.generateCommandInfo(message, command)
         if (!info.footer) info.setFooter('Click the pencil to edit the configuration')
+
         const sent = await message.channel.send(info)
         await sent.react('✏')
+
         let filter = (r, u) => r.emoji.name === '✏' && u.id === message.author.id
         const edit = await sent.awaitReactions(filter, { time: 30000, max: 1 })
         await sent.clearReactions()
+
         if (!edit.first()) return
         await sent.edit(this.addEditControls(message, info, command))
 

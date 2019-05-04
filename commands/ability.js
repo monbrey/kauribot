@@ -13,22 +13,22 @@ module.exports = class AbilityCommand extends BaseCommand {
         })
     }
 
-    async run(message, args = []) {
-        let query = args.get('query')
-        if (!query) return this.getHelp(message.channel)
+    async run({ channel, client }, args = []) {
+        const query = args.get('query')
+        if (!query) return this.getHelp(channel)
 
         try {
-            let ability = await Ability.findClosest('abilityName', query)
+            const ability = await Ability.findClosest('abilityName', query)
             if (ability) {
-                message.client.logger.ability(message, query, ability.abilityName)
-                return message.channel.send(ability.info())
+                client.logger.ability(channel, query, ability.abilityName)
+                return channel.send(ability.info())
             } else {
-                message.client.logger.ability(message, query, 'none')
-                return message.channel.sendPopup('warn', `No results found for ${query}`)
+                client.logger.ability(channel, query, 'none')
+                return channel.sendPopup('warn', `No results found for ${query}`)
             }
         } catch (e) {
-            message.client.logger.parseError(e, 'ability')
-            return message.channel.sendPopup('error', 'Error searching the database')
+            e.key = 'ability'
+            throw e
         }
     }
 }

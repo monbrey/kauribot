@@ -1,13 +1,11 @@
 const { Schema, model } = require('mongoose')
 const { RichEmbed, Collection } = require('discord.js')
 const Color = require('./color')
-const { stripIndents } = require('common-tags')
-const getAsset = require('../util/getAsset')
 
 const PokemonMove = require('./schemas/pokemonMove')
 const PokemonEvolution = require('./schemas/pokemonEvolution')
 const PokemonAbility = require('./schemas/pokemonAbility')
-require('./mega')
+const Mega = require('./mega')
 
 const pokemonSchema = new Schema(
     {
@@ -30,15 +28,15 @@ const pokemonSchema = new Schema(
         evolution: [PokemonEvolution],
         mega: [
             {
-                pokemon: { type: Number, ref: 'Mega' },
-                requires: { type: Number, ref: 'Item' },
+                megaId: { type: Number, ref: 'Mega' },
+                displayName: { type: String },
                 _id: false
             }
         ],
         primal: [
             {
-                pokemon: { type: Number, ref: 'Mega' },
-                requires: { type: Number, ref: 'Item' },
+                primalId: { type: Number, ref: 'Mega' },
+                displayName: { type: String },
                 _id: false
             }
         ],
@@ -48,8 +46,7 @@ const pokemonSchema = new Schema(
             defence: { type: Number, required: true },
             specialAttack: { type: Number, required: true },
             specialDefence: { type: Number, required: true },
-            speed: { type: Number, required: true },
-            _id: false
+            speed: { type: Number, required: true }
         },
         height: { type: Number },
         weight: { type: Number },
@@ -59,6 +56,10 @@ const pokemonSchema = new Schema(
             story: { type: String },
             art: { type: String },
             park: { type: String }
+        },
+        assets: {
+            image: { type: String },
+            icon: { type: String }
         },
         parkLocation: { type: String },
         starterEligible: { type: Boolean, required: true }
@@ -107,72 +108,47 @@ pokemonSchema.statics.findPartial = function(uniqueName, query = {}) {
 }
 
 pokemonSchema.methods.dex = async function(query) {
-    const dexResources = [getAsset(this), Color.getColorForType(this.type1.toLowerCase())]
-
-    const [assets, color] = await Promise.all(dexResources)
+    const color = await Color.getColorForType(this.type1.toLowerCase())
+    const dexString = this.dexNumber.toString().padStart(3, '0')
+    const title = `URPG Ultradex - ${this.displayName} (#${dexString})`
+    const types = `${this.type1}${this.type2 ? ` | ${this.type2}` : ''}`
+    const abilities = this.abilities.map(a => (a.hidden ? `${a.abilityName} (HA)` : a.abilityName))
+    const genders = Object.keys(this.gender.toObject())
+        .filter(k => this.gender[k])
+        .map(k => `${k.charAt(0).toUpperCase()}${k.slice(1)}`)
 
     const embed = new RichEmbed()
-        .setAuthor(
-            `URPG Ultradex - ${this.displayName} (#${new String(this.dexNumber).padStart(3, '0')})`,
-            assets.icon
-        )
+        .setTitle(title)
         .setColor(color)
-        .setImage(assets.image)
-        .addField(
-            `${this.type2 ? 'Types' : 'Type'}`,
-            `${this.type1}${this.type2 ? `\n${this.type2}` : ''}`
-        )
+        .setThumbnail(this.assets.icon)
+        .setImage(this.assets.image)
+        .addField(`${this.type2 ? 'Types' : 'Type'}`, types)
+        .addField('Abilities', abilities.join(' | '))
+        .addField('Legal Genders', genders.length ? genders.join(' | ') : 'Genderless')
+        .addField('Height and Weight', `${this.height}m, ${this.weight}kg`)
         .setFooter('Reactions | [M] View Moves ')
 
-    if (this.matchRating !== 1)
-        embed.setDescription(
-            `Closest match to your search "${query}" with ${Math.round(
-                this.matchRating * 100
-            )}% similarity`
-        )
+    if (this.matchRating !== 1) {
+        const percent = Math.round(this.matchRating * 100)
+        const note = `Closest match to your search "${query}" with ${percent}% similarity`
+        embed.setDescription(note)
+    }
 
-    embed.addField(
-        'Abilities',
-        `${this.abilities
-            .map(a => (a.hidden ? `${a.abilityName} (HA)` : a.abilityName))
-            .join(' | ')}`
-    )
-
-    embed
-        .addField(
-            `Legal Gender${this.gender.male && this.gender.female ? 's' : ''}`,
-            this.gender.male
-                ? this.gender.female
-                    ? 'Male | Female'
-                    : 'Male'
-                : this.gender.female
-                    ? 'Female'
-                    : 'Genderless'
-        )
-        .addField('Height and Weight', `${this.height}m, ${this.weight}kg`)
-
-    const ranks = []
-    if (this.rank.story) ranks.push(`Story - ${this.rank.story}`)
-    if (this.rank.art) ranks.push(`Art - ${this.rank.art}`)
+    const rank = []
+    if (this.rank.story) rank.push(`Story - ${this.rank.story}`)
+    if (this.rank.art) rank.push(`Art - ${this.rank.art}`)
     if (this.rank.park && this.parkLocation)
-        ranks.push(`**Park**: ${this.rank.park} (${this.parkLocation})`)
-
-    if (ranks.length) embed.addField('Creative Ranks', ranks.join(' | '))
+        rank.push(`Park - ${this.rank.park} (${this.parkLocation})`)
+    if (rank.length) embed.addField('Creative Ranks', rank.join(' | '))
 
     const prices = []
-    if (this.martPrice.pokemart)
-        prices.push(this.martPrice.pokemart.toLocaleString({ currency: 'AUD' }))
+    if (this.martPrice.pokemart) prices.push(`${this.martPrice.pokemart.toLocaleString()}`)
     if (this.martPrice.berryStore) prices.push(`${this.martPrice.berryStore.toLocaleString()} CC`)
-
     if (prices.length) embed.addField('Price', `${prices.join(' | ')}`)
 
-    let statsStrings = Object.values(this.stats.toObject()).map(s => s.toString().padEnd(4, ' '))
-
-    embed.addField(
-        'Stats',
-        `\`\`\`${stripIndents`HP   | ATT  | DEF  | SP.A | SP.D | SPE
-        ${statsStrings.join(' | ')}`}\`\`\``
-    )
+    let statsStrings = Object.values(this.stats.toObject()).map(s => s.toString().padEnd(3, ' '))
+    statsStrings = `HP  | Att | Def | SpA | SpD | Spe\n${statsStrings.join(' | ')}`
+    embed.addField('Stats', `\`\`\`${statsStrings}\`\`\``)
 
     if (this.mega.length == 1) embed.footer.text += '| [X] View Mega form'
     if (this.mega.length == 2) embed.footer.text += '| [X] View X Mega form | [Y] View Y Mega Form'
@@ -181,13 +157,14 @@ pokemonSchema.methods.dex = async function(query) {
     return embed
 }
 
-pokemonSchema.methods.learnset = async function() {
-    await this.populate('moves.level moves.tm moves.hm moves.bm moves.mt moves.sm').execPopulate()
-
-    const moveCount = Object.values(this.moves)
+pokemonSchema.methods.learnset = function(dex) {
+    const moveCount = Object.values(this.moves.toObject())
         .slice(1)
         .reduce((acc, obj) => acc + (obj ? obj.length : 0), 0)
-    const embed = new RichEmbed().setTitle(`${this.displayName} can learn ${moveCount} move(s)`)
+
+    const embed = new RichEmbed()
+        .setTitle(`${this.displayName} can learn ${moveCount} move(s)`)
+        .setColor(dex.embeds[0].colors)
 
     const learnset = []
     const moves = new Collection(
@@ -237,13 +214,13 @@ pokemonSchema.methods.learnset = async function() {
 }
 
 pokemonSchema.methods.megaDex = async function(whichMega) {
-    await this.populate('mega.pokemon').execPopulate()
-    return await this.mega[whichMega].pokemon.dex(this)
+    const mega = await Mega.findById(this.mega[whichMega].megaId)
+    return mega.dex(this)
 }
 
 pokemonSchema.methods.primalDex = async function(whichPrimal) {
-    await this.populate('primal').execPopulate()
-    return await this.primal[whichPrimal].pokemon.dex(this)
+    const primal = await Mega.findById(this.mega[whichPrimal].primalId)
+    return primal.dex(this)
 }
 
 module.exports = model('Pokemon', pokemonSchema)

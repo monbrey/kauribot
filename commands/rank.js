@@ -1,7 +1,6 @@
 const BaseCommand = require('./base')
 const { RichEmbed } = require('discord.js')
 const Pokemon = require('../models/pokemon')
-const strsim = require('string-similarity')
 
 module.exports = class RankCommand extends BaseCommand {
     constructor() {
@@ -10,146 +9,121 @@ module.exports = class RankCommand extends BaseCommand {
             category: 'Info',
             description: 'View all Pokemon of a specified rank',
             usage: '!rank <rank|location>',
-            enabled: true,
-            defaultConfig: { guild: true }
+            args: { query: { type: 'String' } },
+            enabled: true
         })
     }
 
     outputByGen(rankedPokemon) {
-        const grouped = rankedPokemon.reduce(
-            (genArray, poke) => {
-                if (poke.dexNumber < 152) {
-                    genArray[0].push(poke.uniqueName)
-                    return genArray
-                }
-                if (poke.dexNumber < 252) {
-                    genArray[1].push(poke.uniqueName)
-                    return genArray
-                }
-                if (poke.dexNumber < 387) {
-                    genArray[2].push(poke.uniqueName)
-                    return genArray
-                }
-                if (poke.dexNumber < 494) {
-                    genArray[3].push(poke.uniqueName)
-                    return genArray
-                }
-                if (poke.dexNumber < 650) {
-                    genArray[4].push(poke.uniqueName)
-                    return genArray
-                }
-                if (poke.dexNumber < 722) {
-                    genArray[5].push(poke.uniqueName)
-                    return genArray
-                }
-                genArray[6].push(poke.uniqueName)
-                return genArray
-            },
-            [[], [], [], [], [], [], []]
-        )
+        const rank = rankedPokemon[0].rank.story
+
+        const gens = {
+            1: rankedPokemon.filter(p => p.dexNumber < 152).map(p => p.displayName),
+            2: rankedPokemon.filter(p => p.dexNumber < 252).map(p => p.displayName),
+            3: rankedPokemon.filter(p => p.dexNumber < 387).map(p => p.displayName),
+            4: rankedPokemon.filter(p => p.dexNumber < 494).map(p => p.displayName),
+            5: rankedPokemon.filter(p => p.dexNumber < 650).map(p => p.displayName),
+            6: rankedPokemon.filter(p => p.dexNumber < 722).map(p => p.displayName),
+            7: rankedPokemon.filter(p => p.dexNumber >= 722).map(p => p.displayName)
+        }
 
         const embed = new RichEmbed()
-        embed.title = `${rankedPokemon[0].rank.story} Story / Art rank Pokemon`
+        embed.title = `${rank} Story / Art Eank Pokemon`
 
-        Object.keys(grouped).forEach(key => {
-            if (grouped[key].length > 0)
-                embed.addField(`Gen ${parseInt(key) + 1}`, grouped[key].join(', '))
+        Object.keys(gens).forEach(key => {
+            if (gens[key].length > 0)
+                embed.addField(`Gen ${parseInt(key) + 1}`, gens[key].join(', '))
         })
 
         return embed
     }
 
     outputByLocation(rankedPokemon) {
-        const grouped = rankedPokemon.reduce((parkArray, poke) => {
-            if (!parkArray[poke.parkLocation]) parkArray[poke.parkLocation] = []
-            parkArray[poke.parkLocation].push(poke.uniqueName)
-            return parkArray
-        }, [])
+        const rank = rankedPokemon[0].rank.park
+        const locations = {}
+        for (const poke of rankedPokemon) {
+            if (!locations[poke.parkLocation]) locations[poke.parkLocation] = []
+            locations[poke.parkLocation].push(poke.displayName)
+        }
 
         const embed = new RichEmbed()
-        embed.title = `${rankedPokemon[0].rank.park} Park rank Pokemon`
+        embed.title = `${rank} Park Rank Pokemon`
 
-        Object.keys(grouped).forEach(key => {
-            if (grouped[key].length > 0) embed.addField(key, grouped[key].join(', '))
+        Object.keys(locations).forEach(key => {
+            if (locations[key].length > 0) embed.addField(key, locations[key].join(', '))
         })
 
         return embed
     }
 
     outputByRank(rankedPokemon) {
-        const grouped = rankedPokemon.reduce((rankArray, poke) => {
-            if (!rankArray[poke.rank.park]) rankArray[poke.rank.park] = []
-            rankArray[poke.rank.park].push(poke.uniqueName)
-            return rankArray
-        }, [])
+        const location = rankedPokemon[0].parkLocation
+
+        const ranks = []
+        for (const poke of rankedPokemon) {
+            if (!ranks[poke.rank.park]) ranks[poke.rank.park] = []
+            ranks[poke.rank.park].push(poke.displayName)
+        }
 
         const embed = new RichEmbed()
-        embed.title = `Park Pokemon found in ${rankedPokemon[0].parkLocation}`
+        embed.title = `Park Pokemon found in ${location}`
 
-        if (grouped['Common'].length > 0) embed.addField('Common', grouped['Common'].join(', '))
-        if (grouped['Uncommon'].length > 0)
-            embed.addField('Uncommon', grouped['Uncommon'].join(', '))
-        if (grouped['Rare'].length > 0) embed.addField('Rare', grouped['Rare'].join(', '))
-        if (grouped['Legendary'].length > 0)
-            embed.addField('Legendary', grouped['Legendary'].join(', '))
+        Object.keys(ranks).forEach(key => {
+            if (ranks[key].length > 0) embed.addField(key, ranks[key].join(', '))
+        })
 
         return embed
     }
 
     async run(message, args = [], flags = []) {
-        if (args.length == 0) return super.getHelp(message.channel)
+        const query = args.get('query')
+        if (!query) return super.getHelp(message.channel)
 
         const rankQ = new RegExp(args.join(' '), 'i')
         try {
             const rankedPokemon = await Pokemon.find({
                 $or: [{ 'rank.story': rankQ }, { 'rank.art': rankQ }]
             })
-                .select('uniqueName dexNumber rank.story -_id')
+                .select('displayName dexNumber rank.story -_id')
                 .cache(0, `rank-${rankQ}`)
 
             if (rankedPokemon.length !== 0) {
-                message.client.logger.rank(message, args[0], rankedPokemon.length)
+                message.client.logger.rank(message, query, rankedPokemon.length)
                 return message.channel.send(this.outputByGen(rankedPokemon))
             }
         } catch (e) {
-            message.client.logger.parseError(e, 'rank')
-            return message.channel.sendPopup('error', 'Error searching the database')
+            e.key = 'rank'
+            throw e
         }
 
         try {
             const rankedPokemon = await Pokemon.find({ 'rank.park': rankQ })
-                .select('uniqueName dexNumber parkLocation rank.park -_id')
+                .select('displayName dexNumber parkLocation rank.park -_id')
                 .cache(0, `rank-${rankQ}`)
 
             if (rankedPokemon.length !== 0) {
-                message.client.logger.rank(message, args[0], rankedPokemon.length)
+                message.client.logger.rank(message, query, rankedPokemon.length)
                 return message.channel.send(this.outputByLocation(rankedPokemon))
             }
         } catch (e) {
-            message.client.logger.parseError(e, 'rank')
-            return message.channel.sendPopup('error', 'Error searching the database')
+            e.key = 'rank'
+            throw e
         }
 
         // Search by location
         try {
-            const locations = await Pokemon.find({}).distinct('parkLocation')
-            const match = strsim.findBestMatch(args.join(' '), locations).bestMatch.target
-            const rankedPokemon = await Pokemon.find({ parkLocation: match })
-                .select('uniqueName dexNumber parkLocation rank.park -_id')
-                .cache(0, `rank-${rankQ}`)
+            // eslint-disable-next-line no-unused-vars
+            const [rankedPokemon, rating] = await Pokemon.findAllClosest('parkLocation', query)
 
             if (rankedPokemon.length !== 0) {
-                message.client.logger.rank(message, args[0], rankedPokemon.length)
+                message.client.logger.rank(message, query, rankedPokemon.length)
                 return message.channel.send(this.outputByRank(rankedPokemon))
             }
         } catch (e) {
-            message.client.logger.parseError(e, 'rank')
-            return message.channel.sendPopup('error', 'Error searching the database')
+            e.key = 'rank'
+            throw e
         }
 
-        return message.channel.sendPopup(
-            'warn',
-            `No Pokemon with the rank "${args[0]}" could be found`
-        )
+        return message.channel.sendPopup('warn', `No Pokemon matching "${query}" could be found`)
     }
 }
