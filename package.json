@@ -1,6 +1,6 @@
 {
-    "name": "ultra-rpg-bot",
-    "version": "0.5.0",
+    "name": "kauribot",
+    "version": "1.0.0",
     "description": "",
     "main": "index.js",
     "directories": {
@@ -31,13 +31,13 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Monbrey/ultra-rpg-bot.git"
+        "url": "git+https://github.com/Monbrey/kauribot.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/Monbrey/ultra-rpg-bot/issues"
+        "url": "https://github.com/Monbrey/kauribot/issues"
     },
-    "homepage": "https://github.com/Monbrey/ultra-rpg-bot#readme"
+    "homepage": "https://github.com/Monbrey/kauribot#readme"
 }
