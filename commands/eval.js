@@ -34,14 +34,15 @@ module.exports = class EvalCommand extends BaseCommand {
             if (!flags.includes('s')) {
                 if (stringified.length >= 2000) {
                     try {
-                        const { key } = await fetch('https://hasteb.in/documents', {
+                        const res = await fetch('https://hasteb.in/documents', {
                             method: 'POST',
                             body: stringified,
                             headers: { 'Content-Type': 'application/json' }
-                        })
+                        }).then(res => res.json())
+
                         message.channel.sendPopup(
                             'info',
-                            `Return value too long: uploaded to https://hasteb.in/${key}.js`
+                            `Return value too long: uploaded to https://hasteb.in/${res.key}.js`
                         )
                     } catch (e) {
                         return message.channel.sendPopup(

@@ -10,7 +10,7 @@
         "cachegoose-events": "github:monbrey/cachegoose-events",
         "common-tags": "^1.8.0",
         "core-js": "^2.6.5",
-        "discord.js": "github:discordjs/discord.js#11.4-dev",
+        "discord.js": "^11.5.1",
         "dotenv": "^6.2.0",
         "mongoose": "^5.5.5",
         "mongoose-plugin-autoinc": "^1.1.9",
