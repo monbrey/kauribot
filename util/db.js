@@ -6,7 +6,7 @@ cachegoose(mongoose, {})
 const { cache } = cachegoose
 
 mongoose.Promise = global.Promise
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(`${process.env.KAURIDB_URI}/monbrey-urpg-v2`, {
     useFindAndModify: false,
     useNewUrlParser: true
 })

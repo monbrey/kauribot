@@ -1,6 +1,5 @@
 #!/usr/bin/node
 
-require('dotenv').config({ path: `${__dirname}/variables.env` })
 require('./util/extensions') // Custom methods on objects, to be replaced in 12.0 with Structures.extend
 require('./util/db')
 const logger = require('./util/logger')
@@ -90,7 +89,7 @@ class UltraRpgBot extends Client {
         }
 
         try {
-            await this.login(process.env.DISCORD_TOKEN)
+            await this.login(process.env.IMF_KAURI_TOKEN)
             this.logger.info({ message: 'Ultra RPG Bot connected to Discord', key: 'init' })
         } catch (e) {
             this.logger.parseError(e, 'login')
