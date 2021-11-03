@@ -18,7 +18,7 @@
         "node-fetch": "^2.5.0",
         "p-queue": "^3.2.0",
         "string-similarity": "^3.0.0",
-        "validator": "^10.11.0",
+        "validator": "^13.7.0",
         "winston-loggly-bulk": "^3.0.1",
         "zone.js": "^0.8.29"
     },
